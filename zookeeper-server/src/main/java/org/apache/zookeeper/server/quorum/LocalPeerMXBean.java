@@ -25,103 +25,105 @@ package org.apache.zookeeper.server.quorum;
  */
 public interface LocalPeerMXBean extends ServerMXBean {
 
-    /**
-     * @return the number of milliseconds of each tick
-     */
-    int getTickTime();
+	/**
+	 * @return the number of milliseconds of each tick
+	 */
+	int getTickTime();
 
-    /** Current maxClientCnxns allowed from a particular host */
-    int getMaxClientCnxnsPerHost();
+	/**
+	 * Current maxClientCnxns allowed from a particular host
+	 */
+	int getMaxClientCnxnsPerHost();
 
-    /**
-     * @return the minimum number of milliseconds allowed for a session timeout
-     */
-    int getMinSessionTimeout();
+	/**
+	 * @return the minimum number of milliseconds allowed for a session timeout
+	 */
+	int getMinSessionTimeout();
 
-    /**
-     * @return the maximum number of milliseconds allowed for a session timeout
-     */
-    int getMaxSessionTimeout();
+	/**
+	 * @return the maximum number of milliseconds allowed for a session timeout
+	 */
+	int getMaxSessionTimeout();
 
-    /**
-     * @return the number of ticks that the initial sync phase can take
-     */
-    int getInitLimit();
+	/**
+	 * @return the number of ticks that the initial sync phase can take
+	 */
+	int getInitLimit();
 
-    /**
-     * @return the number of ticks that can pass between sending a request
-     * and getting a acknowledgment
-     */
-    int getSyncLimit();
+	/**
+	 * @return the number of ticks that can pass between sending a request
+	 * and getting a acknowledgment
+	 */
+	int getSyncLimit();
 
-    /**
-     * Set the number of ticks that the initial sync phase can take
-     */
-    void setInitLimit(int initLimit);
+	/**
+	 * Set the number of ticks that the initial sync phase can take
+	 */
+	void setInitLimit(int initLimit);
 
-    /**
-     * Set the number of ticks that can pass between sending a request
-     * and getting a acknowledgment
-     */
-    void setSyncLimit(int syncLimit);
+	/**
+	 * Set the number of ticks that can pass between sending a request
+	 * and getting a acknowledgment
+	 */
+	void setSyncLimit(int syncLimit);
 
-    /**
-     * @return the current tick
-     */
-    int getTick();
+	/**
+	 * @return the current tick
+	 */
+	int getTick();
 
-    /**
-     * @return the current server state
-     */
-    String getState();
+	/**
+	 * @return the current server state
+	 */
+	String getState();
 
-    /**
-     * @return the quorum address
-     */
-    String getQuorumAddress();
+	/**
+	 * @return the quorum address
+	 */
+	String getQuorumAddress();
 
-    /**
-     * @return the election type
-     */
-    int getElectionType();
+	/**
+	 * @return the election type
+	 */
+	int getElectionType();
 
-    /**
-     * @return the election address
-     */
-    String getElectionAddress();
+	/**
+	 * @return the election address
+	 */
+	String getElectionAddress();
 
-    /**
-     * @return the client address
-     */
-    String getClientAddress();
+	/**
+	 * @return the client address
+	 */
+	String getClientAddress();
 
-    /**
-     * @return the learner type
-     */
-    String getLearnerType();
+	/**
+	 * @return the learner type
+	 */
+	String getLearnerType();
 
-    /**
-     * @return the config version
-     */
-    long getConfigVersion();
+	/**
+	 * @return the config version
+	 */
+	long getConfigVersion();
 
-    /**
-     * @return the quorum system information
-     */
-    String getQuorumSystemInfo();
+	/**
+	 * @return the quorum system information
+	 */
+	String getQuorumSystemInfo();
 
-    /**
-     * @return true if quorum peer is part of the ensemble, false otherwise
-     */
-    boolean isPartOfEnsemble();
+	/**
+	 * @return true if quorum peer is part of the ensemble, false otherwise
+	 */
+	boolean isPartOfEnsemble();
 
-    /**
-     * @return true if the peer is the current leader
-     */
-    boolean isLeader();
+	/**
+	 * @return true if the peer is the current leader
+	 */
+	boolean isLeader();
 
-    /**
-     * @return Current maxCnxns allowed to a single ZooKeeper server
-     */
-    int getMaxCnxns();
+	/**
+	 * @return Current maxCnxns allowed to a single ZooKeeper server
+	 */
+	int getMaxCnxns();
 }

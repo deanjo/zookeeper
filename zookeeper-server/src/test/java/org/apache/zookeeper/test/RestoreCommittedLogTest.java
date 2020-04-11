@@ -19,8 +19,10 @@
 package org.apache.zookeeper.test;
 
 import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.util.Collection;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.PortAssignment;
 import org.apache.zookeeper.ZKTestCase;
@@ -34,97 +36,99 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** After a replica starts, it should load commits in its committedLog list.
- *  This test checks if committedLog != 0 after replica restarted.
+/**
+ * After a replica starts, it should load commits in its committedLog list.
+ * This test checks if committedLog != 0 after replica restarted.
  */
 public class RestoreCommittedLogTest extends ZKTestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RestoreCommittedLogTest.class);
-    private static final String HOSTPORT = "127.0.0.1:" + PortAssignment.unique();
-    private static final int CONNECTION_TIMEOUT = 3000;
+	private static final Logger LOG = LoggerFactory.getLogger(RestoreCommittedLogTest.class);
+	private static final String HOSTPORT = "127.0.0.1:" + PortAssignment.unique();
+	private static final int CONNECTION_TIMEOUT = 3000;
 
-    /**
-     * Verify the logs can be used to restore when they are rolled
-     * based on the size of the transactions received
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testRestoreCommittedLogWithSnapSize() throws Exception {
-        final int minExpectedSnapshots = 5;
-        final int minTxnsToSnap = 256;
-        final int numTransactions = minExpectedSnapshots * minTxnsToSnap;
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 4 * 1024; i++) {
-            sb.append("0");
-        }
-        final byte[] data = sb.toString().getBytes();
+	/**
+	 * Verify the logs can be used to restore when they are rolled
+	 * based on the size of the transactions received
+	 *
+	 * @throws Exception
+	 */
+	@Test
+	public void testRestoreCommittedLogWithSnapSize() throws Exception {
+		final int minExpectedSnapshots = 5;
+		final int minTxnsToSnap = 256;
+		final int numTransactions = minExpectedSnapshots * minTxnsToSnap;
+		final StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < 4 * 1024; i++) {
+			sb.append("0");
+		}
+		final byte[] data = sb.toString().getBytes();
 
-        SyncRequestProcessor.setSnapCount(numTransactions * 1000 /* just some high number */);
-        // The test breaks if this number is less than the smallest size file
-        // created on the system, as revealed through File::length.
-        // Setting to about 1 Mb.
-        SyncRequestProcessor.setSnapSizeInBytes(minTxnsToSnap * data.length);
+		SyncRequestProcessor.setSnapCount(numTransactions * 1000 /* just some high number */);
+		// The test breaks if this number is less than the smallest size file
+		// created on the system, as revealed through File::length.
+		// Setting to about 1 Mb.
+		SyncRequestProcessor.setSnapSizeInBytes(minTxnsToSnap * data.length);
 
-        testRestoreCommittedLog(numTransactions, data, minExpectedSnapshots);
+		testRestoreCommittedLog(numTransactions, data, minExpectedSnapshots);
 
-    }
+	}
 
-    /**
-     * Verify the logs can be used to restore when they are rolled
-     * based on the number of transactions received
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testRestoreCommittedLogWithSnapCount() throws Exception {
-        final int minExpectedSnapshots = 30;
-        final int snapCount = 100;
+	/**
+	 * Verify the logs can be used to restore when they are rolled
+	 * based on the number of transactions received
+	 *
+	 * @throws Exception
+	 */
+	@Test
+	public void testRestoreCommittedLogWithSnapCount() throws Exception {
+		final int minExpectedSnapshots = 30;
+		final int snapCount = 100;
 
-        SyncRequestProcessor.setSnapCount(snapCount);
-        SyncRequestProcessor.setSnapSizeInBytes(4294967296L);
+		SyncRequestProcessor.setSnapCount(snapCount);
+		SyncRequestProcessor.setSnapSizeInBytes(4294967296L);
 
-        testRestoreCommittedLog(minExpectedSnapshots * snapCount, new byte[0], minExpectedSnapshots);
-    }
+		testRestoreCommittedLog(minExpectedSnapshots * snapCount, new byte[0], minExpectedSnapshots);
+	}
 
-    /**
-     * test the purge
-     * @throws Exception an exception might be thrown here
-     */
-    private void testRestoreCommittedLog(int totalTransactions, byte[] data, int minExpectedSnapshots) throws Exception {
-        File tmpDir = ClientBase.createTmpDir();
-        ClientBase.setupTestEnv();
-        ZooKeeperServer zks = new ZooKeeperServer(tmpDir, tmpDir, 3000);
-        final int PORT = Integer.parseInt(HOSTPORT.split(":")[1]);
-        ServerCnxnFactory f = ServerCnxnFactory.createFactory(PORT, -1);
-        f.startup(zks);
-        assertTrue("waiting for server being up ", ClientBase.waitForServerUp(HOSTPORT, CONNECTION_TIMEOUT));
-        ZooKeeper zk = ClientBase.createZKClient(HOSTPORT);
-        try {
-            for (int i = 0; i < totalTransactions; i++) {
-                zk.create("/invalidsnap-" + i, data, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            }
-        } finally {
-            zk.close();
-        }
-        final int numSnaps = zks.getTxnLogFactory().findNRecentSnapshots(10 * minExpectedSnapshots).size();
-        LOG.info("number of snapshots taken {}", numSnaps);
+	/**
+	 * test the purge
+	 *
+	 * @throws Exception an exception might be thrown here
+	 */
+	private void testRestoreCommittedLog(int totalTransactions, byte[] data, int minExpectedSnapshots) throws Exception {
+		File tmpDir = ClientBase.createTmpDir();
+		ClientBase.setupTestEnv();
+		ZooKeeperServer zks = new ZooKeeperServer(tmpDir, tmpDir, 3000);
+		final int PORT = Integer.parseInt(HOSTPORT.split(":")[1]);
+		ServerCnxnFactory f = ServerCnxnFactory.createFactory(PORT, -1);
+		f.startup(zks);
+		assertTrue("waiting for server being up ", ClientBase.waitForServerUp(HOSTPORT, CONNECTION_TIMEOUT));
+		ZooKeeper zk = ClientBase.createZKClient(HOSTPORT);
+		try {
+			for (int i = 0; i < totalTransactions; i++) {
+				zk.create("/invalidsnap-" + i, data, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			}
+		} finally {
+			zk.close();
+		}
+		final int numSnaps = zks.getTxnLogFactory().findNRecentSnapshots(10 * minExpectedSnapshots).size();
+		LOG.info("number of snapshots taken {}", numSnaps);
 
-        f.shutdown();
-        zks.shutdown();
-        assertTrue("waiting for server to shutdown", ClientBase.waitForServerDown(HOSTPORT, CONNECTION_TIMEOUT));
+		f.shutdown();
+		zks.shutdown();
+		assertTrue("waiting for server to shutdown", ClientBase.waitForServerDown(HOSTPORT, CONNECTION_TIMEOUT));
 
-        assertTrue("too few snapshot files", numSnaps > minExpectedSnapshots);
-        assertTrue("too many snapshot files", numSnaps <= minExpectedSnapshots * 2);
+		assertTrue("too few snapshot files", numSnaps > minExpectedSnapshots);
+		assertTrue("too many snapshot files", numSnaps <= minExpectedSnapshots * 2);
 
-        // start server again
-        zks = new ZooKeeperServer(tmpDir, tmpDir, 3000);
-        zks.startdata();
-        Collection<Proposal> committedLog = zks.getZKDatabase().getCommittedLog();
-        int logsize = committedLog.size();
-        LOG.info("committedLog size = {}", logsize);
-        assertTrue("log size != 0", (logsize != 0));
-        zks.shutdown();
-    }
+		// start server again
+		zks = new ZooKeeperServer(tmpDir, tmpDir, 3000);
+		zks.startdata();
+		Collection<Proposal> committedLog = zks.getZKDatabase().getCommittedLog();
+		int logsize = committedLog.size();
+		LOG.info("committedLog size = {}", logsize);
+		assertTrue("log size != 0", (logsize != 0));
+		zks.shutdown();
+	}
 
 }

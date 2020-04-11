@@ -23,72 +23,72 @@ import org.apache.zookeeper.server.ZooKeeperServer;
 
 public class QuorumBean implements QuorumMXBean, ZKMBeanInfo {
 
-    private final QuorumPeer peer;
-    private final String name;
+	private final QuorumPeer peer;
+	private final String name;
 
-    public QuorumBean(QuorumPeer peer) {
-        this.peer = peer;
-        name = "ReplicatedServer_id" + peer.getId();
-    }
+	public QuorumBean(QuorumPeer peer) {
+		this.peer = peer;
+		name = "ReplicatedServer_id" + peer.getId();
+	}
 
-    @Override
-    public String getName() {
-        return name;
-    }
+	@Override
+	public String getName() {
+		return name;
+	}
 
-    @Override
-    public boolean isHidden() {
-        return false;
-    }
+	@Override
+	public boolean isHidden() {
+		return false;
+	}
 
-    @Override
-    public int getQuorumSize() {
-        return peer.getQuorumSize();
-    }
+	@Override
+	public int getQuorumSize() {
+		return peer.getQuorumSize();
+	}
 
-    public int getSyncLimit() {
-        return peer.getSyncLimit();
-    }
+	public int getSyncLimit() {
+		return peer.getSyncLimit();
+	}
 
-    public int getInitLimit() {
-        return peer.getInitLimit();
-    }
+	public int getInitLimit() {
+		return peer.getInitLimit();
+	}
 
-    public void setInitLimit(int initLimit) {
-        peer.setInitLimit(initLimit);
-    }
+	public void setInitLimit(int initLimit) {
+		peer.setInitLimit(initLimit);
+	}
 
-    public void setSyncLimit(int syncLimit) {
-        peer.setSyncLimit(syncLimit);
-    }
+	public void setSyncLimit(int syncLimit) {
+		peer.setSyncLimit(syncLimit);
+	}
 
-    @Override
-    public boolean isSslQuorum() {
-        return peer.isSslQuorum();
-    }
+	@Override
+	public boolean isSslQuorum() {
+		return peer.isSslQuorum();
+	}
 
-    @Override
-    public boolean isPortUnification() {
-        return peer.shouldUsePortUnification();
-    }
+	@Override
+	public boolean isPortUnification() {
+		return peer.shouldUsePortUnification();
+	}
 
-    @Override
-    public long getObserverElectionDelayMS() {
-        return Observer.getObserverElectionDelayMs();
-    }
+	@Override
+	public long getObserverElectionDelayMS() {
+		return Observer.getObserverElectionDelayMs();
+	}
 
-    @Override
-    public void setObserverElectionDelayMS(long delayMS) {
-        Observer.setObserverElectionDelayMs(delayMS);
-    }
+	@Override
+	public void setObserverElectionDelayMS(long delayMS) {
+		Observer.setObserverElectionDelayMs(delayMS);
+	}
 
-    @Override
-    public boolean getDigestEnabled() {
-        return ZooKeeperServer.isDigestEnabled();
-    }
+	@Override
+	public boolean getDigestEnabled() {
+		return ZooKeeperServer.isDigestEnabled();
+	}
 
-    @Override
-    public void disableDigest() {
-        ZooKeeperServer.setDigestEnabled(false);
-    }
+	@Override
+	public void disableDigest() {
+		ZooKeeperServer.setDigestEnabled(false);
+	}
 }

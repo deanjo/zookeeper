@@ -24,7 +24,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import java.io.IOException;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs.Ids;
@@ -37,49 +39,49 @@ import org.slf4j.LoggerFactory;
 
 public class NIOServerCnxnTest extends ClientBase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NIOServerCnxnTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(NIOServerCnxnTest.class);
 
-    /**
-     * Test operations on ServerCnxn after socket closure.
-     */
-    @Test(timeout = 60000)
-    public void testOperationsAfterCnxnClose() throws IOException, InterruptedException, KeeperException {
-        final ZooKeeper zk = createClient();
+	/**
+	 * Test operations on ServerCnxn after socket closure.
+	 */
+	@Test(timeout = 60000)
+	public void testOperationsAfterCnxnClose() throws IOException, InterruptedException, KeeperException {
+		final ZooKeeper zk = createClient();
 
-        final String path = "/a";
-        try {
-            // make sure zkclient works
-            zk.create(path, "test".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            assertNotNull("Didn't create znode:" + path, zk.exists(path, false));
-            // Defaults ServerCnxnFactory would be instantiated with
-            // NIOServerCnxnFactory
-            assertTrue("Didn't instantiate ServerCnxnFactory with NIOServerCnxnFactory!", serverFactory instanceof NIOServerCnxnFactory);
-            Iterable<ServerCnxn> connections = serverFactory.getConnections();
-            for (ServerCnxn serverCnxn : connections) {
-                serverCnxn.close(ServerCnxn.DisconnectReason.CHANNEL_CLOSED_EXCEPTION);
-                try {
-                    serverCnxn.toString();
-                } catch (Exception e) {
-                    LOG.error("Exception while getting connection details!", e);
-                    fail("Shouldn't throw exception while " + "getting connection details!");
-                }
-            }
-        } finally {
-            zk.close();
-        }
+		final String path = "/a";
+		try {
+			// make sure zkclient works
+			zk.create(path, "test".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			assertNotNull("Didn't create znode:" + path, zk.exists(path, false));
+			// Defaults ServerCnxnFactory would be instantiated with
+			// NIOServerCnxnFactory
+			assertTrue("Didn't instantiate ServerCnxnFactory with NIOServerCnxnFactory!", serverFactory instanceof NIOServerCnxnFactory);
+			Iterable<ServerCnxn> connections = serverFactory.getConnections();
+			for (ServerCnxn serverCnxn : connections) {
+				serverCnxn.close(ServerCnxn.DisconnectReason.CHANNEL_CLOSED_EXCEPTION);
+				try {
+					serverCnxn.toString();
+				} catch (Exception e) {
+					LOG.error("Exception while getting connection details!", e);
+					fail("Shouldn't throw exception while " + "getting connection details!");
+				}
+			}
+		} finally {
+			zk.close();
+		}
 
-    }
+	}
 
-    @Test
-    public void testClientResponseStatsUpdate() throws IOException, InterruptedException, KeeperException {
-        try (ZooKeeper zk = createClient()) {
-            BufferStats clientResponseStats = serverFactory.getZooKeeperServer().serverStats().getClientResponseStats();
-            assertThat("Last client response size should be initialized with INIT_VALUE", clientResponseStats.getLastBufferSize(), equalTo(BufferStats.INIT_VALUE));
+	@Test
+	public void testClientResponseStatsUpdate() throws IOException, InterruptedException, KeeperException {
+		try (ZooKeeper zk = createClient()) {
+			BufferStats clientResponseStats = serverFactory.getZooKeeperServer().serverStats().getClientResponseStats();
+			assertThat("Last client response size should be initialized with INIT_VALUE", clientResponseStats.getLastBufferSize(), equalTo(BufferStats.INIT_VALUE));
 
-            zk.create("/a", "test".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			zk.create("/a", "test".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
-            assertThat("Last client response size should be greater then zero after client request was performed", clientResponseStats.getLastBufferSize(), greaterThan(0));
-        }
-    }
+			assertThat("Last client response size should be greater then zero after client request was performed", clientResponseStats.getLastBufferSize(), greaterThan(0));
+		}
+	}
 
 }

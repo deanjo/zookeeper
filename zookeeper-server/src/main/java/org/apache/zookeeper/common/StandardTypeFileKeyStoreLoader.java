@@ -33,38 +33,38 @@ import java.security.KeyStoreException;
  */
 abstract class StandardTypeFileKeyStoreLoader extends FileKeyStoreLoader {
 
-    private static final char[] EMPTY_CHAR_ARRAY = new char[0];
+	private static final char[] EMPTY_CHAR_ARRAY = new char[0];
 
-    StandardTypeFileKeyStoreLoader(
-        String keyStorePath,
-        String trustStorePath,
-        String keyStorePassword,
-        String trustStorePassword) {
-        super(keyStorePath, trustStorePath, keyStorePassword, trustStorePassword);
-    }
+	StandardTypeFileKeyStoreLoader(
+		String keyStorePath,
+		String trustStorePath,
+		String keyStorePassword,
+		String trustStorePassword) {
+		super(keyStorePath, trustStorePath, keyStorePassword, trustStorePassword);
+	}
 
-    @Override
-    public KeyStore loadKeyStore() throws IOException, GeneralSecurityException {
-        try (InputStream inputStream = new FileInputStream(new File(keyStorePath))) {
-            KeyStore ks = keyStoreInstance();
-            ks.load(inputStream, passwordStringToCharArray(keyStorePassword));
-            return ks;
-        }
-    }
+	@Override
+	public KeyStore loadKeyStore() throws IOException, GeneralSecurityException {
+		try (InputStream inputStream = new FileInputStream(new File(keyStorePath))) {
+			KeyStore ks = keyStoreInstance();
+			ks.load(inputStream, passwordStringToCharArray(keyStorePassword));
+			return ks;
+		}
+	}
 
-    @Override
-    public KeyStore loadTrustStore() throws IOException, GeneralSecurityException {
-        try (InputStream inputStream = new FileInputStream(new File(trustStorePath))) {
-            KeyStore ts = keyStoreInstance();
-            ts.load(inputStream, passwordStringToCharArray(trustStorePassword));
-            return ts;
-        }
-    }
+	@Override
+	public KeyStore loadTrustStore() throws IOException, GeneralSecurityException {
+		try (InputStream inputStream = new FileInputStream(new File(trustStorePath))) {
+			KeyStore ts = keyStoreInstance();
+			ts.load(inputStream, passwordStringToCharArray(trustStorePassword));
+			return ts;
+		}
+	}
 
-    protected abstract KeyStore keyStoreInstance() throws KeyStoreException;
+	protected abstract KeyStore keyStoreInstance() throws KeyStoreException;
 
-    private static char[] passwordStringToCharArray(String password) {
-        return password == null ? EMPTY_CHAR_ARRAY : password.toCharArray();
-    }
+	private static char[] passwordStringToCharArray(String password) {
+		return password == null ? EMPTY_CHAR_ARRAY : password.toCharArray();
+	}
 
 }

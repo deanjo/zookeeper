@@ -27,9 +27,9 @@ import java.net.Socket;
  */
 public class NullQuorumAuthServer implements QuorumAuthServer {
 
-    @Override
-    public void authenticate(final Socket sock, final DataInputStream din) {
-        // simply return don't require auth
-    }
+	@Override
+	public void authenticate(final Socket sock, final DataInputStream din) {
+		// simply return don't require auth
+	}
 
 }

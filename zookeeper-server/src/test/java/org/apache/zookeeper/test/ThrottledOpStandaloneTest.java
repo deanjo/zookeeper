@@ -19,6 +19,7 @@
 package org.apache.zookeeper.test;
 
 import java.io.IOException;
+
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.server.ZooKeeperServer;
@@ -27,38 +28,38 @@ import org.junit.Test;
 
 public class ThrottledOpStandaloneTest extends ClientBase {
 
-    @BeforeClass
-    public static void applyMockUps() {
-        ThrottledOpHelper.applyMockUps();
-    }
+	@BeforeClass
+	public static void applyMockUps() {
+		ThrottledOpHelper.applyMockUps();
+	}
 
-    @Test
-    public void testThrottledOp() throws IOException, InterruptedException, KeeperException {
-        ZooKeeper zk = null;
-        try {
-            zk = createClient(hostPort);
-            ZooKeeperServer zs = serverFactory.getZooKeeperServer();
-            ThrottledOpHelper test = new ThrottledOpHelper();
-            test.testThrottledOp(zk, zs);
-        } finally {
-            if (zk != null) {
-                zk.close();
-            }
-        }
-    }
+	@Test
+	public void testThrottledOp() throws IOException, InterruptedException, KeeperException {
+		ZooKeeper zk = null;
+		try {
+			zk = createClient(hostPort);
+			ZooKeeperServer zs = serverFactory.getZooKeeperServer();
+			ThrottledOpHelper test = new ThrottledOpHelper();
+			test.testThrottledOp(zk, zs);
+		} finally {
+			if (zk != null) {
+				zk.close();
+			}
+		}
+	}
 
-    @Test
-    public void testThrottledAcl() throws Exception {
-        ZooKeeper zk = null;
-        try {
-            zk = createClient(hostPort);
-            ZooKeeperServer zs = serverFactory.getZooKeeperServer();
-            ThrottledOpHelper test = new ThrottledOpHelper();
-            test.testThrottledAcl(zk, zs);
-        } finally {
-            if (zk != null) {
-                zk.close();
-            }
-        }
-    }
+	@Test
+	public void testThrottledAcl() throws Exception {
+		ZooKeeper zk = null;
+		try {
+			zk = createClient(hostPort);
+			ZooKeeperServer zs = serverFactory.getZooKeeperServer();
+			ThrottledOpHelper test = new ThrottledOpHelper();
+			test.testThrottledAcl(zk, zs);
+		} finally {
+			if (zk != null) {
+				zk.close();
+			}
+		}
+	}
 }

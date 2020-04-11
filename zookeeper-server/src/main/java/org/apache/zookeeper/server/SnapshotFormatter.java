@@ -19,6 +19,7 @@
 package org.apache.zookeeper.server;
 
 import static org.apache.zookeeper.server.persistence.FileSnap.SNAPSHOT_FILE_PREFIX;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.jute.BinaryInputArchive;
 import org.apache.jute.InputArchive;
 import org.apache.yetus.audience.InterfaceAudience;
@@ -40,195 +42,195 @@ import org.json.simple.JSONValue;
 
 /**
  * Dump a snapshot file to stdout.
- *
+ * <p>
  * For JSON format, followed https://dev.yorhel.nl/ncdu/jsonfmt
  */
 @InterfaceAudience.Public
 public class SnapshotFormatter {
 
-    // per-znode counter so ncdu treats each as a unique object
-    private static Integer INODE_IDX = 1000;
+	// per-znode counter so ncdu treats each as a unique object
+	private static Integer INODE_IDX = 1000;
 
-    /**
-     * USAGE: SnapshotFormatter snapshot_file or the ready-made script: zkSnapShotToolkit.sh
-     */
-    public static void main(String[] args) throws Exception {
-        String snapshotFile = null;
-        boolean dumpData = false;
-        boolean dumpJson = false;
+	/**
+	 * USAGE: SnapshotFormatter snapshot_file or the ready-made script: zkSnapShotToolkit.sh
+	 */
+	public static void main(String[] args) throws Exception {
+		String snapshotFile = null;
+		boolean dumpData = false;
+		boolean dumpJson = false;
 
-        int i;
-        for (i = 0; i < args.length; i++) {
-            if (args[i].equals("-d")) {
-                dumpData = true;
-            } else if (args[i].equals("-json")) {
-                dumpJson = true;
-            } else {
-                snapshotFile = args[i];
-                i++;
-                break;
-            }
-        }
-        if (args.length != i || snapshotFile == null) {
-            System.err.println("USAGE: SnapshotFormatter [-d|-json] snapshot_file");
-            System.err.println("       -d dump the data for each znode");
-            System.err.println("       -json dump znode info in json format");
-            ServiceUtils.requestSystemExit(ExitCode.INVALID_INVOCATION.getValue());
-            return;
-        }
+		int i;
+		for (i = 0; i < args.length; i++) {
+			if (args[i].equals("-d")) {
+				dumpData = true;
+			} else if (args[i].equals("-json")) {
+				dumpJson = true;
+			} else {
+				snapshotFile = args[i];
+				i++;
+				break;
+			}
+		}
+		if (args.length != i || snapshotFile == null) {
+			System.err.println("USAGE: SnapshotFormatter [-d|-json] snapshot_file");
+			System.err.println("       -d dump the data for each znode");
+			System.err.println("       -json dump znode info in json format");
+			ServiceUtils.requestSystemExit(ExitCode.INVALID_INVOCATION.getValue());
+			return;
+		}
 
-        String error = ZKUtil.validateFileInput(snapshotFile);
-        if (null != error) {
-            System.err.println(error);
-            ServiceUtils.requestSystemExit(ExitCode.INVALID_INVOCATION.getValue());
-        }
+		String error = ZKUtil.validateFileInput(snapshotFile);
+		if (null != error) {
+			System.err.println(error);
+			ServiceUtils.requestSystemExit(ExitCode.INVALID_INVOCATION.getValue());
+		}
 
-        if (dumpData && dumpJson) {
-            System.err.println("Cannot specify both data dump (-d) and json mode (-json) in same call");
-            ServiceUtils.requestSystemExit(ExitCode.INVALID_INVOCATION.getValue());
-        }
+		if (dumpData && dumpJson) {
+			System.err.println("Cannot specify both data dump (-d) and json mode (-json) in same call");
+			ServiceUtils.requestSystemExit(ExitCode.INVALID_INVOCATION.getValue());
+		}
 
-        new SnapshotFormatter().run(snapshotFile, dumpData, dumpJson);
-    }
+		new SnapshotFormatter().run(snapshotFile, dumpData, dumpJson);
+	}
 
-    public void run(String snapshotFileName, boolean dumpData, boolean dumpJson) throws IOException {
-        File snapshotFile = new File(snapshotFileName);
-        try (InputStream is = SnapStream.getInputStream(snapshotFile)) {
-            InputArchive ia = BinaryInputArchive.getArchive(is);
+	public void run(String snapshotFileName, boolean dumpData, boolean dumpJson) throws IOException {
+		File snapshotFile = new File(snapshotFileName);
+		try (InputStream is = SnapStream.getInputStream(snapshotFile)) {
+			InputArchive ia = BinaryInputArchive.getArchive(is);
 
-            FileSnap fileSnap = new FileSnap(null);
+			FileSnap fileSnap = new FileSnap(null);
 
-            DataTree dataTree = new DataTree();
-            Map<Long, Integer> sessions = new HashMap<Long, Integer>();
+			DataTree dataTree = new DataTree();
+			Map<Long, Integer> sessions = new HashMap<Long, Integer>();
 
-            fileSnap.deserialize(dataTree, sessions, ia);
-            long fileNameZxid = Util.getZxidFromName(snapshotFile.getName(), SNAPSHOT_FILE_PREFIX);
+			fileSnap.deserialize(dataTree, sessions, ia);
+			long fileNameZxid = Util.getZxidFromName(snapshotFile.getName(), SNAPSHOT_FILE_PREFIX);
 
-            if (dumpJson) {
-                printSnapshotJson(dataTree);
-            } else {
-                printDetails(dataTree, sessions, dumpData, fileNameZxid);
-            }
-        }
-    }
+			if (dumpJson) {
+				printSnapshotJson(dataTree);
+			} else {
+				printDetails(dataTree, sessions, dumpData, fileNameZxid);
+			}
+		}
+	}
 
-    private void printDetails(DataTree dataTree, Map<Long, Integer> sessions, boolean dumpData, long fileNameZxid) {
-        long dtZxid = printZnodeDetails(dataTree, dumpData);
-        printSessionDetails(dataTree, sessions);
-        DataTree.ZxidDigest targetZxidDigest = dataTree.getDigestFromLoadedSnapshot();
-        if (targetZxidDigest != null) {
-            System.out.println(String.format("Target zxid digest is: %s, %s",
-                    Long.toHexString(targetZxidDigest.zxid), targetZxidDigest.digest));
-        }
-        System.out.println(String.format("----%nLast zxid: 0x%s", Long.toHexString(Math.max(fileNameZxid, dtZxid))));
-    }
+	private void printDetails(DataTree dataTree, Map<Long, Integer> sessions, boolean dumpData, long fileNameZxid) {
+		long dtZxid = printZnodeDetails(dataTree, dumpData);
+		printSessionDetails(dataTree, sessions);
+		DataTree.ZxidDigest targetZxidDigest = dataTree.getDigestFromLoadedSnapshot();
+		if (targetZxidDigest != null) {
+			System.out.println(String.format("Target zxid digest is: %s, %s",
+				Long.toHexString(targetZxidDigest.zxid), targetZxidDigest.digest));
+		}
+		System.out.println(String.format("----%nLast zxid: 0x%s", Long.toHexString(Math.max(fileNameZxid, dtZxid))));
+	}
 
-    private long printZnodeDetails(DataTree dataTree, boolean dumpData) {
-        System.out.println(String.format("ZNode Details (count=%d):", dataTree.getNodeCount()));
+	private long printZnodeDetails(DataTree dataTree, boolean dumpData) {
+		System.out.println(String.format("ZNode Details (count=%d):", dataTree.getNodeCount()));
 
-        final long zxid = printZnode(dataTree, "/", dumpData);
-        System.out.println("----");
-        return zxid;
-    }
+		final long zxid = printZnode(dataTree, "/", dumpData);
+		System.out.println("----");
+		return zxid;
+	}
 
-    private long printZnode(DataTree dataTree, String name, boolean dumpData) {
-        System.out.println("----");
-        DataNode n = dataTree.getNode(name);
-        Set<String> children;
-        long zxid;
-        synchronized (n) { // keep findbugs happy
-            System.out.println(name);
-            printStat(n.stat);
-            zxid = Math.max(n.stat.getMzxid(), n.stat.getPzxid());
-            if (dumpData) {
-                System.out.println("  data = " + (n.data == null ? "" : Base64.getEncoder().encodeToString(n.data)));
-            } else {
-                System.out.println("  dataLength = " + (n.data == null ? 0 : n.data.length));
-            }
-            children = n.getChildren();
-        }
-        if (children != null) {
-            for (String child : children) {
-                long cxid = printZnode(dataTree, name + (name.equals("/") ? "" : "/") + child, dumpData);
-                zxid = Math.max(zxid, cxid);
-            }
-        }
-        return zxid;
-    }
+	private long printZnode(DataTree dataTree, String name, boolean dumpData) {
+		System.out.println("----");
+		DataNode n = dataTree.getNode(name);
+		Set<String> children;
+		long zxid;
+		synchronized (n) { // keep findbugs happy
+			System.out.println(name);
+			printStat(n.stat);
+			zxid = Math.max(n.stat.getMzxid(), n.stat.getPzxid());
+			if (dumpData) {
+				System.out.println("  data = " + (n.data == null ? "" : Base64.getEncoder().encodeToString(n.data)));
+			} else {
+				System.out.println("  dataLength = " + (n.data == null ? 0 : n.data.length));
+			}
+			children = n.getChildren();
+		}
+		if (children != null) {
+			for (String child : children) {
+				long cxid = printZnode(dataTree, name + (name.equals("/") ? "" : "/") + child, dumpData);
+				zxid = Math.max(zxid, cxid);
+			}
+		}
+		return zxid;
+	}
 
-    private void printSessionDetails(DataTree dataTree, Map<Long, Integer> sessions) {
-        System.out.println("Session Details (sid, timeout, ephemeralCount):");
-        for (Map.Entry<Long, Integer> e : sessions.entrySet()) {
-            long sid = e.getKey();
-            System.out.println(String.format("%#016x, %d, %d", sid, e.getValue(), dataTree.getEphemerals(sid).size()));
-        }
-    }
+	private void printSessionDetails(DataTree dataTree, Map<Long, Integer> sessions) {
+		System.out.println("Session Details (sid, timeout, ephemeralCount):");
+		for (Map.Entry<Long, Integer> e : sessions.entrySet()) {
+			long sid = e.getKey();
+			System.out.println(String.format("%#016x, %d, %d", sid, e.getValue(), dataTree.getEphemerals(sid).size()));
+		}
+	}
 
-    private void printStat(StatPersisted stat) {
-        printHex("cZxid", stat.getCzxid());
-        System.out.println("  ctime = " + new Date(stat.getCtime()).toString());
-        printHex("mZxid", stat.getMzxid());
-        System.out.println("  mtime = " + new Date(stat.getMtime()).toString());
-        printHex("pZxid", stat.getPzxid());
-        System.out.println("  cversion = " + stat.getCversion());
-        System.out.println("  dataVersion = " + stat.getVersion());
-        System.out.println("  aclVersion = " + stat.getAversion());
-        printHex("ephemeralOwner", stat.getEphemeralOwner());
-    }
+	private void printStat(StatPersisted stat) {
+		printHex("cZxid", stat.getCzxid());
+		System.out.println("  ctime = " + new Date(stat.getCtime()).toString());
+		printHex("mZxid", stat.getMzxid());
+		System.out.println("  mtime = " + new Date(stat.getMtime()).toString());
+		printHex("pZxid", stat.getPzxid());
+		System.out.println("  cversion = " + stat.getCversion());
+		System.out.println("  dataVersion = " + stat.getVersion());
+		System.out.println("  aclVersion = " + stat.getAversion());
+		printHex("ephemeralOwner", stat.getEphemeralOwner());
+	}
 
-    private void printHex(String prefix, long value) {
-        System.out.println(String.format("  %s = %#016x", prefix, value));
-    }
+	private void printHex(String prefix, long value) {
+		System.out.println(String.format("  %s = %#016x", prefix, value));
+	}
 
-    private void printSnapshotJson(final DataTree dataTree) {
-        System.out.printf(
-            "[1,0,{\"progname\":\"SnapshotFormatter.java\",\"progver\":\"0.01\",\"timestamp\":%d}",
-            System.currentTimeMillis());
-        printZnodeJson(dataTree, "/");
-        System.out.print("]");
-    }
+	private void printSnapshotJson(final DataTree dataTree) {
+		System.out.printf(
+			"[1,0,{\"progname\":\"SnapshotFormatter.java\",\"progver\":\"0.01\",\"timestamp\":%d}",
+			System.currentTimeMillis());
+		printZnodeJson(dataTree, "/");
+		System.out.print("]");
+	}
 
-    private void printZnodeJson(final DataTree dataTree, final String fullPath) {
+	private void printZnodeJson(final DataTree dataTree, final String fullPath) {
 
-        final DataNode n = dataTree.getNode(fullPath);
+		final DataNode n = dataTree.getNode(fullPath);
 
-        if (null == n) {
-            System.err.println("DataTree Node for " + fullPath + " doesn't exist");
-            return;
-        }
+		if (null == n) {
+			System.err.println("DataTree Node for " + fullPath + " doesn't exist");
+			return;
+		}
 
-        final String name = fullPath.equals("/")
-            ? fullPath
-            : fullPath.substring(fullPath.lastIndexOf("/") + 1);
+		final String name = fullPath.equals("/")
+			? fullPath
+			: fullPath.substring(fullPath.lastIndexOf("/") + 1);
 
-        System.out.print(",");
+		System.out.print(",");
 
-        int dataLen;
-        synchronized (n) { // keep findbugs happy
-            dataLen = (n.data == null) ? 0 : n.data.length;
-        }
-        StringBuilder nodeSB = new StringBuilder();
-        nodeSB.append("{");
-        nodeSB.append("\"name\":\"").append(JSONValue.escape(name)).append("\"").append(",");
-        nodeSB.append("\"asize\":").append(dataLen).append(",");
-        nodeSB.append("\"dsize\":").append(dataLen).append(",");
-        nodeSB.append("\"dev\":").append(0).append(",");
-        nodeSB.append("\"ino\":").append(++INODE_IDX);
-        nodeSB.append("}");
+		int dataLen;
+		synchronized (n) { // keep findbugs happy
+			dataLen = (n.data == null) ? 0 : n.data.length;
+		}
+		StringBuilder nodeSB = new StringBuilder();
+		nodeSB.append("{");
+		nodeSB.append("\"name\":\"").append(JSONValue.escape(name)).append("\"").append(",");
+		nodeSB.append("\"asize\":").append(dataLen).append(",");
+		nodeSB.append("\"dsize\":").append(dataLen).append(",");
+		nodeSB.append("\"dev\":").append(0).append(",");
+		nodeSB.append("\"ino\":").append(++INODE_IDX);
+		nodeSB.append("}");
 
-        Set<String> children;
-        synchronized (n) { // keep findbugs happy
-            children = n.getChildren();
-        }
-        if (children != null && children.size() > 0) {
-            System.out.print("[" + nodeSB);
-            for (String child : children) {
-                printZnodeJson(dataTree, fullPath + (fullPath.equals("/") ? "" : "/") + child);
-            }
-            System.out.print("]");
-        } else {
-            System.out.print(nodeSB);
-        }
-    }
+		Set<String> children;
+		synchronized (n) { // keep findbugs happy
+			children = n.getChildren();
+		}
+		if (children != null && children.size() > 0) {
+			System.out.print("[" + nodeSB);
+			for (String child : children) {
+				printZnodeJson(dataTree, fullPath + (fullPath.equals("/") ? "" : "/") + child);
+			}
+			System.out.print("]");
+		} else {
+			System.out.print(nodeSB);
+		}
+	}
 
 }

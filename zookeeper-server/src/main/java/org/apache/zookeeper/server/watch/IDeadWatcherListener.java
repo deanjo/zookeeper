@@ -25,11 +25,11 @@ import java.util.Set;
  */
 public interface IDeadWatcherListener {
 
-    /**
-     * Process the given dead watchers.
-     *
-     * @param deadWatchers the watchers which have closed cnxn
-     */
-    void processDeadWatchers(Set<Integer> deadWatchers);
+	/**
+	 * Process the given dead watchers.
+	 *
+	 * @param deadWatchers the watchers which have closed cnxn
+	 */
+	void processDeadWatchers(Set<Integer> deadWatchers);
 
 }

@@ -21,54 +21,54 @@ package org.apache.zookeeper.audit;
  * Audit log performance reading
  */
 public final class AuditLogPerfReading {
-    // time taken by create operations
-    private long create;
-    // time taken by setData operations
-    private long setData;
-    // time taken by delete operations
-    private long delete;
+	// time taken by create operations
+	private long create;
+	// time taken by setData operations
+	private long setData;
+	// time taken by delete operations
+	private long delete;
 
-    public long getCreate() {
-        return create;
-    }
+	public long getCreate() {
+		return create;
+	}
 
-    public void setCreate(long create) {
-        this.create = create;
-    }
+	public void setCreate(long create) {
+		this.create = create;
+	}
 
-    public long getSetData() {
-        return setData;
-    }
+	public long getSetData() {
+		return setData;
+	}
 
-    public void setSetData(long setData) {
-        this.setData = setData;
-    }
+	public void setSetData(long setData) {
+		this.setData = setData;
+	}
 
-    public long getDelete() {
-        return delete;
-    }
+	public long getDelete() {
+		return delete;
+	}
 
-    public void setDelete(long delete) {
-        this.delete = delete;
-    }
+	public void setDelete(long delete) {
+		this.delete = delete;
+	}
 
-    public String report() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("create=");
-        builder.append(create);
-        builder.append(" ms\n");
-        builder.append("setData=");
-        builder.append(setData);
-        builder.append(" ms\n");
-        builder.append("delete=");
-        builder.append(delete);
-        builder.append(" ms\n");
-        return builder.toString();
-    }
+	public String report() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("create=");
+		builder.append(create);
+		builder.append(" ms\n");
+		builder.append("setData=");
+		builder.append(setData);
+		builder.append(" ms\n");
+		builder.append("delete=");
+		builder.append(delete);
+		builder.append(" ms\n");
+		return builder.toString();
+	}
 
-    @Override
-    public String toString() {
-        return "create=" + create + ", setData=" + setData + ", delete="
-                + delete;
-    }
+	@Override
+	public String toString() {
+		return "create=" + create + ", setData=" + setData + ", delete="
+			+ delete;
+	}
 }

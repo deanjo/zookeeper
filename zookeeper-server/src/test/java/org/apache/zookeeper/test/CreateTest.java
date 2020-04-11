@@ -22,7 +22,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
 import java.io.IOException;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs.Ids;
@@ -35,79 +37,79 @@ import org.junit.Test;
  */
 public class CreateTest extends ClientBase {
 
-    private ZooKeeper zk;
+	private ZooKeeper zk;
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        zk = createClient();
-    }
+	@Override
+	public void setUp() throws Exception {
+		super.setUp();
+		zk = createClient();
+	}
 
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-        zk.close();
-    }
+	@Override
+	public void tearDown() throws Exception {
+		super.tearDown();
+		zk.close();
+	}
 
-    @Test
-    public void testCreate() throws IOException, KeeperException, InterruptedException {
-        createNoStatVerifyResult("/foo");
-        createNoStatVerifyResult("/foo/child");
-    }
+	@Test
+	public void testCreate() throws IOException, KeeperException, InterruptedException {
+		createNoStatVerifyResult("/foo");
+		createNoStatVerifyResult("/foo/child");
+	}
 
-    @Test
-    public void testCreateWithStat() throws IOException, KeeperException, InterruptedException {
-        String name = "/foo";
-        Stat stat = createWithStatVerifyResult("/foo");
-        Stat childStat = createWithStatVerifyResult("/foo/child");
-        // Don't expect to get the same stats for different creates.
-        assertFalse(stat.equals(childStat));
-    }
+	@Test
+	public void testCreateWithStat() throws IOException, KeeperException, InterruptedException {
+		String name = "/foo";
+		Stat stat = createWithStatVerifyResult("/foo");
+		Stat childStat = createWithStatVerifyResult("/foo/child");
+		// Don't expect to get the same stats for different creates.
+		assertFalse(stat.equals(childStat));
+	}
 
-    @Test
-    public void testCreateWithNullStat() throws IOException, KeeperException, InterruptedException {
-        String name = "/foo";
-        assertNull(zk.exists(name, false));
+	@Test
+	public void testCreateWithNullStat() throws IOException, KeeperException, InterruptedException {
+		String name = "/foo";
+		assertNull(zk.exists(name, false));
 
-        Stat stat = null;
-        // If a null Stat object is passed the create should still
-        // succeed, but no Stat info will be returned.
-        String path = zk.create(name, name.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT, stat);
-        assertNull(stat);
-        assertNotNull(zk.exists(name, false));
-    }
+		Stat stat = null;
+		// If a null Stat object is passed the create should still
+		// succeed, but no Stat info will be returned.
+		String path = zk.create(name, name.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT, stat);
+		assertNull(stat);
+		assertNotNull(zk.exists(name, false));
+	}
 
-    private void createNoStatVerifyResult(String newName) throws KeeperException, InterruptedException {
-        assertNull("Node existed before created", zk.exists(newName, false));
-        String path = zk.create(newName, newName.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-        assertEquals(path, newName);
-        assertNotNull("Node was not created as expected", zk.exists(newName, false));
-    }
+	private void createNoStatVerifyResult(String newName) throws KeeperException, InterruptedException {
+		assertNull("Node existed before created", zk.exists(newName, false));
+		String path = zk.create(newName, newName.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+		assertEquals(path, newName);
+		assertNotNull("Node was not created as expected", zk.exists(newName, false));
+	}
 
-    private Stat createWithStatVerifyResult(String newName) throws KeeperException, InterruptedException {
-        assertNull("Node existed before created", zk.exists(newName, false));
-        Stat stat = new Stat();
-        String path = zk.create(newName, newName.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT, stat);
-        assertEquals(path, newName);
-        validateCreateStat(stat, newName);
+	private Stat createWithStatVerifyResult(String newName) throws KeeperException, InterruptedException {
+		assertNull("Node existed before created", zk.exists(newName, false));
+		Stat stat = new Stat();
+		String path = zk.create(newName, newName.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT, stat);
+		assertEquals(path, newName);
+		validateCreateStat(stat, newName);
 
-        Stat referenceStat = zk.exists(newName, false);
-        assertNotNull("Node was not created as expected", referenceStat);
-        assertEquals(referenceStat, stat);
+		Stat referenceStat = zk.exists(newName, false);
+		assertNotNull("Node was not created as expected", referenceStat);
+		assertEquals(referenceStat, stat);
 
-        return stat;
-    }
+		return stat;
+	}
 
-    private void validateCreateStat(Stat stat, String name) {
-        assertEquals(stat.getCzxid(), stat.getMzxid());
-        assertEquals(stat.getCzxid(), stat.getPzxid());
-        assertEquals(stat.getCtime(), stat.getMtime());
-        assertEquals(0, stat.getCversion());
-        assertEquals(0, stat.getVersion());
-        assertEquals(0, stat.getAversion());
-        assertEquals(0, stat.getEphemeralOwner());
-        assertEquals(name.length(), stat.getDataLength());
-        assertEquals(0, stat.getNumChildren());
-    }
+	private void validateCreateStat(Stat stat, String name) {
+		assertEquals(stat.getCzxid(), stat.getMzxid());
+		assertEquals(stat.getCzxid(), stat.getPzxid());
+		assertEquals(stat.getCtime(), stat.getMtime());
+		assertEquals(0, stat.getCversion());
+		assertEquals(0, stat.getVersion());
+		assertEquals(0, stat.getAversion());
+		assertEquals(0, stat.getEphemeralOwner());
+		assertEquals(name.length(), stat.getDataLength());
+		assertEquals(0, stat.getNumChildren());
+	}
 
 }

@@ -20,6 +20,7 @@ package org.apache.zookeeper.server.auth;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.server.ServerCnxn;
 import org.apache.zookeeper.server.ServerMetrics;
@@ -36,92 +37,92 @@ import org.slf4j.LoggerFactory;
 
 public class EnsembleAuthenticationProvider implements AuthenticationProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EnsembleAuthenticationProvider.class);
+	private static final Logger LOG = LoggerFactory.getLogger(EnsembleAuthenticationProvider.class);
 
-    public static final String ENSEMBLE_PROPERTY = "zookeeper.ensembleAuthName";
-    private static final int MIN_LOGGING_INTERVAL_MS = 1000;
-    private Set<String> ensembleNames;
+	public static final String ENSEMBLE_PROPERTY = "zookeeper.ensembleAuthName";
+	private static final int MIN_LOGGING_INTERVAL_MS = 1000;
+	private Set<String> ensembleNames;
 
-    public EnsembleAuthenticationProvider() {
-        String namesCSV = System.getProperty(ENSEMBLE_PROPERTY);
-        if (namesCSV != null) {
-            LOG.info("Set expected ensemble names to {}", namesCSV);
-            setEnsembleNames(namesCSV);
-        }
-    }
+	public EnsembleAuthenticationProvider() {
+		String namesCSV = System.getProperty(ENSEMBLE_PROPERTY);
+		if (namesCSV != null) {
+			LOG.info("Set expected ensemble names to {}", namesCSV);
+			setEnsembleNames(namesCSV);
+		}
+	}
 
-    public void setEnsembleNames(String namesCSV) {
-        ensembleNames = new HashSet<String>();
-        for (String name : namesCSV.split(",")) {
-            ensembleNames.add(name.trim());
-        }
-    }
+	public void setEnsembleNames(String namesCSV) {
+		ensembleNames = new HashSet<String>();
+		for (String name : namesCSV.split(",")) {
+			ensembleNames.add(name.trim());
+		}
+	}
 
-    /* provider methods */
-    @Override
-    public String getScheme() {
-        return "ensemble";
-    }
+	/* provider methods */
+	@Override
+	public String getScheme() {
+		return "ensemble";
+	}
 
-    /**
-     * if things go bad, we don't want to freak out with the logging, so track
-     * the last time we logged something here.
-     */
-    private long lastFailureLogged;
+	/**
+	 * if things go bad, we don't want to freak out with the logging, so track
+	 * the last time we logged something here.
+	 */
+	private long lastFailureLogged;
 
-    @Override
-    public KeeperException.Code handleAuthentication(ServerCnxn cnxn, byte[] authData) {
-        if (authData == null || authData.length == 0) {
-            ServerMetrics.getMetrics().ENSEMBLE_AUTH_SKIP.add(1);
-            return KeeperException.Code.OK;
-        }
+	@Override
+	public KeeperException.Code handleAuthentication(ServerCnxn cnxn, byte[] authData) {
+		if (authData == null || authData.length == 0) {
+			ServerMetrics.getMetrics().ENSEMBLE_AUTH_SKIP.add(1);
+			return KeeperException.Code.OK;
+		}
 
-        String receivedEnsembleName = new String(authData);
+		String receivedEnsembleName = new String(authData);
 
-        if (ensembleNames == null) {
-            ServerMetrics.getMetrics().ENSEMBLE_AUTH_SKIP.add(1);
-            return KeeperException.Code.OK;
-        }
+		if (ensembleNames == null) {
+			ServerMetrics.getMetrics().ENSEMBLE_AUTH_SKIP.add(1);
+			return KeeperException.Code.OK;
+		}
 
-        if (ensembleNames.contains(receivedEnsembleName)) {
-            ServerMetrics.getMetrics().ENSEMBLE_AUTH_SUCCESS.add(1);
-            return KeeperException.Code.OK;
-        }
+		if (ensembleNames.contains(receivedEnsembleName)) {
+			ServerMetrics.getMetrics().ENSEMBLE_AUTH_SUCCESS.add(1);
+			return KeeperException.Code.OK;
+		}
 
-        long currentTime = System.currentTimeMillis();
-        if (lastFailureLogged + MIN_LOGGING_INTERVAL_MS < currentTime) {
-            String id = cnxn.getRemoteSocketAddress().getAddress().getHostAddress();
-            LOG.warn("Unexpected ensemble name: ensemble name: {} client ip: {}", receivedEnsembleName, id);
-            lastFailureLogged = currentTime;
-        }
-        /*
-         * we are doing a close here rather than returning some other error
-         * since we want the client to choose another server to connect to. if
-         * we return an error, the client will get a fatal auth error and
-         * shutdown.
-         */
-        ServerMetrics.getMetrics().ENSEMBLE_AUTH_FAIL.add(1);
-        cnxn.close(ServerCnxn.DisconnectReason.FAILED_HANDSHAKE);
-        return KeeperException.Code.BADARGUMENTS;
-    }
+		long currentTime = System.currentTimeMillis();
+		if (lastFailureLogged + MIN_LOGGING_INTERVAL_MS < currentTime) {
+			String id = cnxn.getRemoteSocketAddress().getAddress().getHostAddress();
+			LOG.warn("Unexpected ensemble name: ensemble name: {} client ip: {}", receivedEnsembleName, id);
+			lastFailureLogged = currentTime;
+		}
+		/*
+		 * we are doing a close here rather than returning some other error
+		 * since we want the client to choose another server to connect to. if
+		 * we return an error, the client will get a fatal auth error and
+		 * shutdown.
+		 */
+		ServerMetrics.getMetrics().ENSEMBLE_AUTH_FAIL.add(1);
+		cnxn.close(ServerCnxn.DisconnectReason.FAILED_HANDSHAKE);
+		return KeeperException.Code.BADARGUMENTS;
+	}
 
-    /*
-     * since we aren't a true provider we return false for everything so that
-     * it isn't used in ACLs.
-     */
-    @Override
-    public boolean matches(String id, String aclExpr) {
-        return false;
-    }
+	/*
+	 * since we aren't a true provider we return false for everything so that
+	 * it isn't used in ACLs.
+	 */
+	@Override
+	public boolean matches(String id, String aclExpr) {
+		return false;
+	}
 
-    @Override
-    public boolean isAuthenticated() {
-        return false;
-    }
+	@Override
+	public boolean isAuthenticated() {
+		return false;
+	}
 
-    @Override
-    public boolean isValid(String id) {
-        return false;
-    }
+	@Override
+	public boolean isValid(String id) {
+		return false;
+	}
 
 }

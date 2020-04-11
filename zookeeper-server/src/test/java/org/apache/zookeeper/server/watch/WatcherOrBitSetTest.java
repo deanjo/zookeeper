@@ -20,8 +20,10 @@ package org.apache.zookeeper.server.watch;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
 import java.util.HashSet;
 import java.util.Set;
+
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZKTestCase;
 import org.apache.zookeeper.server.DumbWatcher;
@@ -30,34 +32,34 @@ import org.junit.Test;
 
 public class WatcherOrBitSetTest extends ZKTestCase {
 
-    @Test
-    public void testWatcherSet() {
-        Set<Watcher> wset = new HashSet<Watcher>();
-        WatcherOrBitSet hashSet = new WatcherOrBitSet(wset);
-        assertEquals(0, hashSet.size());
+	@Test
+	public void testWatcherSet() {
+		Set<Watcher> wset = new HashSet<Watcher>();
+		WatcherOrBitSet hashSet = new WatcherOrBitSet(wset);
+		assertEquals(0, hashSet.size());
 
-        DumbWatcher w1 = new DumbWatcher();
-        assertFalse(hashSet.contains(w1));
-        wset.add(w1);
-        assertTrue(hashSet.contains(w1));
-        assertEquals(1, hashSet.size());
-        assertFalse(hashSet.contains(1));
-    }
+		DumbWatcher w1 = new DumbWatcher();
+		assertFalse(hashSet.contains(w1));
+		wset.add(w1);
+		assertTrue(hashSet.contains(w1));
+		assertEquals(1, hashSet.size());
+		assertFalse(hashSet.contains(1));
+	}
 
-    @Test
-    public void testBitSet() {
-        BitHashSet bset = new BitHashSet(0);
-        WatcherOrBitSet bitSet = new WatcherOrBitSet(bset);
-        assertEquals(0, bitSet.size());
+	@Test
+	public void testBitSet() {
+		BitHashSet bset = new BitHashSet(0);
+		WatcherOrBitSet bitSet = new WatcherOrBitSet(bset);
+		assertEquals(0, bitSet.size());
 
-        Integer bit = 1;
-        assertFalse(bitSet.contains(1));
-        assertFalse(bitSet.contains(bit));
+		Integer bit = 1;
+		assertFalse(bitSet.contains(1));
+		assertFalse(bitSet.contains(bit));
 
-        bset.add(bit);
-        assertTrue(bitSet.contains(1));
-        assertTrue(bitSet.contains(bit));
-        assertEquals(1, bitSet.size());
-    }
+		bset.add(bit);
+		assertTrue(bitSet.contains(1));
+		assertTrue(bitSet.contains(bit));
+		assertEquals(1, bitSet.size());
+	}
 
 }

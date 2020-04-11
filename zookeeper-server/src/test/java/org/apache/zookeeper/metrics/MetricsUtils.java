@@ -20,6 +20,7 @@ package org.apache.zookeeper.metrics;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.zookeeper.server.ServerMetrics;
 
 /**
@@ -27,34 +28,34 @@ import org.apache.zookeeper.server.ServerMetrics;
  */
 public abstract class MetricsUtils {
 
-    private MetricsUtils() {
-    }
+	private MetricsUtils() {
+	}
 
-    /**
-     * Collect all metrics from a {@link MetricsProvider}. A MetricsProvider
-     * provides a {@link MetricsProvider#dump(java.util.function.BiConsumer)
-     * }
-     * method, that method will in general be more efficient and it does not
-     * impose to the MetricsProvider to waste resources.
-     *
-     * @param metricsProvider
-     * @return a Map which collects one entry per each different key returned by
-     * {@link MetricsProvider#dump(java.util.function.BiConsumer) }
-     */
-    public static Map<String, Object> collect(MetricsProvider metricsProvider) {
-        Map<String, Object> res = new HashMap<>();
-        metricsProvider.dump(res::put);
-        return res;
-    }
+	/**
+	 * Collect all metrics from a {@link MetricsProvider}. A MetricsProvider
+	 * provides a {@link MetricsProvider#dump(java.util.function.BiConsumer)
+	 * }
+	 * method, that method will in general be more efficient and it does not
+	 * impose to the MetricsProvider to waste resources.
+	 *
+	 * @param metricsProvider
+	 * @return a Map which collects one entry per each different key returned by
+	 * {@link MetricsProvider#dump(java.util.function.BiConsumer) }
+	 */
+	public static Map<String, Object> collect(MetricsProvider metricsProvider) {
+		Map<String, Object> res = new HashMap<>();
+		metricsProvider.dump(res::put);
+		return res;
+	}
 
-    /**
-     * Collect current {@link ServerMetrics} as a Map.
-     *
-     * @return a flattened view of all metrics reported by the MetricsProvider
-     * in use by the current ServerMetrics static instance.
-     */
-    public static Map<String, Object> currentServerMetrics() {
-        return collect(ServerMetrics.getMetrics().getMetricsProvider());
-    }
+	/**
+	 * Collect current {@link ServerMetrics} as a Map.
+	 *
+	 * @return a flattened view of all metrics reported by the MetricsProvider
+	 * in use by the current ServerMetrics static instance.
+	 */
+	public static Map<String, Object> currentServerMetrics() {
+		return collect(ServerMetrics.getMetrics().getMetricsProvider());
+	}
 
 }

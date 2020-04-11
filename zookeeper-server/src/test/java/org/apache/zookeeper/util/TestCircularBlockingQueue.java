@@ -22,55 +22,56 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestCircularBlockingQueue {
 
-  @Test
-  public void testCircularBlockingQueue() throws InterruptedException {
-    final CircularBlockingQueue<Integer> testQueue =
-        new CircularBlockingQueue<>(2);
+	@Test
+	public void testCircularBlockingQueue() throws InterruptedException {
+		final CircularBlockingQueue<Integer> testQueue =
+			new CircularBlockingQueue<>(2);
 
-    testQueue.offer(1);
-    testQueue.offer(2);
-    testQueue.offer(3);
+		testQueue.offer(1);
+		testQueue.offer(2);
+		testQueue.offer(3);
 
-    Assert.assertEquals(2, testQueue.size());
+		Assert.assertEquals(2, testQueue.size());
 
-    Assert.assertEquals(2, testQueue.take().intValue());
-    Assert.assertEquals(3, testQueue.take().intValue());
+		Assert.assertEquals(2, testQueue.take().intValue());
+		Assert.assertEquals(3, testQueue.take().intValue());
 
-    Assert.assertEquals(1L, testQueue.getDroppedCount());
-    Assert.assertEquals(0, testQueue.size());
-    Assert.assertEquals(true, testQueue.isEmpty());
-  }
+		Assert.assertEquals(1L, testQueue.getDroppedCount());
+		Assert.assertEquals(0, testQueue.size());
+		Assert.assertEquals(true, testQueue.isEmpty());
+	}
 
-  @Test(timeout = 10000L)
-  public void testCircularBlockingQueueTakeBlock()
-      throws InterruptedException, ExecutionException {
+	@Test(timeout = 10000L)
+	public void testCircularBlockingQueueTakeBlock()
+		throws InterruptedException, ExecutionException {
 
-    final CircularBlockingQueue<Integer> testQueue = new CircularBlockingQueue<>(2);
+		final CircularBlockingQueue<Integer> testQueue = new CircularBlockingQueue<>(2);
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-    try {
-      Future<Integer> testTake = executor.submit(() -> {
-        return testQueue.take();
-      });
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		try {
+			Future<Integer> testTake = executor.submit(() -> {
+				return testQueue.take();
+			});
 
-      // Allow the other thread to get into position; waiting for item to be
-      // inserted
-      while (!testQueue.isConsumerThreadBlocked()) {
-        Thread.sleep(50L);
-      }
+			// Allow the other thread to get into position; waiting for item to be
+			// inserted
+			while (!testQueue.isConsumerThreadBlocked()) {
+				Thread.sleep(50L);
+			}
 
-      testQueue.offer(10);
+			testQueue.offer(10);
 
-      Integer result = testTake.get();
-      Assert.assertEquals(10, result.intValue());
-    } finally {
-      executor.shutdown();
-    }
-  }
+			Integer result = testTake.get();
+			Assert.assertEquals(10, result.intValue());
+		} finally {
+			executor.shutdown();
+		}
+	}
 
 }

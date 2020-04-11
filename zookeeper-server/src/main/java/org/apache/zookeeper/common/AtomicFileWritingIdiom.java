@@ -34,60 +34,60 @@ import java.io.Writer;
  */
 public class AtomicFileWritingIdiom {
 
-    public interface OutputStreamStatement {
+	public interface OutputStreamStatement {
 
-        void write(OutputStream os) throws IOException;
+		void write(OutputStream os) throws IOException;
 
-    }
+	}
 
-    public interface WriterStatement {
+	public interface WriterStatement {
 
-        void write(Writer os) throws IOException;
+		void write(Writer os) throws IOException;
 
-    }
+	}
 
-    public AtomicFileWritingIdiom(File targetFile, OutputStreamStatement osStmt) throws IOException {
-        this(targetFile, osStmt, null);
-    }
+	public AtomicFileWritingIdiom(File targetFile, OutputStreamStatement osStmt) throws IOException {
+		this(targetFile, osStmt, null);
+	}
 
-    public AtomicFileWritingIdiom(File targetFile, WriterStatement wStmt) throws IOException {
-        this(targetFile, null, wStmt);
-    }
+	public AtomicFileWritingIdiom(File targetFile, WriterStatement wStmt) throws IOException {
+		this(targetFile, null, wStmt);
+	}
 
-    private AtomicFileWritingIdiom(
-        File targetFile,
-        OutputStreamStatement osStmt,
-        WriterStatement wStmt) throws IOException {
-        AtomicFileOutputStream out = null;
-        boolean error = true;
-        try {
-            out = new AtomicFileOutputStream(targetFile);
-            if (wStmt == null) {
-                // execute output stream operation
-                osStmt.write(out);
-            } else {
-                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
-                // execute writer operation and flush
-                wStmt.write(bw);
-                bw.flush();
-            }
-            out.flush();
-            // everything went ok
-            error = false;
-        } finally {
-            // nothing interesting to do if out == null
-            if (out != null) {
-                if (error) {
-                    // worst case here the tmp file/resources(fd) are not cleaned up
-                    // and the caller will be notified (IOException)
-                    out.abort();
-                } else {
-                    // if the close operation (rename) fails we'll get notified.
-                    // worst case the tmp file may still exist
-                    IOUtils.closeStream(out);
-                }
-            }
-        }
-    }
+	private AtomicFileWritingIdiom(
+		File targetFile,
+		OutputStreamStatement osStmt,
+		WriterStatement wStmt) throws IOException {
+		AtomicFileOutputStream out = null;
+		boolean error = true;
+		try {
+			out = new AtomicFileOutputStream(targetFile);
+			if (wStmt == null) {
+				// execute output stream operation
+				osStmt.write(out);
+			} else {
+				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
+				// execute writer operation and flush
+				wStmt.write(bw);
+				bw.flush();
+			}
+			out.flush();
+			// everything went ok
+			error = false;
+		} finally {
+			// nothing interesting to do if out == null
+			if (out != null) {
+				if (error) {
+					// worst case here the tmp file/resources(fd) are not cleaned up
+					// and the caller will be notified (IOException)
+					out.abort();
+				} else {
+					// if the close operation (rename) fails we'll get notified.
+					// worst case the tmp file may still exist
+					IOUtils.closeStream(out);
+				}
+			}
+		}
+	}
 
 }

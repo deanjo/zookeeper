@@ -19,37 +19,39 @@
 package org.apache.zookeeper.test;
 
 import java.io.IOException;
+
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 
 public class DisconnectableZooKeeper extends ZooKeeper {
 
-    public DisconnectableZooKeeper(String host, int sessionTimeout, Watcher watcher) throws IOException {
-        super(host, sessionTimeout, watcher);
-    }
+	public DisconnectableZooKeeper(String host, int sessionTimeout, Watcher watcher) throws IOException {
+		super(host, sessionTimeout, watcher);
+	}
 
-    public DisconnectableZooKeeper(
-            String host, int sessionTimeout, Watcher watcher, long sessionId, byte[] sessionPasswd) throws IOException {
-        super(host, sessionTimeout, watcher, sessionId, sessionPasswd);
-    }
+	public DisconnectableZooKeeper(
+		String host, int sessionTimeout, Watcher watcher, long sessionId, byte[] sessionPasswd) throws IOException {
+		super(host, sessionTimeout, watcher, sessionId, sessionPasswd);
+	}
 
-    /** Testing only!!! Really!!!! This is only here to test when the client
-     * disconnects from the server w/o sending a session disconnect (ie
-     * ending the session cleanly). The server will eventually notice the
-     * client is no longer pinging and will timeout the session.
-     */
-    public void disconnect() throws IOException {
-        cnxn.disconnect();
-    }
+	/**
+	 * Testing only!!! Really!!!! This is only here to test when the client
+	 * disconnects from the server w/o sending a session disconnect (ie
+	 * ending the session cleanly). The server will eventually notice the
+	 * client is no longer pinging and will timeout the session.
+	 */
+	public void disconnect() throws IOException {
+		cnxn.disconnect();
+	}
 
-    /**
-     * Prevent the client from automatically reconnecting if the connection to the
-     * server is lost
-     */
-    public void dontReconnect() throws Exception {
-        java.lang.reflect.Field f = cnxn.getClass().getDeclaredField("closing");
-        f.setAccessible(true);
-        f.setBoolean(cnxn, true);
-    }
+	/**
+	 * Prevent the client from automatically reconnecting if the connection to the
+	 * server is lost
+	 */
+	public void dontReconnect() throws Exception {
+		java.lang.reflect.Field f = cnxn.getClass().getDeclaredField("closing");
+		f.setAccessible(true);
+		f.setBoolean(cnxn, true);
+	}
 
 }

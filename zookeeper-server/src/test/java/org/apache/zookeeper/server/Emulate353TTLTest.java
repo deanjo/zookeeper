@@ -23,7 +23,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.TestableZooKeeper;
@@ -34,74 +36,74 @@ import org.junit.Test;
 
 public class Emulate353TTLTest extends ClientBase {
 
-    private TestableZooKeeper zk;
+	private TestableZooKeeper zk;
 
-    @Override
-    public void setUp() throws Exception {
-        System.setProperty(EphemeralType.EXTENDED_TYPES_ENABLED_PROPERTY, "true");
-        System.setProperty(EphemeralType.TTL_3_5_3_EMULATION_PROPERTY, "true");
-        super.setUp();
-        zk = createClient();
-    }
+	@Override
+	public void setUp() throws Exception {
+		System.setProperty(EphemeralType.EXTENDED_TYPES_ENABLED_PROPERTY, "true");
+		System.setProperty(EphemeralType.TTL_3_5_3_EMULATION_PROPERTY, "true");
+		super.setUp();
+		zk = createClient();
+	}
 
-    @Override
-    public void tearDown() throws Exception {
-        System.clearProperty(EphemeralType.EXTENDED_TYPES_ENABLED_PROPERTY);
-        System.clearProperty(EphemeralType.TTL_3_5_3_EMULATION_PROPERTY);
-        super.tearDown();
-        zk.close();
-    }
+	@Override
+	public void tearDown() throws Exception {
+		System.clearProperty(EphemeralType.EXTENDED_TYPES_ENABLED_PROPERTY);
+		System.clearProperty(EphemeralType.TTL_3_5_3_EMULATION_PROPERTY);
+		super.tearDown();
+		zk.close();
+	}
 
-    @Test
-    public void testCreate() throws KeeperException, InterruptedException {
-        Stat stat = new Stat();
-        zk.create("/foo", new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_WITH_TTL, stat, 100);
-        assertEquals(0, stat.getEphemeralOwner());
+	@Test
+	public void testCreate() throws KeeperException, InterruptedException {
+		Stat stat = new Stat();
+		zk.create("/foo", new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_WITH_TTL, stat, 100);
+		assertEquals(0, stat.getEphemeralOwner());
 
-        final AtomicLong fakeElapsed = new AtomicLong(0);
-        ContainerManager containerManager = newContainerManager(fakeElapsed);
-        containerManager.checkContainers();
-        assertNotNull("Ttl node should not have been deleted yet", zk.exists("/foo", false));
+		final AtomicLong fakeElapsed = new AtomicLong(0);
+		ContainerManager containerManager = newContainerManager(fakeElapsed);
+		containerManager.checkContainers();
+		assertNotNull("Ttl node should not have been deleted yet", zk.exists("/foo", false));
 
-        fakeElapsed.set(1000);
-        containerManager.checkContainers();
-        assertNull("Ttl node should have been deleted", zk.exists("/foo", false));
-    }
+		fakeElapsed.set(1000);
+		containerManager.checkContainers();
+		assertNull("Ttl node should have been deleted", zk.exists("/foo", false));
+	}
 
-    @Test
-    public void test353TTL() throws KeeperException, InterruptedException {
-        DataTree dataTree = serverFactory.zkServer.getZKDatabase().dataTree;
-        long ephemeralOwner = EphemeralTypeEmulate353.ttlToEphemeralOwner(100);
-        dataTree.createNode("/foo", new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, ephemeralOwner, dataTree.getNode("/").stat.getCversion()
-                                                                                                      + 1, 1, 1);
+	@Test
+	public void test353TTL() throws KeeperException, InterruptedException {
+		DataTree dataTree = serverFactory.zkServer.getZKDatabase().dataTree;
+		long ephemeralOwner = EphemeralTypeEmulate353.ttlToEphemeralOwner(100);
+		dataTree.createNode("/foo", new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, ephemeralOwner, dataTree.getNode("/").stat.getCversion()
+			+ 1, 1, 1);
 
-        final AtomicLong fakeElapsed = new AtomicLong(0);
-        ContainerManager containerManager = newContainerManager(fakeElapsed);
-        containerManager.checkContainers();
-        assertNotNull("Ttl node should not have been deleted yet", zk.exists("/foo", false));
+		final AtomicLong fakeElapsed = new AtomicLong(0);
+		ContainerManager containerManager = newContainerManager(fakeElapsed);
+		containerManager.checkContainers();
+		assertNotNull("Ttl node should not have been deleted yet", zk.exists("/foo", false));
 
-        fakeElapsed.set(1000);
-        containerManager.checkContainers();
-        assertNull("Ttl node should have been deleted", zk.exists("/foo", false));
-    }
+		fakeElapsed.set(1000);
+		containerManager.checkContainers();
+		assertNull("Ttl node should have been deleted", zk.exists("/foo", false));
+	}
 
-    @Test
-    public void testEphemeralOwner_emulationTTL() {
-        assertThat(EphemeralType.get(-1), equalTo(EphemeralType.TTL));
-    }
+	@Test
+	public void testEphemeralOwner_emulationTTL() {
+		assertThat(EphemeralType.get(-1), equalTo(EphemeralType.TTL));
+	}
 
-    @Test
-    public void testEphemeralOwner_emulationContainer() {
-        assertThat(EphemeralType.get(EphemeralType.CONTAINER_EPHEMERAL_OWNER), equalTo(EphemeralType.CONTAINER));
-    }
+	@Test
+	public void testEphemeralOwner_emulationContainer() {
+		assertThat(EphemeralType.get(EphemeralType.CONTAINER_EPHEMERAL_OWNER), equalTo(EphemeralType.CONTAINER));
+	}
 
-    private ContainerManager newContainerManager(final AtomicLong fakeElapsed) {
-        return new ContainerManager(serverFactory.getZooKeeperServer().getZKDatabase(), serverFactory.getZooKeeperServer().firstProcessor, 1, 100) {
-            @Override
-            protected long getElapsed(DataNode node) {
-                return fakeElapsed.get();
-            }
-        };
-    }
+	private ContainerManager newContainerManager(final AtomicLong fakeElapsed) {
+		return new ContainerManager(serverFactory.getZooKeeperServer().getZKDatabase(), serverFactory.getZooKeeperServer().firstProcessor, 1, 100) {
+			@Override
+			protected long getElapsed(DataNode node) {
+				return fakeElapsed.get();
+			}
+		};
+	}
 
 }

@@ -22,8 +22,10 @@ import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -40,66 +42,66 @@ import org.junit.Test;
 
 public class LeaderMetricsTest extends ZKTestCase {
 
-    CountDownLatch createdLatch;
-    int oldLoggingFeq;
+	CountDownLatch createdLatch;
+	int oldLoggingFeq;
 
-    private class MyWatcher implements Watcher {
+	private class MyWatcher implements Watcher {
 
-        @Override
-        public void process(WatchedEvent e) {
-            createdLatch.countDown();
-        }
+		@Override
+		public void process(WatchedEvent e) {
+			createdLatch.countDown();
+		}
 
-    }
+	}
 
-    @Before
-    public void setup() {
-        oldLoggingFeq = Leader.getAckLoggingFrequency();
-    }
+	@Before
+	public void setup() {
+		oldLoggingFeq = Leader.getAckLoggingFrequency();
+	}
 
-    @After
-    public void teardown() {
-        Leader.setAckLoggingFrequency(oldLoggingFeq);
-    }
+	@After
+	public void teardown() {
+		Leader.setAckLoggingFrequency(oldLoggingFeq);
+	}
 
-    @Test
-    public void testLeaderMetrics() throws Exception {
-        // set the logging frequency to one so we log the ack latency for every ack
-        Leader.setAckLoggingFrequency(1);
+	@Test
+	public void testLeaderMetrics() throws Exception {
+		// set the logging frequency to one so we log the ack latency for every ack
+		Leader.setAckLoggingFrequency(1);
 
-        ServerMetrics.getMetrics().resetAll();
+		ServerMetrics.getMetrics().resetAll();
 
-        QuorumUtil util = new QuorumUtil(1); //creating a quorum of 3 servers
-        util.startAll();
+		QuorumUtil util = new QuorumUtil(1); //creating a quorum of 3 servers
+		util.startAll();
 
-        ZooKeeper zk = ClientBase.createZKClient(util.getConnString());
-        createdLatch = new CountDownLatch(1);
-        zk.exists("/test", new MyWatcher());
-        zk.create("/test", new byte[2], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-        createdLatch.await();
+		ZooKeeper zk = ClientBase.createZKClient(util.getConnString());
+		createdLatch = new CountDownLatch(1);
+		zk.exists("/test", new MyWatcher());
+		zk.create("/test", new byte[2], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+		createdLatch.await();
 
-        Map<String, Object> values = MetricsUtils.currentServerMetrics();
+		Map<String, Object> values = MetricsUtils.currentServerMetrics();
 
-        assertEquals(2L, values.get("proposal_count"));
-        // Quorum ack latency is per txn
-        assertEquals(2L, values.get("cnt_quorum_ack_latency"));
-        assertThat((long) values.get("min_quorum_ack_latency"), greaterThan(0L));
+		assertEquals(2L, values.get("proposal_count"));
+		// Quorum ack latency is per txn
+		assertEquals(2L, values.get("cnt_quorum_ack_latency"));
+		assertThat((long) values.get("min_quorum_ack_latency"), greaterThan(0L));
 
-        int numberOfAckServers = 0;
-        // ack latency is per server
-        for (int sid = 1; sid <= 3; sid++) {
-            String metricName = "min_" + sid + "_ack_latency";
-            if (values.get(metricName) != null) {
-                numberOfAckServers++;
-                assertThat((long) values.get("min_" + sid + "_ack_latency"), greaterThanOrEqualTo(0L));
-            }
-        }
+		int numberOfAckServers = 0;
+		// ack latency is per server
+		for (int sid = 1; sid <= 3; sid++) {
+			String metricName = "min_" + sid + "_ack_latency";
+			if (values.get(metricName) != null) {
+				numberOfAckServers++;
+				assertThat((long) values.get("min_" + sid + "_ack_latency"), greaterThanOrEqualTo(0L));
+			}
+		}
 
-        // at least two servers should have send ACKs
-        assertThat(numberOfAckServers, greaterThanOrEqualTo(2));
+		// at least two servers should have send ACKs
+		assertThat(numberOfAckServers, greaterThanOrEqualTo(2));
 
-        zk.close();
-        util.shutdownAll();
-    }
+		zk.close();
+		util.shutdownAll();
+	}
 
 }

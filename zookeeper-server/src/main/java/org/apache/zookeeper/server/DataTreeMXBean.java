@@ -23,27 +23,30 @@ package org.apache.zookeeper.server;
  */
 public interface DataTreeMXBean {
 
-    /**
-     * @return number of znodes in the data tree.
-     */
-    int getNodeCount();
-    /**
-     * @return the most recent zxid processed by the data tree.
-     */
-    String getLastZxid();
-    /**
-     * @return number of watches set.
-     */
-    int getWatchCount();
+	/**
+	 * @return number of znodes in the data tree.
+	 */
+	int getNodeCount();
 
-    /**
-     * @return data tree size in bytes. The size includes the znode path and
-     * its value.
-     */
-    long approximateDataSize();
-    /**
-     * @return number of ephemeral nodes in the data tree
-     */
-    int countEphemerals();
+	/**
+	 * @return the most recent zxid processed by the data tree.
+	 */
+	String getLastZxid();
+
+	/**
+	 * @return number of watches set.
+	 */
+	int getWatchCount();
+
+	/**
+	 * @return data tree size in bytes. The size includes the znode path and
+	 * its value.
+	 */
+	long approximateDataSize();
+
+	/**
+	 * @return number of ephemeral nodes in the data tree
+	 */
+	int countEphemerals();
 
 }

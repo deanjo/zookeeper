@@ -19,6 +19,7 @@
 package org.apache.zookeeper.server;
 
 import static org.junit.Assert.assertNotSame;
+
 import org.apache.zookeeper.ZKTestCase;
 import org.apache.zookeeper.proto.SetDataRequest;
 import org.junit.Test;
@@ -29,12 +30,14 @@ import org.junit.Test;
  */
 public class ToStringTest extends ZKTestCase {
 
-    /** Verify jute - which we've had particular problems with in the past
-     * wrt null fields */
-    @Test
-    public void testJuteToString() {
-        SetDataRequest req = new SetDataRequest(null, null, 0);
-        assertNotSame("ERROR", req.toString());
-    }
+	/**
+	 * Verify jute - which we've had particular problems with in the past
+	 * wrt null fields
+	 */
+	@Test
+	public void testJuteToString() {
+		SetDataRequest req = new SetDataRequest(null, null, 0);
+		assertNotSame("ERROR", req.toString());
+	}
 
 }

@@ -20,82 +20,84 @@ package org.apache.zookeeper.server.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 import org.apache.zookeeper.ZKTestCase;
 import org.junit.Test;
 
 public class AdHashTest extends ZKTestCase {
 
-    private static Random rand = new Random();
+	private static Random rand = new Random();
 
-    private static List<Long> generateRandomHashes(int count) {
-        ArrayList<Long> list = new ArrayList<>(count);
+	private static List<Long> generateRandomHashes(int count) {
+		ArrayList<Long> list = new ArrayList<>(count);
 
-        for (int i = 0; i < count; i++) {
-            list.add(rand.nextLong());
-        }
-        return list;
-    }
+		for (int i = 0; i < count; i++) {
+			list.add(rand.nextLong());
+		}
+		return list;
+	}
 
-    private static void addListOfDigests(AdHash hash, List<Long> digests) {
-        for (long b : digests) {
-            hash.addDigest(b);
-        }
-    }
+	private static void addListOfDigests(AdHash hash, List<Long> digests) {
+		for (long b : digests) {
+			hash.addDigest(b);
+		}
+	}
 
-    private static void removeListOfDigests(AdHash hash, List<Long> digests) {
-        for (long b : digests) {
-            hash.removeDigest(b);
-        }
-    }
+	private static void removeListOfDigests(AdHash hash, List<Long> digests) {
+		for (long b : digests) {
+			hash.removeDigest(b);
+		}
+	}
 
-    /**
-     * Test thhe add and remove digest from AdHash is working as expected.
-     */
-    @Test
-    public void testAdHash() throws Exception {
-        List<Long> bucket1 = generateRandomHashes(50);
-        List<Long> bucket2 = generateRandomHashes(3);
-        List<Long> bucket3 = generateRandomHashes(30);
-        List<Long> bucket4 = generateRandomHashes(10);
-        List<Long> bucket5 = generateRandomHashes(5);
+	/**
+	 * Test thhe add and remove digest from AdHash is working as expected.
+	 */
+	@Test
+	public void testAdHash() throws Exception {
+		List<Long> bucket1 = generateRandomHashes(50);
+		List<Long> bucket2 = generateRandomHashes(3);
+		List<Long> bucket3 = generateRandomHashes(30);
+		List<Long> bucket4 = generateRandomHashes(10);
+		List<Long> bucket5 = generateRandomHashes(5);
 
-        // adding out of order should result in the same hash
-        AdHash hash12 = new AdHash();
-        addListOfDigests(hash12, bucket1);
-        addListOfDigests(hash12, bucket2);
+		// adding out of order should result in the same hash
+		AdHash hash12 = new AdHash();
+		addListOfDigests(hash12, bucket1);
+		addListOfDigests(hash12, bucket2);
 
-        AdHash hash21 = new AdHash();
-        addListOfDigests(hash21, bucket2);
-        addListOfDigests(hash21, bucket1);
-        assertEquals(hash12, hash21);
+		AdHash hash21 = new AdHash();
+		addListOfDigests(hash21, bucket2);
+		addListOfDigests(hash21, bucket1);
+		assertEquals(hash12, hash21);
 
-        AdHash hashall = new AdHash();
-        addListOfDigests(hashall, bucket1);
-        addListOfDigests(hashall, bucket2);
-        addListOfDigests(hashall, bucket3);
-        addListOfDigests(hashall, bucket4);
-        addListOfDigests(hashall, bucket5);
-        assertFalse("digest of different set not different", hashall.equals(hash21));
-        removeListOfDigests(hashall, bucket4);
-        removeListOfDigests(hashall, bucket5);
-        addListOfDigests(hash21, bucket3);
-        assertEquals("hashall with 4 & 5 removed should match hash21 with 3 added", hashall, hash21);
+		AdHash hashall = new AdHash();
+		addListOfDigests(hashall, bucket1);
+		addListOfDigests(hashall, bucket2);
+		addListOfDigests(hashall, bucket3);
+		addListOfDigests(hashall, bucket4);
+		addListOfDigests(hashall, bucket5);
+		assertFalse("digest of different set not different", hashall.equals(hash21));
+		removeListOfDigests(hashall, bucket4);
+		removeListOfDigests(hashall, bucket5);
+		addListOfDigests(hash21, bucket3);
+		assertEquals("hashall with 4 & 5 removed should match hash21 with 3 added", hashall, hash21);
 
-        removeListOfDigests(hashall, bucket3);
-        removeListOfDigests(hashall, bucket2);
-        removeListOfDigests(hashall, bucket1);
-        assertEquals("empty hashall's digest should be 0", hashall.toString(), "0");
+		removeListOfDigests(hashall, bucket3);
+		removeListOfDigests(hashall, bucket2);
+		removeListOfDigests(hashall, bucket1);
+		assertEquals("empty hashall's digest should be 0", hashall.toString(), "0");
 
-        AdHash hash45 = new AdHash();
-        addListOfDigests(hash45, bucket4);
-        addListOfDigests(hash45, bucket5);
+		AdHash hash45 = new AdHash();
+		addListOfDigests(hash45, bucket4);
+		addListOfDigests(hash45, bucket5);
 
-        addListOfDigests(hashall, bucket4);
-        addListOfDigests(hashall, bucket5);
-        assertEquals("empty hashall + 4&5 should equal hash45", hashall, hash45);
-    }
+		addListOfDigests(hashall, bucket4);
+		addListOfDigests(hashall, bucket5);
+		assertEquals("empty hashall + 4&5 should equal hash45", hashall, hash45);
+	}
 
 }

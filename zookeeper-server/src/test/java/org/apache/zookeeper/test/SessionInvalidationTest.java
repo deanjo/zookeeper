@@ -19,10 +19,12 @@
 package org.apache.zookeeper.test;
 
 import static org.junit.Assert.assertEquals;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+
 import org.apache.jute.BinaryOutputArchive;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooDefs.Ids;
@@ -35,70 +37,70 @@ import org.junit.Test;
 
 public class SessionInvalidationTest extends ClientBase {
 
-    /**
-     * Test solution for ZOOKEEPER-1208. Verify that operations are not
-     * accepted after a close session.
-     *
-     * We're using our own marshalling here in order to force an operation
-     * after the session is closed (ZooKeeper.class will not allow this). Also
-     * by filling the pipe with operations it increases the likelyhood that
-     * the server will process the create before FinalRequestProcessor
-     * removes the session from the tracker.
-     */
-    @Test
-    public void testCreateAfterCloseShouldFail() throws Exception {
-        for (int i = 0; i < 10; i++) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            BinaryOutputArchive boa = BinaryOutputArchive.getArchive(baos);
+	/**
+	 * Test solution for ZOOKEEPER-1208. Verify that operations are not
+	 * accepted after a close session.
+	 * <p>
+	 * We're using our own marshalling here in order to force an operation
+	 * after the session is closed (ZooKeeper.class will not allow this). Also
+	 * by filling the pipe with operations it increases the likelyhood that
+	 * the server will process the create before FinalRequestProcessor
+	 * removes the session from the tracker.
+	 */
+	@Test
+	public void testCreateAfterCloseShouldFail() throws Exception {
+		for (int i = 0; i < 10; i++) {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			BinaryOutputArchive boa = BinaryOutputArchive.getArchive(baos);
 
-            // open a connection
-            boa.writeInt(44, "len");
-            ConnectRequest conReq = new ConnectRequest(0, 0, 30000, 0, new byte[16]);
-            conReq.serialize(boa, "connect");
+			// open a connection
+			boa.writeInt(44, "len");
+			ConnectRequest conReq = new ConnectRequest(0, 0, 30000, 0, new byte[16]);
+			conReq.serialize(boa, "connect");
 
-            // close connection
-            boa.writeInt(8, "len");
-            RequestHeader h = new RequestHeader(1, ZooDefs.OpCode.closeSession);
-            h.serialize(boa, "header");
+			// close connection
+			boa.writeInt(8, "len");
+			RequestHeader h = new RequestHeader(1, ZooDefs.OpCode.closeSession);
+			h.serialize(boa, "header");
 
-            // create ephemeral znode
-            boa.writeInt(52, "len"); // We'll fill this in later
-            RequestHeader header = new RequestHeader(2, OpCode.create);
-            header.serialize(boa, "header");
-            CreateRequest createReq = new CreateRequest("/foo" + i, new byte[0], Ids.OPEN_ACL_UNSAFE, 1);
-            createReq.serialize(boa, "request");
-            baos.close();
+			// create ephemeral znode
+			boa.writeInt(52, "len"); // We'll fill this in later
+			RequestHeader header = new RequestHeader(2, OpCode.create);
+			header.serialize(boa, "header");
+			CreateRequest createReq = new CreateRequest("/foo" + i, new byte[0], Ids.OPEN_ACL_UNSAFE, 1);
+			createReq.serialize(boa, "request");
+			baos.close();
 
-            System.out.println("Length:" + baos.toByteArray().length);
+			System.out.println("Length:" + baos.toByteArray().length);
 
-            String[] hp = hostPort.split(":");
-            Socket sock = new Socket(hp[0], Integer.parseInt(hp[1]));
-            InputStream resultStream = null;
-            try {
-                OutputStream outstream = sock.getOutputStream();
-                byte[] data = baos.toByteArray();
-                outstream.write(data);
-                outstream.flush();
+			String[] hp = hostPort.split(":");
+			Socket sock = new Socket(hp[0], Integer.parseInt(hp[1]));
+			InputStream resultStream = null;
+			try {
+				OutputStream outstream = sock.getOutputStream();
+				byte[] data = baos.toByteArray();
+				outstream.write(data);
+				outstream.flush();
 
-                resultStream = sock.getInputStream();
-                byte[] b = new byte[10000];
-                int len;
-                while ((len = resultStream.read(b)) >= 0) {
-                    // got results
-                    System.out.println("gotlen:" + len);
-                }
-            } finally {
-                if (resultStream != null) {
-                    resultStream.close();
-                }
-                sock.close();
-            }
-        }
+				resultStream = sock.getInputStream();
+				byte[] b = new byte[10000];
+				int len;
+				while ((len = resultStream.read(b)) >= 0) {
+					// got results
+					System.out.println("gotlen:" + len);
+				}
+			} finally {
+				if (resultStream != null) {
+					resultStream.close();
+				}
+				sock.close();
+			}
+		}
 
-        ZooKeeper zk = createClient();
-        assertEquals(1, zk.getChildren("/", false).size());
+		ZooKeeper zk = createClient();
+		assertEquals(1, zk.getChildren("/", false).size());
 
-        zk.close();
-    }
+		zk.close();
+	}
 
 }

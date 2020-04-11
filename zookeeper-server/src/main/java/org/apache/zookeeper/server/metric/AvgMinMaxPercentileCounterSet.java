@@ -21,6 +21,7 @@ package org.apache.zookeeper.server.metric;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.zookeeper.metrics.SummarySet;
 
 /**
@@ -30,52 +31,52 @@ import org.apache.zookeeper.metrics.SummarySet;
  */
 public class AvgMinMaxPercentileCounterSet extends Metric implements SummarySet {
 
-    private final String name;
+	private final String name;
 
-    private ConcurrentHashMap<String, AvgMinMaxPercentileCounter> counters = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, AvgMinMaxPercentileCounter> counters = new ConcurrentHashMap<>();
 
-    public AvgMinMaxPercentileCounterSet(String name) {
-        this.name = name;
-    }
+	public AvgMinMaxPercentileCounterSet(String name) {
+		this.name = name;
+	}
 
-    private AvgMinMaxPercentileCounter getCounterForKey(String key) {
-        AvgMinMaxPercentileCounter counter = counters.get(key);
-        if (counter == null) {
-            counters.putIfAbsent(key, new AvgMinMaxPercentileCounter(key + "_" + name));
-            counter = counters.get(key);
-        }
+	private AvgMinMaxPercentileCounter getCounterForKey(String key) {
+		AvgMinMaxPercentileCounter counter = counters.get(key);
+		if (counter == null) {
+			counters.putIfAbsent(key, new AvgMinMaxPercentileCounter(key + "_" + name));
+			counter = counters.get(key);
+		}
 
-        return counter;
-    }
+		return counter;
+	}
 
-    public void addDataPoint(String key, long value) {
-        getCounterForKey(key).addDataPoint(value);
-    }
+	public void addDataPoint(String key, long value) {
+		getCounterForKey(key).addDataPoint(value);
+	}
 
-    public void resetMax() {
-        for (Map.Entry<String, AvgMinMaxPercentileCounter> entry : counters.entrySet()) {
-            entry.getValue().resetMax();
-        }
-    }
+	public void resetMax() {
+		for (Map.Entry<String, AvgMinMaxPercentileCounter> entry : counters.entrySet()) {
+			entry.getValue().resetMax();
+		}
+	}
 
-    public void reset() {
-        for (Map.Entry<String, AvgMinMaxPercentileCounter> entry : counters.entrySet()) {
-            entry.getValue().reset();
-        }
-    }
+	public void reset() {
+		for (Map.Entry<String, AvgMinMaxPercentileCounter> entry : counters.entrySet()) {
+			entry.getValue().reset();
+		}
+	}
 
-    @Override
-    public void add(String key, long value) {
-        addDataPoint(key, value);
-    }
+	@Override
+	public void add(String key, long value) {
+		addDataPoint(key, value);
+	}
 
-    @Override
-    public Map<String, Object> values() {
-        Map<String, Object> m = new LinkedHashMap<>();
-        for (Map.Entry<String, AvgMinMaxPercentileCounter> entry : counters.entrySet()) {
-            m.putAll(entry.getValue().values());
-        }
-        return m;
-    }
+	@Override
+	public Map<String, Object> values() {
+		Map<String, Object> m = new LinkedHashMap<>();
+		for (Map.Entry<String, AvgMinMaxPercentileCounter> entry : counters.entrySet()) {
+			m.putAll(entry.getValue().values());
+		}
+		return m;
+	}
 
 }

@@ -20,6 +20,7 @@ package org.apache.zookeeper.server.command;
 
 import java.io.PrintWriter;
 import java.util.List;
+
 import org.apache.zookeeper.server.DataTree.ZxidDigest;
 import org.apache.zookeeper.server.ServerCnxn;
 
@@ -28,20 +29,20 @@ import org.apache.zookeeper.server.ServerCnxn;
  */
 public class DigestCommand extends AbstractFourLetterCommand {
 
-    public DigestCommand(PrintWriter pw, ServerCnxn serverCnxn) {
-        super(pw, serverCnxn);
-    }
+	public DigestCommand(PrintWriter pw, ServerCnxn serverCnxn) {
+		super(pw, serverCnxn);
+	}
 
-    @Override
-    public void commandRun() {
-        if (!isZKServerRunning()) {
-            pw.print(ZK_NOT_SERVING);
-        } else {
-            List<ZxidDigest> digestLog = zkServer.getZKDatabase().getDataTree().getDigestLog();
-            for (ZxidDigest zd : digestLog) {
-                pw.println(Long.toHexString(zd.getZxid()) + ": " + zd.getDigest());
-            }
-        }
-    }
+	@Override
+	public void commandRun() {
+		if (!isZKServerRunning()) {
+			pw.print(ZK_NOT_SERVING);
+		} else {
+			List<ZxidDigest> digestLog = zkServer.getZKDatabase().getDataTree().getDigestLog();
+			for (ZxidDigest zd : digestLog) {
+				pw.println(Long.toHexString(zd.getZxid()) + ": " + zd.getDigest());
+			}
+		}
+	}
 
 }

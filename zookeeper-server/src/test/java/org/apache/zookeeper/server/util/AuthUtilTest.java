@@ -19,6 +19,7 @@ package org.apache.zookeeper.server.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
 import org.apache.zookeeper.data.Id;
 import org.apache.zookeeper.server.auth.ProviderRegistry;
 import org.junit.AfterClass;
@@ -27,45 +28,45 @@ import org.junit.Test;
 
 public class AuthUtilTest {
 
-    @BeforeClass
-    public static void beforeClassSetUp() {
-        ProviderRegistry.reset();
-        System.setProperty("zookeeper.authProvider.sasl",
-                "org.apache.zookeeper.server.auth.SASLAuthenticationProvider");
-        System.setProperty("zookeeper.authProvider.x509",
-                "org.apache.zookeeper.server.auth.X509AuthenticationProvider");
-    }
+	@BeforeClass
+	public static void beforeClassSetUp() {
+		ProviderRegistry.reset();
+		System.setProperty("zookeeper.authProvider.sasl",
+			"org.apache.zookeeper.server.auth.SASLAuthenticationProvider");
+		System.setProperty("zookeeper.authProvider.x509",
+			"org.apache.zookeeper.server.auth.X509AuthenticationProvider");
+	}
 
-    @AfterClass
-    public static void afterClassTearDown() {
-        System.clearProperty("zookeeper.authProvider.sasl");
-        System.clearProperty("zookeeper.authProvider.x509");
-    }
+	@AfterClass
+	public static void afterClassTearDown() {
+		System.clearProperty("zookeeper.authProvider.sasl");
+		System.clearProperty("zookeeper.authProvider.x509");
+	}
 
-    @Test
-    public void testGetUserFromAllAuthenticationScheme() {
-        String user = "zkUser";
-        Id id = new Id("digest", user + ":password");
-        String result = AuthUtil.getUser(id);
-        assertEquals(user, result);
+	@Test
+	public void testGetUserFromAllAuthenticationScheme() {
+		String user = "zkUser";
+		Id id = new Id("digest", user + ":password");
+		String result = AuthUtil.getUser(id);
+		assertEquals(user, result);
 
-        String principal = "zkCli/hadoop.hadoop.com";
-        id = new Id("sasl", principal);
-        assertEquals(principal, AuthUtil.getUser(id));
+		String principal = "zkCli/hadoop.hadoop.com";
+		id = new Id("sasl", principal);
+		assertEquals(principal, AuthUtil.getUser(id));
 
-        String ip = "192.168.1.2";
-        id = new Id("ip", ip);
-        assertEquals(ip, AuthUtil.getUser(id));
+		String ip = "192.168.1.2";
+		id = new Id("ip", ip);
+		assertEquals(ip, AuthUtil.getUser(id));
 
-        String certificate = "CN=host-192.168.1.2,OU=OrganizationUnit,O=Organization,L=Location,ST=State,C=IN";
-        id = new Id("x509", certificate);
-        assertEquals(certificate, AuthUtil.getUser(id));
-    }
+		String certificate = "CN=host-192.168.1.2,OU=OrganizationUnit,O=Organization,L=Location,ST=State,C=IN";
+		id = new Id("x509", certificate);
+		assertEquals(certificate, AuthUtil.getUser(id));
+	}
 
-    @Test
-    public void testGetUserShouldReturnNullIfAuthenticationNotConfigured() {
-        Id id = new Id("invalid Authentication Scheme", "user");
-        String result = AuthUtil.getUser(id);
-        assertNull(result);
-    }
+	@Test
+	public void testGetUserShouldReturnNullIfAuthenticationNotConfigured() {
+		Id id = new Id("invalid Authentication Scheme", "user");
+		String result = AuthUtil.getUser(id);
+		assertNull(result);
+	}
 }

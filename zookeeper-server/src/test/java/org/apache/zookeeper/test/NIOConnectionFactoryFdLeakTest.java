@@ -19,7 +19,9 @@
 package org.apache.zookeeper.test;
 
 import static org.junit.Assert.assertTrue;
+
 import java.net.InetSocketAddress;
+
 import org.apache.zookeeper.PortAssignment;
 import org.apache.zookeeper.ZKTestCase;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
@@ -34,33 +36,33 @@ import org.slf4j.LoggerFactory;
  */
 public class NIOConnectionFactoryFdLeakTest extends ZKTestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NIOConnectionFactoryFdLeakTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(NIOConnectionFactoryFdLeakTest.class);
 
-    @Test
-    public void testFileDescriptorLeak() throws Exception {
+	@Test
+	public void testFileDescriptorLeak() throws Exception {
 
-        OSMXBean osMbean = new OSMXBean();
-        if (!osMbean.getUnix()) {
-            LOG.info("Unable to run test on non-unix system");
-            return;
-        }
+		OSMXBean osMbean = new OSMXBean();
+		if (!osMbean.getUnix()) {
+			LOG.info("Unable to run test on non-unix system");
+			return;
+		}
 
-        long startFdCount = osMbean.getOpenFileDescriptorCount();
-        LOG.info("Start fdcount is: {}", startFdCount);
+		long startFdCount = osMbean.getOpenFileDescriptorCount();
+		LOG.info("Start fdcount is: {}", startFdCount);
 
-        for (int i = 0; i < 50; ++i) {
-            NIOServerCnxnFactory factory = new NIOServerCnxnFactory();
-            factory.configure(new InetSocketAddress("127.0.0.1", PortAssignment.unique()), 10);
-            factory.start();
-            Thread.sleep(100);
-            factory.shutdown();
-        }
+		for (int i = 0; i < 50; ++i) {
+			NIOServerCnxnFactory factory = new NIOServerCnxnFactory();
+			factory.configure(new InetSocketAddress("127.0.0.1", PortAssignment.unique()), 10);
+			factory.start();
+			Thread.sleep(100);
+			factory.shutdown();
+		}
 
-        long endFdCount = osMbean.getOpenFileDescriptorCount();
-        LOG.info("End fdcount is: {}", endFdCount);
+		long endFdCount = osMbean.getOpenFileDescriptorCount();
+		LOG.info("End fdcount is: {}", endFdCount);
 
-        // On my box, if selector.close() is not called fd diff is > 700.
-        assertTrue("Possible fd leakage", ((endFdCount - startFdCount) < 50));
-    }
+		// On my box, if selector.close() is not called fd diff is > 700.
+		assertTrue("Possible fd leakage", ((endFdCount - startFdCount) < 50));
+	}
 
 }

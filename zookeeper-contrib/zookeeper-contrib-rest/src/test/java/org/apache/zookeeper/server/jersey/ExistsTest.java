@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,41 +40,41 @@ import com.sun.jersey.api.client.ClientResponse;
  */
 @RunWith(Parameterized.class)
 public class ExistsTest extends Base {
-    protected static final Logger LOG = LoggerFactory.getLogger(ExistsTest.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(ExistsTest.class);
 
-    private String path;
-    private ClientResponse.Status expectedStatus;
+	private String path;
+	private ClientResponse.Status expectedStatus;
 
-    @Parameters
-    public static Collection<Object[]> data() throws Exception {
-        String baseZnode = Base.createBaseZNode();
+	@Parameters
+	public static Collection<Object[]> data() throws Exception {
+		String baseZnode = Base.createBaseZNode();
 
-     return Arrays.asList(new Object[][] {
-      {baseZnode, ClientResponse.Status.OK },
-      {baseZnode + "dkdk38383", ClientResponse.Status.NOT_FOUND }
-     });
-    }
+		return Arrays.asList(new Object[][]{
+			{baseZnode, ClientResponse.Status.OK},
+			{baseZnode + "dkdk38383", ClientResponse.Status.NOT_FOUND}
+		});
+	}
 
-    public ExistsTest(String path, ClientResponse.Status status) {
-        this.path = path;
-        this.expectedStatus = status;
-    }
+	public ExistsTest(String path, ClientResponse.Status status) {
+		this.path = path;
+		this.expectedStatus = status;
+	}
 
-    private void verify(String type) {
-        ClientResponse cr = znodesr.path(path).accept(type).type(type).head();
-        if (type.equals(MediaType.APPLICATION_OCTET_STREAM)
-                && expectedStatus == ClientResponse.Status.OK) {
-            Assert.assertEquals(ClientResponse.Status.NO_CONTENT,
-                    cr.getClientResponseStatus());
-        } else {
-            Assert.assertEquals(expectedStatus, cr.getClientResponseStatus());
-        }
-    }
+	private void verify(String type) {
+		ClientResponse cr = znodesr.path(path).accept(type).type(type).head();
+		if (type.equals(MediaType.APPLICATION_OCTET_STREAM)
+			&& expectedStatus == ClientResponse.Status.OK) {
+			Assert.assertEquals(ClientResponse.Status.NO_CONTENT,
+				cr.getClientResponseStatus());
+		} else {
+			Assert.assertEquals(expectedStatus, cr.getClientResponseStatus());
+		}
+	}
 
-    @Test
-    public void testExists() throws Exception {
-        verify(MediaType.APPLICATION_OCTET_STREAM);
-        verify(MediaType.APPLICATION_JSON);
-        verify(MediaType.APPLICATION_XML);
-    }
+	@Test
+	public void testExists() throws Exception {
+		verify(MediaType.APPLICATION_OCTET_STREAM);
+		verify(MediaType.APPLICATION_JSON);
+		verify(MediaType.APPLICATION_XML);
+	}
 }

@@ -29,77 +29,73 @@ package org.apache.zookeeper.metrics;
  * <p>
  * Contexts are organized in a hierarchy.
  * </p>
- *
  */
 public interface MetricsContext {
 
-    /**
-     * Returns a sub context.
-     *
-     * @param name the name of the subcontext
-     *
-     * @return a new metrics context.
-     */
-    MetricsContext getContext(String name);
+	/**
+	 * Returns a sub context.
+	 *
+	 * @param name the name of the subcontext
+	 * @return a new metrics context.
+	 */
+	MetricsContext getContext(String name);
 
-    /**
-     * Returns a counter.
-     *
-     * @param name
-     * @return the counter identified by name in this context.
-     */
-    Counter getCounter(String name);
+	/**
+	 * Returns a counter.
+	 *
+	 * @param name
+	 * @return the counter identified by name in this context.
+	 */
+	Counter getCounter(String name);
 
-    /**
-     * Registers an user provided {@link Gauge} which will be called by the
-     * MetricsProvider in order to sample an integer value.
-     * If another Gauge was already registered the new one will
-     * take its place.
-     * Registering a null callback is not allowed.
-     *
-     * @param name unique name of the Gauge in this context
-     * @param gauge the implementation of the Gauge
-     *
-     */
-    void registerGauge(String name, Gauge gauge);
+	/**
+	 * Registers an user provided {@link Gauge} which will be called by the
+	 * MetricsProvider in order to sample an integer value.
+	 * If another Gauge was already registered the new one will
+	 * take its place.
+	 * Registering a null callback is not allowed.
+	 *
+	 * @param name  unique name of the Gauge in this context
+	 * @param gauge the implementation of the Gauge
+	 */
+	void registerGauge(String name, Gauge gauge);
 
-    /**
-     * Unregisters the user provided {@link Gauge} bound to the given name.
-     *
-     * @param name unique name of the Gauge in this context
-     *
-     */
-    void unregisterGauge(String name);
+	/**
+	 * Unregisters the user provided {@link Gauge} bound to the given name.
+	 *
+	 * @param name unique name of the Gauge in this context
+	 */
+	void unregisterGauge(String name);
 
-    enum DetailLevel {
-        /**
-         * The returned Summary is expected to track only simple aggregated
-         * values, like min/max/avg
-         */
-        BASIC,
-        /**
-         * It is expected that the returned Summary performs expensive
-         * aggregations, like percentiles.
-         */
-        ADVANCED
-    }
+	enum DetailLevel {
+		/**
+		 * The returned Summary is expected to track only simple aggregated
+		 * values, like min/max/avg
+		 */
+		BASIC,
+		/**
+		 * It is expected that the returned Summary performs expensive
+		 * aggregations, like percentiles.
+		 */
+		ADVANCED
+	}
 
-    /**
-     * Returns a summary.
-     *
-     * @param name
-     * @param detailLevel
-     * @return the summary identified by name in this context.
-     */
-    Summary getSummary(String name, DetailLevel detailLevel);
+	/**
+	 * Returns a summary.
+	 *
+	 * @param name
+	 * @param detailLevel
+	 * @return the summary identified by name in this context.
+	 */
+	Summary getSummary(String name, DetailLevel detailLevel);
 
-    /**
-     * Returns a set of summaries.
-     *
-     * @param name
-     * @param detailLevel
-     * @return the summary identified by name in this context.
-     */
-    SummarySet getSummarySet(String name, DetailLevel detailLevel);
+	/**
+	 * Returns a set of summaries.
+	 *
+	 * @param name
+	 * @param detailLevel
+	 * @return the summary identified by name in this context.
+	 */
+	SummarySet getSummarySet(String name, DetailLevel detailLevel);
 
 }

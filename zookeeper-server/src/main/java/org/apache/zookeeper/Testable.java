@@ -23,16 +23,16 @@ package org.apache.zookeeper;
  */
 public interface Testable {
 
-    /**
-     * Cause the ZooKeeper instance to behave as if the session expired
-     */
-    void injectSessionExpiration();
+	/**
+	 * Cause the ZooKeeper instance to behave as if the session expired
+	 */
+	void injectSessionExpiration();
 
-    /**
-     * Allow an event to be inserted into the event queue
-     *
-     * @param event event to insert
-     */
-    void queueEvent(WatchedEvent event);
+	/**
+	 * Allow an event to be inserted into the event queue
+	 *
+	 * @param event event to insert
+	 */
+	void queueEvent(WatchedEvent event);
 
 }

@@ -27,49 +27,51 @@ import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
  * This helper class allows to programmatically create a JAAS configuration.
  * Each section must have a name and a login module, and a set of key/values
  * to describe login options.
- *
+ * <p>
  * Example:
- *   jaas = new JaasConfiguration();
- *   jaas.addSection("Server", "org.apache.zookeeper.server.auth.DigestLoginModule",
- *                   "username", "passowrd");
+ * jaas = new JaasConfiguration();
+ * jaas.addSection("Server", "org.apache.zookeeper.server.auth.DigestLoginModule",
+ * "username", "passowrd");
  */
 public class JaasConfiguration extends javax.security.auth.login.Configuration {
 
-    private final Map<String, AppConfigurationEntry[]> sections = new HashMap<String, AppConfigurationEntry[]>();
+	private final Map<String, AppConfigurationEntry[]> sections = new HashMap<String, AppConfigurationEntry[]>();
 
-    public JaasConfiguration() {
-    }
+	public JaasConfiguration() {
+	}
 
-    /**
-     * Add a section to the jaas.conf
-     * @param name Section name
-     * @param loginModuleName Login module name
-     * @param args login key/value args
-     */
-    public void addSection(String name, String loginModuleName, String... args) {
-        Map<String, String> conf = new HashMap<String, String>();
-        // loop through the args (must be key/value sequence)
-        for (int i = 0; i < args.length - 1; i += 2) {
-            conf.put(args[i], args[i + 1]);
-        }
-        addSection(name, loginModuleName, conf);
-    }
+	/**
+	 * Add a section to the jaas.conf
+	 *
+	 * @param name            Section name
+	 * @param loginModuleName Login module name
+	 * @param args            login key/value args
+	 */
+	public void addSection(String name, String loginModuleName, String... args) {
+		Map<String, String> conf = new HashMap<String, String>();
+		// loop through the args (must be key/value sequence)
+		for (int i = 0; i < args.length - 1; i += 2) {
+			conf.put(args[i], args[i + 1]);
+		}
+		addSection(name, loginModuleName, conf);
+	}
 
-    /**
-     * Add a section to the jaas.conf
-     * @param name Section name
-     * @param loginModuleName Login module name
-     * @param conf login key/value args
-     */
-    public void addSection(String name, String loginModuleName, final Map<String, String> conf) {
-        AppConfigurationEntry[] entries = new AppConfigurationEntry[1];
-        entries[0] = new AppConfigurationEntry(loginModuleName, LoginModuleControlFlag.REQUIRED, conf);
-        this.sections.put(name, entries);
-    }
+	/**
+	 * Add a section to the jaas.conf
+	 *
+	 * @param name            Section name
+	 * @param loginModuleName Login module name
+	 * @param conf            login key/value args
+	 */
+	public void addSection(String name, String loginModuleName, final Map<String, String> conf) {
+		AppConfigurationEntry[] entries = new AppConfigurationEntry[1];
+		entries[0] = new AppConfigurationEntry(loginModuleName, LoginModuleControlFlag.REQUIRED, conf);
+		this.sections.put(name, entries);
+	}
 
-    @Override
-    public AppConfigurationEntry[] getAppConfigurationEntry(String appName) {
-        return sections.get(appName);
-    }
+	@Override
+	public AppConfigurationEntry[] getAppConfigurationEntry(String appName) {
+		return sections.get(appName);
+	}
 
 }

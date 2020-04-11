@@ -23,19 +23,19 @@ package org.apache.jute.compiler;
  */
 public class JFloat extends JType {
 
-    /**
-     * Creates a new instance of JFloat.
-     */
-    public JFloat() {
-        super("float", "float", "float", "float", "Float", "Float", "float", "toFloat");
-    }
+	/**
+	 * Creates a new instance of JFloat.
+	 */
+	public JFloat() {
+		super("float", "float", "float", "float", "Float", "Float", "float", "toFloat");
+	}
 
-    public String getSignature() {
-        return "f";
-    }
+	public String getSignature() {
+		return "f";
+	}
 
-    public String genJavaHashCode(String fname) {
-        return "    ret = Float.floatToIntBits(" + fname + ");\n";
-    }
+	public String genJavaHashCode(String fname) {
+		return "    ret = Float.floatToIntBits(" + fname + ");\n";
+	}
 
 }

@@ -24,8 +24,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
 import org.apache.zookeeper.server.ServerCnxn;
 import org.apache.zookeeper.server.ServerStats;
 import org.apache.zookeeper.server.ZooKeeperServer;
@@ -35,77 +37,77 @@ import org.junit.Test;
 
 public class StatResetCommandTest {
 
-    private StatResetCommand statResetCommand;
-    private StringWriter outputWriter;
-    private ZooKeeperServer zks;
-    private ServerStats serverStats;
+	private StatResetCommand statResetCommand;
+	private StringWriter outputWriter;
+	private ZooKeeperServer zks;
+	private ServerStats serverStats;
 
-    @Before
-    public void setUp() {
-        outputWriter = new StringWriter();
-        ServerCnxn serverCnxnMock = mock(ServerCnxn.class);
+	@Before
+	public void setUp() {
+		outputWriter = new StringWriter();
+		ServerCnxn serverCnxnMock = mock(ServerCnxn.class);
 
-        zks = mock(ZooKeeperServer.class);
-        when(zks.isRunning()).thenReturn(true);
+		zks = mock(ZooKeeperServer.class);
+		when(zks.isRunning()).thenReturn(true);
 
-        serverStats = mock(ServerStats.class);
-        when(zks.serverStats()).thenReturn(serverStats);
+		serverStats = mock(ServerStats.class);
+		when(zks.serverStats()).thenReturn(serverStats);
 
-        statResetCommand = new StatResetCommand(new PrintWriter(outputWriter), serverCnxnMock);
-        statResetCommand.setZkServer(zks);
-    }
+		statResetCommand = new StatResetCommand(new PrintWriter(outputWriter), serverCnxnMock);
+		statResetCommand.setZkServer(zks);
+	}
 
-    @Test
-    public void testStatResetWithZKNotRunning() {
-        // Arrange
-        when(zks.isRunning()).thenReturn(false);
+	@Test
+	public void testStatResetWithZKNotRunning() {
+		// Arrange
+		when(zks.isRunning()).thenReturn(false);
 
-        // Act
-        statResetCommand.commandRun();
+		// Act
+		statResetCommand.commandRun();
 
-        // Assert
-        String output = outputWriter.toString();
-        assertEquals(ZK_NOT_SERVING + "\n", output);
-    }
+		// Assert
+		String output = outputWriter.toString();
+		assertEquals(ZK_NOT_SERVING + "\n", output);
+	}
 
-    @Test
-    public void testStatResetWithFollower() {
-        // Arrange
-        when(zks.isRunning()).thenReturn(true);
-        when(serverStats.getServerState()).thenReturn("follower");
+	@Test
+	public void testStatResetWithFollower() {
+		// Arrange
+		when(zks.isRunning()).thenReturn(true);
+		when(serverStats.getServerState()).thenReturn("follower");
 
-        // Act
-        statResetCommand.commandRun();
+		// Act
+		statResetCommand.commandRun();
 
-        // Assert
-        String output = outputWriter.toString();
-        assertEquals("Server stats reset.\n", output);
-        verify(serverStats, times(1)).reset();
-    }
+		// Assert
+		String output = outputWriter.toString();
+		assertEquals("Server stats reset.\n", output);
+		verify(serverStats, times(1)).reset();
+	}
 
-    @Test
-    public void testStatResetWithLeader() {
-        // Arrange
-        LeaderZooKeeperServer leaderZks = mock(LeaderZooKeeperServer.class);
-        when(leaderZks.isRunning()).thenReturn(true);
-        when(leaderZks.serverStats()).thenReturn(serverStats);
-        Leader leader = mock(Leader.class);
-        when(leaderZks.getLeader()).thenReturn(leader);
-        statResetCommand.setZkServer(leaderZks);
+	@Test
+	public void testStatResetWithLeader() {
+		// Arrange
+		LeaderZooKeeperServer leaderZks = mock(LeaderZooKeeperServer.class);
+		when(leaderZks.isRunning()).thenReturn(true);
+		when(leaderZks.serverStats()).thenReturn(serverStats);
+		Leader leader = mock(Leader.class);
+		when(leaderZks.getLeader()).thenReturn(leader);
+		statResetCommand.setZkServer(leaderZks);
 
-        when(serverStats.getServerState()).thenReturn("leader");
+		when(serverStats.getServerState()).thenReturn("leader");
 
-        BufferStats bufferStats = mock(BufferStats.class);
-        when(leader.getProposalStats()).thenReturn(bufferStats);
+		BufferStats bufferStats = mock(BufferStats.class);
+		when(leader.getProposalStats()).thenReturn(bufferStats);
 
-        // Act
-        statResetCommand.commandRun();
+		// Act
+		statResetCommand.commandRun();
 
-        // Assert
-        String output = outputWriter.toString();
-        assertEquals("Server stats reset.\n", output);
-        verify(serverStats, times(1)).reset();
-        verify(bufferStats, times(1)).reset();
-    }
+		// Assert
+		String output = outputWriter.toString();
+		assertEquals("Server stats reset.\n", output);
+		verify(serverStats, times(1)).reset();
+		verify(bufferStats, times(1)).reset();
+	}
 
 }

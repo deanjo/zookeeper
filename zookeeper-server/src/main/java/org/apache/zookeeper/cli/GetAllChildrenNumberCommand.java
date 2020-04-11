@@ -29,45 +29,45 @@ import org.apache.zookeeper.KeeperException;
  */
 public class GetAllChildrenNumberCommand extends CliCommand {
 
-    private static Options options = new Options();
-    private String[] args;
+	private static Options options = new Options();
+	private String[] args;
 
-    public GetAllChildrenNumberCommand() {
-        super("getAllChildrenNumber", "path");
-    }
+	public GetAllChildrenNumberCommand() {
+		super("getAllChildrenNumber", "path");
+	}
 
-    @Override
-    public CliCommand parse(String[] cmdArgs) throws CliParseException {
-        Parser parser = new PosixParser();
-        CommandLine cl;
-        try {
-            cl = parser.parse(options, cmdArgs);
-        } catch (ParseException ex) {
-            throw new CliParseException(ex);
-        }
-        args = cl.getArgs();
+	@Override
+	public CliCommand parse(String[] cmdArgs) throws CliParseException {
+		Parser parser = new PosixParser();
+		CommandLine cl;
+		try {
+			cl = parser.parse(options, cmdArgs);
+		} catch (ParseException ex) {
+			throw new CliParseException(ex);
+		}
+		args = cl.getArgs();
 
-        return this;
-    }
+		return this;
+	}
 
-    @Override
-    public boolean exec() throws CliException {
-        if (args.length < 2) {
-            throw new MalformedCommandException(getUsageStr());
-        }
+	@Override
+	public boolean exec() throws CliException {
+		if (args.length < 2) {
+			throw new MalformedCommandException(getUsageStr());
+		}
 
-        try {
-            String path = args[1];
-            int allChildrenNumber = zk.getAllChildrenNumber(path);
+		try {
+			String path = args[1];
+			int allChildrenNumber = zk.getAllChildrenNumber(path);
 
-            out.println(allChildrenNumber);
-        } catch (IllegalArgumentException ex) {
-            throw new MalformedPathException(ex.getMessage());
-        } catch (KeeperException | InterruptedException ex) {
-            throw new CliWrapperException(ex);
-        }
+			out.println(allChildrenNumber);
+		} catch (IllegalArgumentException ex) {
+			throw new MalformedPathException(ex.getMessage());
+		} catch (KeeperException | InterruptedException ex) {
+			throw new CliWrapperException(ex);
+		}
 
-        return false;
-    }
+		return false;
+	}
 
 }

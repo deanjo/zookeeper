@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.security.cert.Certificate;
+
 import org.apache.jute.Record;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.data.Stat;
@@ -29,93 +30,93 @@ import org.apache.zookeeper.proto.ReplyHeader;
 
 public class MockServerCnxn extends ServerCnxn {
 
-    public Certificate[] clientChain;
-    public boolean secure;
+	public Certificate[] clientChain;
+	public boolean secure;
 
-    public MockServerCnxn() {
-        super(null);
-    }
+	public MockServerCnxn() {
+		super(null);
+	}
 
-    @Override
-    int getSessionTimeout() {
-        return 0;
-    }
+	@Override
+	int getSessionTimeout() {
+		return 0;
+	}
 
-    @Override
-    public void close(DisconnectReason reason) {
-    }
+	@Override
+	public void close(DisconnectReason reason) {
+	}
 
-    @Override
-    public void sendResponse(ReplyHeader h, Record r, String tag,
-                             String cacheKey, Stat stat, int opCode) throws IOException {
-    }
+	@Override
+	public void sendResponse(ReplyHeader h, Record r, String tag,
+													 String cacheKey, Stat stat, int opCode) throws IOException {
+	}
 
-    @Override
-    public void sendCloseSession() {
-    }
+	@Override
+	public void sendCloseSession() {
+	}
 
-    @Override
-    public void process(WatchedEvent event) {
-    }
+	@Override
+	public void process(WatchedEvent event) {
+	}
 
-    @Override
-    public long getSessionId() {
-        return 0;
-    }
+	@Override
+	public long getSessionId() {
+		return 0;
+	}
 
-    @Override
-    void setSessionId(long sessionId) {
-    }
+	@Override
+	void setSessionId(long sessionId) {
+	}
 
-    @Override
-    public boolean isSecure() {
-        return secure;
-    }
+	@Override
+	public boolean isSecure() {
+		return secure;
+	}
 
-    @Override
-    public Certificate[] getClientCertificateChain() {
-        return clientChain;
-    }
+	@Override
+	public Certificate[] getClientCertificateChain() {
+		return clientChain;
+	}
 
-    @Override
-    public void setClientCertificateChain(Certificate[] chain) {
-        clientChain = chain;
-    }
+	@Override
+	public void setClientCertificateChain(Certificate[] chain) {
+		clientChain = chain;
+	}
 
-    @Override
-    void sendBuffer(ByteBuffer... closeConn) {
-    }
+	@Override
+	void sendBuffer(ByteBuffer... closeConn) {
+	}
 
-    @Override
-    void enableRecv() {
-    }
+	@Override
+	void enableRecv() {
+	}
 
-    @Override
-    void disableRecv(boolean waitDisableRecv) {
-    }
+	@Override
+	void disableRecv(boolean waitDisableRecv) {
+	}
 
-    @Override
-    void setSessionTimeout(int sessionTimeout) {
-    }
+	@Override
+	void setSessionTimeout(int sessionTimeout) {
+	}
 
-    @Override
-    protected ServerStats serverStats() {
-        return null;
-    }
+	@Override
+	protected ServerStats serverStats() {
+		return null;
+	}
 
-    @Override
-    public long getOutstandingRequests() {
-        return 0;
-    }
+	@Override
+	public long getOutstandingRequests() {
+		return 0;
+	}
 
-    @Override
-    public InetSocketAddress getRemoteSocketAddress() {
-        return null;
-    }
+	@Override
+	public InetSocketAddress getRemoteSocketAddress() {
+		return null;
+	}
 
-    @Override
-    public int getInterestOps() {
-        return 0;
-    }
+	@Override
+	public int getInterestOps() {
+		return 0;
+	}
 
 }

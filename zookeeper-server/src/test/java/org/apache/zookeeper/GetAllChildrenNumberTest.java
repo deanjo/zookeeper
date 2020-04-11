@@ -20,86 +20,88 @@ package org.apache.zookeeper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.test.ClientBase;
 import org.junit.Test;
 
 public class GetAllChildrenNumberTest extends ClientBase {
 
-    private static final String BASE = "/getAllChildrenNumberTest";
-    private static final String BASE_EXT = BASE + "EXT";
-    private static final int PERSISTENT_CNT = 2;
-    private static final int EPHEMERAL_CNT = 3;
+	private static final String BASE = "/getAllChildrenNumberTest";
+	private static final String BASE_EXT = BASE + "EXT";
+	private static final int PERSISTENT_CNT = 2;
+	private static final int EPHEMERAL_CNT = 3;
 
-    private ZooKeeper zk;
+	private ZooKeeper zk;
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
+	@Override
+	public void setUp() throws Exception {
+		super.setUp();
 
-        zk = createClient();
-        generatePaths(PERSISTENT_CNT, EPHEMERAL_CNT);
-    }
+		zk = createClient();
+		generatePaths(PERSISTENT_CNT, EPHEMERAL_CNT);
+	}
 
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
+	@Override
+	public void tearDown() throws Exception {
+		super.tearDown();
 
-        zk.close();
-    }
+		zk.close();
+	}
 
-    @Test
-    public void testGetAllChildrenNumberSync() throws KeeperException, InterruptedException {
-        //a bad case
-        try {
-            zk.getAllChildrenNumber(null);
-            fail("the path for getAllChildrenNumber must not be null.");
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
+	@Test
+	public void testGetAllChildrenNumberSync() throws KeeperException, InterruptedException {
+		//a bad case
+		try {
+			zk.getAllChildrenNumber(null);
+			fail("the path for getAllChildrenNumber must not be null.");
+		} catch (IllegalArgumentException e) {
+			//expected
+		}
 
-        assertEquals(EPHEMERAL_CNT, zk.getAllChildrenNumber(BASE + "/0"));
-        assertEquals(0, zk.getAllChildrenNumber(BASE + "/0/ephem0"));
-        assertEquals(0, zk.getAllChildrenNumber(BASE_EXT));
-        assertEquals(PERSISTENT_CNT + PERSISTENT_CNT * EPHEMERAL_CNT, zk.getAllChildrenNumber(BASE));
-        // 6(EPHEMERAL) + 2(PERSISTENT) + 3("/zookeeper,/zookeeper/quota,/zookeeper/config") + 1(BASE_EXT) + 1(BASE) = 13
-        assertEquals(13, zk.getAllChildrenNumber("/"));
-    }
+		assertEquals(EPHEMERAL_CNT, zk.getAllChildrenNumber(BASE + "/0"));
+		assertEquals(0, zk.getAllChildrenNumber(BASE + "/0/ephem0"));
+		assertEquals(0, zk.getAllChildrenNumber(BASE_EXT));
+		assertEquals(PERSISTENT_CNT + PERSISTENT_CNT * EPHEMERAL_CNT, zk.getAllChildrenNumber(BASE));
+		// 6(EPHEMERAL) + 2(PERSISTENT) + 3("/zookeeper,/zookeeper/quota,/zookeeper/config") + 1(BASE_EXT) + 1(BASE) = 13
+		assertEquals(13, zk.getAllChildrenNumber("/"));
+	}
 
-    @Test
-    public void testGetAllChildrenNumberAsync() throws IOException, KeeperException, InterruptedException {
+	@Test
+	public void testGetAllChildrenNumberAsync() throws IOException, KeeperException, InterruptedException {
 
-        final CountDownLatch doneProcessing = new CountDownLatch(1);
+		final CountDownLatch doneProcessing = new CountDownLatch(1);
 
-        zk.getAllChildrenNumber("/", (rc, path, ctx, number) -> {
-            if (path == null) {
-                fail((String.format("the path of getAllChildrenNumber was null.")));
-            }
-            assertEquals(13, number);
-            doneProcessing.countDown();
-        }, null);
-        long waitForCallbackSecs = 2L;
-        if (!doneProcessing.await(waitForCallbackSecs, TimeUnit.SECONDS)) {
-            fail(String.format("getAllChildrenNumber didn't callback within %d seconds", waitForCallbackSecs));
-        }
-    }
+		zk.getAllChildrenNumber("/", (rc, path, ctx, number) -> {
+			if (path == null) {
+				fail((String.format("the path of getAllChildrenNumber was null.")));
+			}
+			assertEquals(13, number);
+			doneProcessing.countDown();
+		}, null);
+		long waitForCallbackSecs = 2L;
+		if (!doneProcessing.await(waitForCallbackSecs, TimeUnit.SECONDS)) {
+			fail(String.format("getAllChildrenNumber didn't callback within %d seconds", waitForCallbackSecs));
+		}
+	}
 
-    private void generatePaths(int persistantCnt, int ephemeralCnt) throws KeeperException, InterruptedException {
+	private void generatePaths(int persistantCnt, int ephemeralCnt) throws KeeperException, InterruptedException {
 
-        zk.create(BASE, BASE.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-        zk.create(BASE_EXT, BASE_EXT.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+		zk.create(BASE, BASE.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+		zk.create(BASE_EXT, BASE_EXT.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
-        for (int p = 0; p < persistantCnt; p++) {
-            String base = BASE + "/" + p;
-            zk.create(base, base.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            for (int e = 0; e < ephemeralCnt; e++) {
-                String ephem = base + "/ephem" + e;
-                zk.create(ephem, ephem.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
-            }
-        }
-    }
+		for (int p = 0; p < persistantCnt; p++) {
+			String base = BASE + "/" + p;
+			zk.create(base, base.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			for (int e = 0; e < ephemeralCnt; e++) {
+				String ephem = base + "/ephem" + e;
+				zk.create(ephem, ephem.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+			}
+		}
+	}
 
 }

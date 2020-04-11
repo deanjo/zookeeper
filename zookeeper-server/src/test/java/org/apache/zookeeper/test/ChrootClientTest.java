@@ -27,29 +27,29 @@ import org.slf4j.LoggerFactory;
 
 public class ChrootClientTest extends ClientTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ChrootClientTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ChrootClientTest.class);
 
-    @Override
-    public void setUp() throws Exception {
-        String hp = hostPort;
-        hostPort = hostPort + "/chrootclienttest";
+	@Override
+	public void setUp() throws Exception {
+		String hp = hostPort;
+		hostPort = hostPort + "/chrootclienttest";
 
-        System.out.println(hostPort);
-        super.setUp();
+		System.out.println(hostPort);
+		super.setUp();
 
-        LOG.info("STARTING {}", getTestName());
+		LOG.info("STARTING {}", getTestName());
 
-        ZooKeeper zk = createClient(hp);
-        try {
-            zk.create("/chrootclienttest", null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-        } finally {
-            zk.close();
-        }
-    }
+		ZooKeeper zk = createClient(hp);
+		try {
+			zk.create("/chrootclienttest", null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+		} finally {
+			zk.close();
+		}
+	}
 
-    @Test
-    public void testPing() throws Exception {
-        // not necessary to repeat this, expensive and not chroot related
-    }
+	@Test
+	public void testPing() throws Exception {
+		// not necessary to repeat this, expensive and not chroot related
+	}
 
 }

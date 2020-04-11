@@ -23,57 +23,57 @@ package org.apache.zookeeper.server.quorum;
  */
 public interface QuorumMXBean {
 
-    /**
-     * @return the name of the quorum
-     */
-    String getName();
+	/**
+	 * @return the name of the quorum
+	 */
+	String getName();
 
-    /**
-     * @return configured number of peers in the quorum
-     */
-    int getQuorumSize();
+	/**
+	 * @return configured number of peers in the quorum
+	 */
+	int getQuorumSize();
 
-    /**
-     * @return the number of ticks that the initial synchronization phase can take
-     */
-    int getInitLimit();
+	/**
+	 * @return the number of ticks that the initial synchronization phase can take
+	 */
+	int getInitLimit();
 
-    /**
-     * @return the number of ticks that can pass between sending a request and getting an acknowledgment
-     */
-    int getSyncLimit();
+	/**
+	 * @return the number of ticks that can pass between sending a request and getting an acknowledgment
+	 */
+	int getSyncLimit();
 
-    /**
-     * @param initLimit the number of ticks that the initial synchronization phase can take
-     */
-    void setInitLimit(int initLimit);
+	/**
+	 * @param initLimit the number of ticks that the initial synchronization phase can take
+	 */
+	void setInitLimit(int initLimit);
 
-    /**
-     * @param syncLimit the number of ticks that can pass between sending a request and getting an acknowledgment
-     */
-    void setSyncLimit(int syncLimit);
+	/**
+	 * @param syncLimit the number of ticks that can pass between sending a request and getting an acknowledgment
+	 */
+	void setSyncLimit(int syncLimit);
 
-    /**
-     * @return SSL communication between quorum members required
-     */
-    boolean isSslQuorum();
+	/**
+	 * @return SSL communication between quorum members required
+	 */
+	boolean isSslQuorum();
 
-    /**
-     * @return SSL communication between quorum members enabled
-     */
-    boolean isPortUnification();
+	/**
+	 * @return SSL communication between quorum members enabled
+	 */
+	boolean isPortUnification();
 
-    /**
-     * @return Observer Leader Election Reconnect Delay time in MS
-     */
-    long getObserverElectionDelayMS();
+	/**
+	 * @return Observer Leader Election Reconnect Delay time in MS
+	 */
+	long getObserverElectionDelayMS();
 
-    /**
-     * Set the Observer Leader Election Reconnect Delay time in MS
-     */
-    void setObserverElectionDelayMS(long delayMS);
+	/**
+	 * Set the Observer Leader Election Reconnect Delay time in MS
+	 */
+	void setObserverElectionDelayMS(long delayMS);
 
-    boolean getDigestEnabled();
+	boolean getDigestEnabled();
 
-    void disableDigest();
+	void disableDigest();
 }

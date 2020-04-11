@@ -23,10 +23,10 @@ package org.apache.zookeeper.server.quorum;
  */
 public interface LearnerHandlerMXBean {
 
-    /**
-     * Terminate the connection. The learner will attempt to reconnect to
-     * the leader or to the next ObserverMaster if that feature is enabled
-     */
-    void terminateConnection();
+	/**
+	 * Terminate the connection. The learner will attempt to reconnect to
+	 * the leader or to the next ObserverMaster if that feature is enabled
+	 */
+	void terminateConnection();
 
 }

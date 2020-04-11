@@ -25,13 +25,13 @@ package org.apache.zookeeper.metrics;
  */
 public interface SummarySet {
 
-    /**
-     * Register a value.
-     * <p>This method is thread safe, The MetricsProvider will take care of synchronization.</p>
-     *
-     * @param key the key to access the Summary for the given key
-     * @param value current value
-     */
-    void add(String key, long value);
+	/**
+	 * Register a value.
+	 * <p>This method is thread safe, The MetricsProvider will take care of synchronization.</p>
+	 *
+	 * @param key   the key to access the Summary for the given key
+	 * @param value current value
+	 */
+	void add(String key, long value);
 
 }

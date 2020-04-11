@@ -21,70 +21,71 @@ package org.apache.zookeeper.server.auth;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProviderRegistry {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProviderRegistry.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ProviderRegistry.class);
 
-    private static boolean initialized = false;
-    private static Map<String, AuthenticationProvider> authenticationProviders = new HashMap<>();
+	private static boolean initialized = false;
+	private static Map<String, AuthenticationProvider> authenticationProviders = new HashMap<>();
 
-    //VisibleForTesting
-    public static void reset() {
-        synchronized (ProviderRegistry.class) {
-            initialized = false;
-            authenticationProviders.clear();
-        }
-    }
+	//VisibleForTesting
+	public static void reset() {
+		synchronized (ProviderRegistry.class) {
+			initialized = false;
+			authenticationProviders.clear();
+		}
+	}
 
-    public static void initialize() {
-        synchronized (ProviderRegistry.class) {
-            IPAuthenticationProvider ipp = new IPAuthenticationProvider();
-            DigestAuthenticationProvider digp = new DigestAuthenticationProvider();
-            authenticationProviders.put(ipp.getScheme(), ipp);
-            authenticationProviders.put(digp.getScheme(), digp);
-            Enumeration<Object> en = System.getProperties().keys();
-            while (en.hasMoreElements()) {
-                String k = (String) en.nextElement();
-                if (k.startsWith("zookeeper.authProvider.")) {
-                    String className = System.getProperty(k);
-                    try {
-                        Class<?> c = ZooKeeperServer.class.getClassLoader().loadClass(className);
-                        AuthenticationProvider ap = (AuthenticationProvider) c.getDeclaredConstructor().newInstance();
-                        authenticationProviders.put(ap.getScheme(), ap);
-                    } catch (Exception e) {
-                        LOG.warn("Problems loading {}", className, e);
-                    }
-                }
-            }
-            initialized = true;
-        }
-    }
+	public static void initialize() {
+		synchronized (ProviderRegistry.class) {
+			IPAuthenticationProvider ipp = new IPAuthenticationProvider();
+			DigestAuthenticationProvider digp = new DigestAuthenticationProvider();
+			authenticationProviders.put(ipp.getScheme(), ipp);
+			authenticationProviders.put(digp.getScheme(), digp);
+			Enumeration<Object> en = System.getProperties().keys();
+			while (en.hasMoreElements()) {
+				String k = (String) en.nextElement();
+				if (k.startsWith("zookeeper.authProvider.")) {
+					String className = System.getProperty(k);
+					try {
+						Class<?> c = ZooKeeperServer.class.getClassLoader().loadClass(className);
+						AuthenticationProvider ap = (AuthenticationProvider) c.getDeclaredConstructor().newInstance();
+						authenticationProviders.put(ap.getScheme(), ap);
+					} catch (Exception e) {
+						LOG.warn("Problems loading {}", className, e);
+					}
+				}
+			}
+			initialized = true;
+		}
+	}
 
-    public static ServerAuthenticationProvider getServerProvider(String scheme) {
-        return WrappedAuthenticationProvider.wrap(getProvider(scheme));
-    }
+	public static ServerAuthenticationProvider getServerProvider(String scheme) {
+		return WrappedAuthenticationProvider.wrap(getProvider(scheme));
+	}
 
-    public static AuthenticationProvider getProvider(String scheme) {
-        if (!initialized) {
-            initialize();
-        }
-        return authenticationProviders.get(scheme);
-    }
+	public static AuthenticationProvider getProvider(String scheme) {
+		if (!initialized) {
+			initialize();
+		}
+		return authenticationProviders.get(scheme);
+	}
 
-    public static void removeProvider(String scheme) {
-        authenticationProviders.remove(scheme);
-    }
+	public static void removeProvider(String scheme) {
+		authenticationProviders.remove(scheme);
+	}
 
-    public static String listProviders() {
-        StringBuilder sb = new StringBuilder();
-        for (String s : authenticationProviders.keySet()) {
-            sb.append(s).append(" ");
-        }
-        return sb.toString();
-    }
+	public static String listProviders() {
+		StringBuilder sb = new StringBuilder();
+		for (String s : authenticationProviders.keySet()) {
+			sb.append(s).append(" ");
+		}
+		return sb.toString();
+	}
 
 }

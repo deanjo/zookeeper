@@ -22,18 +22,19 @@ import org.apache.zookeeper.server.auth.AuthenticationProvider;
 import org.apache.zookeeper.server.auth.ProviderRegistry;
 
 public final class AuthUtil {
-    private AuthUtil() {
-        //Utility classes should not have public constructors
-    }
-    /**
-     * Gives user name
-     *
-     * @param id contains scheme and authentication info
-     * @return returns null if authentication scheme does not exist or
-     * authentication provider returns null as user
-     */
-    public static String getUser(Id id) {
-        AuthenticationProvider provider = ProviderRegistry.getProvider(id.getScheme());
-        return provider == null ? null : provider.getUserName(id.getId());
-    }
+	private AuthUtil() {
+		//Utility classes should not have public constructors
+	}
+
+	/**
+	 * Gives user name
+	 *
+	 * @param id contains scheme and authentication info
+	 * @return returns null if authentication scheme does not exist or
+	 * authentication provider returns null as user
+	 */
+	public static String getUser(Id id) {
+		AuthenticationProvider provider = ProviderRegistry.getProvider(id.getScheme());
+		return provider == null ? null : provider.getUserName(id.getId());
+	}
 }

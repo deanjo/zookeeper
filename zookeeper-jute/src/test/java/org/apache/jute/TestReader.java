@@ -24,5 +24,5 @@ import java.io.IOException;
  *
  */
 public interface TestReader {
-    void read(InputArchive ia) throws IOException;
+	void read(InputArchive ia) throws IOException;
 }

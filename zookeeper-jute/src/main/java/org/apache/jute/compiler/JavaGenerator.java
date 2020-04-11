@@ -27,31 +27,31 @@ import java.util.List;
  * Java Code generator front-end for Hadoop record I/O.
  */
 class JavaGenerator {
-    private List<JRecord> mRecList;
-    private final File outputDirectory;
+	private List<JRecord> mRecList;
+	private final File outputDirectory;
 
-    /**
-     * Creates a new instance of JavaGenerator.
-     *
-     * @param name            possibly full pathname to the file
-     * @param incl            included files (as JFile)
-     * @param records         List of records defined within this file
-     * @param outputDirectory
-     */
-    JavaGenerator(String name, List<JFile> incl,
-                  List<JRecord> records, File outputDirectory) {
-        mRecList = records;
-        this.outputDirectory = outputDirectory;
-    }
+	/**
+	 * Creates a new instance of JavaGenerator.
+	 *
+	 * @param name            possibly full pathname to the file
+	 * @param incl            included files (as JFile)
+	 * @param records         List of records defined within this file
+	 * @param outputDirectory
+	 */
+	JavaGenerator(String name, List<JFile> incl,
+								List<JRecord> records, File outputDirectory) {
+		mRecList = records;
+		this.outputDirectory = outputDirectory;
+	}
 
-    /**
-     * Generate Java code for records. This method is only a front-end to
-     * JRecord, since one file is generated for each record.
-     */
-    void genCode() throws IOException {
-        for (Iterator<JRecord> i = mRecList.iterator(); i.hasNext(); ) {
-            JRecord rec = i.next();
-            rec.genJavaCode(outputDirectory);
-        }
-    }
+	/**
+	 * Generate Java code for records. This method is only a front-end to
+	 * JRecord, since one file is generated for each record.
+	 */
+	void genCode() throws IOException {
+		for (Iterator<JRecord> i = mRecList.iterator(); i.hasNext(); ) {
+			JRecord rec = i.next();
+			rec.genJavaCode(outputDirectory);
+		}
+	}
 }

@@ -20,8 +20,10 @@ package org.apache.zookeeper.test;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.util.Set;
+
 import org.apache.zookeeper.ZKTestCase;
 import org.apache.zookeeper.jmx.MBeanRegistry;
 import org.apache.zookeeper.jmx.ZKMBeanInfo;
@@ -36,59 +38,59 @@ import org.slf4j.LoggerFactory;
  */
 public class QuorumUtilTest extends ZKTestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(QuorumUtilTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(QuorumUtilTest.class);
 
-    /**
-     * <p>
-     * This test ensures that all JXM beans associated to a {@link QuorumPeer}
-     * are unregistered when shuted down ({@link QuorumUtil#shutdown(int)}). It
-     * allows a successfull restarting of several zookeeper servers (
-     * {@link QuorumPeer}) running on the same JVM.
-     * <p>
-     * See ZOOKEEPER-1214 for details.
-     */
-    @Test
-    public void validateAllMXBeanAreUnregistered() throws IOException {
-        QuorumUtil qU = new QuorumUtil(1);
-        LOG.info(">-->> Starting up all servers...");
-        qU.startAll();
-        LOG.info(">-->> Servers up and running...");
+	/**
+	 * <p>
+	 * This test ensures that all JXM beans associated to a {@link QuorumPeer}
+	 * are unregistered when shuted down ({@link QuorumUtil#shutdown(int)}). It
+	 * allows a successfull restarting of several zookeeper servers (
+	 * {@link QuorumPeer}) running on the same JVM.
+	 * <p>
+	 * See ZOOKEEPER-1214 for details.
+	 */
+	@Test
+	public void validateAllMXBeanAreUnregistered() throws IOException {
+		QuorumUtil qU = new QuorumUtil(1);
+		LOG.info(">-->> Starting up all servers...");
+		qU.startAll();
+		LOG.info(">-->> Servers up and running...");
 
-        int leaderIndex = qU.getLeaderServer();
-        int firstFollowerIndex = 0;
-        int secondFollowerIndex = 0;
+		int leaderIndex = qU.getLeaderServer();
+		int firstFollowerIndex = 0;
+		int secondFollowerIndex = 0;
 
-        switch (leaderIndex) {
-        case 1:
-            firstFollowerIndex = 2;
-            secondFollowerIndex = 3;
-            break;
-        case 2:
-            firstFollowerIndex = 1;
-            secondFollowerIndex = 3;
-            break;
-        case 3:
-            firstFollowerIndex = 1;
-            secondFollowerIndex = 2;
-            break;
+		switch (leaderIndex) {
+			case 1:
+				firstFollowerIndex = 2;
+				secondFollowerIndex = 3;
+				break;
+			case 2:
+				firstFollowerIndex = 1;
+				secondFollowerIndex = 3;
+				break;
+			case 3:
+				firstFollowerIndex = 1;
+				secondFollowerIndex = 2;
+				break;
 
-        default:
-            fail("Unexpected leaderIndex value: " + leaderIndex);
-            break;
-        }
+			default:
+				fail("Unexpected leaderIndex value: " + leaderIndex);
+				break;
+		}
 
-        LOG.info(">-->> Shuting down server [{}]", firstFollowerIndex);
-        qU.shutdown(firstFollowerIndex);
-        LOG.info(">-->> Shuting down server [{}]", secondFollowerIndex);
-        qU.shutdown(secondFollowerIndex);
-        LOG.info(">-->> Restarting server [{}]", firstFollowerIndex);
-        qU.restart(firstFollowerIndex);
-        LOG.info(">-->> Restarting server [{}]", secondFollowerIndex);
-        qU.restart(secondFollowerIndex);
+		LOG.info(">-->> Shuting down server [{}]", firstFollowerIndex);
+		qU.shutdown(firstFollowerIndex);
+		LOG.info(">-->> Shuting down server [{}]", secondFollowerIndex);
+		qU.shutdown(secondFollowerIndex);
+		LOG.info(">-->> Restarting server [{}]", firstFollowerIndex);
+		qU.restart(firstFollowerIndex);
+		LOG.info(">-->> Restarting server [{}]", secondFollowerIndex);
+		qU.restart(secondFollowerIndex);
 
-        qU.shutdownAll();
-        Set<ZKMBeanInfo> pending = MBeanRegistry.getInstance().getRegisteredBeans();
-        assertTrue("The following beans should have been unregistered: " + pending, pending.isEmpty());
-    }
+		qU.shutdownAll();
+		Set<ZKMBeanInfo> pending = MBeanRegistry.getInstance().getRegisteredBeans();
+		assertTrue("The following beans should have been unregistered: " + pending, pending.isEmpty());
+	}
 
 }

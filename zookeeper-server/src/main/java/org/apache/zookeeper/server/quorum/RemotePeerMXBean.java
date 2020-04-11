@@ -23,33 +23,34 @@ package org.apache.zookeeper.server.quorum;
  */
 public interface RemotePeerMXBean {
 
-    /**
-     * @return name of the peer
-     */
-    String getName();
-    /**
-     * @return IP address of the quorum peer
-     */
-    String getQuorumAddress();
+	/**
+	 * @return name of the peer
+	 */
+	String getName();
 
-    /**
-     * @return the election address
-     */
-    String getElectionAddress();
+	/**
+	 * @return IP address of the quorum peer
+	 */
+	String getQuorumAddress();
 
-    /**
-     * @return the client address
-     */
-    String getClientAddress();
+	/**
+	 * @return the election address
+	 */
+	String getElectionAddress();
 
-    /**
-     * @return the learner type
-     */
-    String getLearnerType();
+	/**
+	 * @return the client address
+	 */
+	String getClientAddress();
 
-    /**
-     * @return true if the peer is the current leader
-     */
-    boolean isLeader();
+	/**
+	 * @return the learner type
+	 */
+	String getLearnerType();
+
+	/**
+	 * @return true if the peer is the current leader
+	 */
+	boolean isLeader();
 
 }

@@ -19,9 +19,11 @@
 package org.apache.zookeeper.server;
 
 import static org.junit.Assert.assertEquals;
+
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+
 import org.apache.zookeeper.ZKTestCase;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.metrics.MetricsUtils;
@@ -29,64 +31,64 @@ import org.junit.Test;
 
 public class ZooKeeperCriticalThreadMetricsTest extends ZKTestCase {
 
-    CountDownLatch processed;
+	CountDownLatch processed;
 
-    private class MyRequestProcessor implements RequestProcessor {
+	private class MyRequestProcessor implements RequestProcessor {
 
-        @Override
-        public void processRequest(Request request) throws RequestProcessorException {
-            // use this dummy request processor to trigger a unrecoverable ex
-            throw new RequestProcessorException("test", new Exception());
-        }
+		@Override
+		public void processRequest(Request request) throws RequestProcessorException {
+			// use this dummy request processor to trigger a unrecoverable ex
+			throw new RequestProcessorException("test", new Exception());
+		}
 
-        @Override
-        public void shutdown() {
-        }
+		@Override
+		public void shutdown() {
+		}
 
-    }
+	}
 
-    private class MyPrepRequestProcessor extends PrepRequestProcessor {
+	private class MyPrepRequestProcessor extends PrepRequestProcessor {
 
-        public MyPrepRequestProcessor() {
-            super(new ZooKeeperServer(), new MyRequestProcessor());
-        }
+		public MyPrepRequestProcessor() {
+			super(new ZooKeeperServer(), new MyRequestProcessor());
+		}
 
-        @Override
-        public void run() {
-            super.run();
-            processed.countDown();
-        }
+		@Override
+		public void run() {
+			super.run();
+			processed.countDown();
+		}
 
-    }
+	}
 
-    @Test
-    public void testUnrecoverableErrorCountFromRequestProcessor() throws Exception {
-        ServerMetrics.getMetrics().resetAll();
+	@Test
+	public void testUnrecoverableErrorCountFromRequestProcessor() throws Exception {
+		ServerMetrics.getMetrics().resetAll();
 
-        processed = new CountDownLatch(1);
-        PrepRequestProcessor processor = new MyPrepRequestProcessor();
-        processor.start();
+		processed = new CountDownLatch(1);
+		PrepRequestProcessor processor = new MyPrepRequestProcessor();
+		processor.start();
 
-        processor.processRequest(new Request(null, 1L, 1, ZooDefs.OpCode.setData, ByteBuffer.wrap(new byte[10]), null));
-        processed.await();
+		processor.processRequest(new Request(null, 1L, 1, ZooDefs.OpCode.setData, ByteBuffer.wrap(new byte[10]), null));
+		processed.await();
 
-        processor.shutdown();
+		processor.shutdown();
 
-        Map<String, Object> values = MetricsUtils.currentServerMetrics();
-        assertEquals(1L, values.get("unrecoverable_error_count"));
-    }
+		Map<String, Object> values = MetricsUtils.currentServerMetrics();
+		assertEquals(1L, values.get("unrecoverable_error_count"));
+	}
 
-    @Test
-    public void testUnrecoverableErrorCount() {
-        ServerMetrics.getMetrics().resetAll();
+	@Test
+	public void testUnrecoverableErrorCount() {
+		ServerMetrics.getMetrics().resetAll();
 
-        ZooKeeperServer zks = new ZooKeeperServer();
-        ZooKeeperCriticalThread thread = new ZooKeeperCriticalThread("test", zks.getZooKeeperServerListener());
+		ZooKeeperServer zks = new ZooKeeperServer();
+		ZooKeeperCriticalThread thread = new ZooKeeperCriticalThread("test", zks.getZooKeeperServerListener());
 
-        thread.handleException("test", new Exception());
+		thread.handleException("test", new Exception());
 
-        Map<String, Object> values = MetricsUtils.currentServerMetrics();
-        assertEquals(1L, values.get("unrecoverable_error_count"));
-    }
+		Map<String, Object> values = MetricsUtils.currentServerMetrics();
+		assertEquals(1L, values.get("unrecoverable_error_count"));
+	}
 
 }

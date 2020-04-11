@@ -18,8 +18,10 @@
 package org.apache.zookeeper.util;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.Objects;
 import java.util.function.Consumer;
+
 import org.apache.zookeeper.server.ExitCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,49 +31,49 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ServiceUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ServiceUtils.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ServiceUtils.class);
 
-    private ServiceUtils() {
-    }
+	private ServiceUtils() {
+	}
 
-    /**
-     * Default strategy for shutting down the JVM.
-     */
-    @SuppressFBWarnings("DM_EXIT")
-    public static final Consumer<Integer> SYSTEM_EXIT = (code) -> {
-        LOG.error("Exiting JVM with code {}", code);
-        System.exit(code);
-    };
+	/**
+	 * Default strategy for shutting down the JVM.
+	 */
+	@SuppressFBWarnings("DM_EXIT")
+	public static final Consumer<Integer> SYSTEM_EXIT = (code) -> {
+		LOG.error("Exiting JVM with code {}", code);
+		System.exit(code);
+	};
 
-    /**
-     * No-op strategy, useful for tests.
-     */
-    public static final Consumer<Integer> LOG_ONLY = (code) -> {
-        LOG.error("Fatal error, JVM should exit with code {}. "
-                + "Actually System.exit is disabled", code);
-    };
+	/**
+	 * No-op strategy, useful for tests.
+	 */
+	public static final Consumer<Integer> LOG_ONLY = (code) -> {
+		LOG.error("Fatal error, JVM should exit with code {}. "
+			+ "Actually System.exit is disabled", code);
+	};
 
-    private static Consumer<Integer> systemExitProcedure = SYSTEM_EXIT;
+	private static Consumer<Integer> systemExitProcedure = SYSTEM_EXIT;
 
-    /**
-     * Override system callback. Useful for preventing the JVM to exit in tests
-     * or in applications that are running an in-process ZooKeeper server.
-     *
-     * @param systemExitProcedure
-     */
-    public static void setSystemExitProcedure(Consumer<Integer> systemExitProcedure) {
-        Objects.requireNonNull(systemExitProcedure);
-        ServiceUtils.systemExitProcedure = systemExitProcedure;
-    }
+	/**
+	 * Override system callback. Useful for preventing the JVM to exit in tests
+	 * or in applications that are running an in-process ZooKeeper server.
+	 *
+	 * @param systemExitProcedure
+	 */
+	public static void setSystemExitProcedure(Consumer<Integer> systemExitProcedure) {
+		Objects.requireNonNull(systemExitProcedure);
+		ServiceUtils.systemExitProcedure = systemExitProcedure;
+	}
 
-    /**
-     * Force shutdown of the JVM using System.exit.
-     *
-     * @param code the exit code
-     * @see ExitCode
-     */
-    public static void requestSystemExit(int code) {
-        systemExitProcedure.accept(code);
-    }
+	/**
+	 * Force shutdown of the JVM using System.exit.
+	 *
+	 * @param code the exit code
+	 * @see ExitCode
+	 */
+	public static void requestSystemExit(int code) {
+		systemExitProcedure.accept(code);
+	}
 
 }

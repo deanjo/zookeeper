@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.security.cert.Certificate;
+
 import org.apache.jute.Record;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.data.Stat;
@@ -32,96 +33,96 @@ import org.apache.zookeeper.proto.ReplyHeader;
  */
 public class DumbWatcher extends ServerCnxn {
 
-    private long sessionId;
+	private long sessionId;
 
-    public DumbWatcher() {
-        this(0);
-    }
+	public DumbWatcher() {
+		this(0);
+	}
 
-    public DumbWatcher(long sessionId) {
-        super(null);
-        this.sessionId = sessionId;
-    }
+	public DumbWatcher(long sessionId) {
+		super(null);
+		this.sessionId = sessionId;
+	}
 
-    @Override
-    void setSessionTimeout(int sessionTimeout) {
-    }
+	@Override
+	void setSessionTimeout(int sessionTimeout) {
+	}
 
-    @Override
-    public void process(WatchedEvent event) {
-    }
+	@Override
+	public void process(WatchedEvent event) {
+	}
 
-    @Override
-    int getSessionTimeout() {
-        return 0;
-    }
+	@Override
+	int getSessionTimeout() {
+		return 0;
+	}
 
-    @Override
-    public void close(DisconnectReason reason) {
-    }
+	@Override
+	public void close(DisconnectReason reason) {
+	}
 
-    @Override
-    public void sendResponse(ReplyHeader h, Record r, String tag,
-                             String cacheKey, Stat stat, int opCode) throws IOException {
-    }
+	@Override
+	public void sendResponse(ReplyHeader h, Record r, String tag,
+													 String cacheKey, Stat stat, int opCode) throws IOException {
+	}
 
-    @Override
-    public void sendCloseSession() {
-    }
+	@Override
+	public void sendCloseSession() {
+	}
 
-    @Override
-    public long getSessionId() {
-        return sessionId;
-    }
+	@Override
+	public long getSessionId() {
+		return sessionId;
+	}
 
-    @Override
-    void setSessionId(long sessionId) {
-    }
+	@Override
+	void setSessionId(long sessionId) {
+	}
 
-    @Override
-    void sendBuffer(ByteBuffer... closeConn) {
-    }
+	@Override
+	void sendBuffer(ByteBuffer... closeConn) {
+	}
 
-    @Override
-    void enableRecv() {
-    }
+	@Override
+	void enableRecv() {
+	}
 
-    @Override
-    void disableRecv(boolean waitDisableRecv) {
-    }
+	@Override
+	void disableRecv(boolean waitDisableRecv) {
+	}
 
-    @Override
-    protected ServerStats serverStats() {
-        return null;
-    }
+	@Override
+	protected ServerStats serverStats() {
+		return null;
+	}
 
-    @Override
-    public long getOutstandingRequests() {
-        return 0;
-    }
+	@Override
+	public long getOutstandingRequests() {
+		return 0;
+	}
 
-    @Override
-    public InetSocketAddress getRemoteSocketAddress() {
-        return null;
-    }
+	@Override
+	public InetSocketAddress getRemoteSocketAddress() {
+		return null;
+	}
 
-    @Override
-    public int getInterestOps() {
-        return 0;
-    }
+	@Override
+	public int getInterestOps() {
+		return 0;
+	}
 
-    @Override
-    public boolean isSecure() {
-        return false;
-    }
+	@Override
+	public boolean isSecure() {
+		return false;
+	}
 
-    @Override
-    public Certificate[] getClientCertificateChain() {
-        return null;
-    }
+	@Override
+	public Certificate[] getClientCertificateChain() {
+		return null;
+	}
 
-    @Override
-    public void setClientCertificateChain(Certificate[] chain) {
-    }
+	@Override
+	public void setClientCertificateChain(Certificate[] chain) {
+	}
 
 }

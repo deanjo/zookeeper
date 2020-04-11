@@ -25,54 +25,54 @@ import org.apache.zookeeper.server.ZooKeeperServerMXBean;
  */
 public interface FollowerMXBean extends ZooKeeperServerMXBean {
 
-    /**
-     * @return socket address
-     */
-    String getQuorumAddress();
+	/**
+	 * @return socket address
+	 */
+	String getQuorumAddress();
 
-    /**
-     * @return last queued zxid
-     */
-    String getLastQueuedZxid();
+	/**
+	 * @return last queued zxid
+	 */
+	String getLastQueuedZxid();
 
-    /**
-     * @return count of pending revalidations
-     */
-    int getPendingRevalidationCount();
+	/**
+	 * @return count of pending revalidations
+	 */
+	int getPendingRevalidationCount();
 
-    /**
-     * @return time taken for leader election in milliseconds.
-     */
-    long getElectionTimeTaken();
+	/**
+	 * @return time taken for leader election in milliseconds.
+	 */
+	long getElectionTimeTaken();
 
-    /**
-     * @return the size limit in bytes for the observer master commit packet queue
-     */
-    int getObserverMasterPacketSizeLimit();
+	/**
+	 * @return the size limit in bytes for the observer master commit packet queue
+	 */
+	int getObserverMasterPacketSizeLimit();
 
-    /**
-     * set the size limit in bytes for the observer master commit packet queue
-     */
-    void setObserverMasterPacketSizeLimit(int sizeLimit);
+	/**
+	 * set the size limit in bytes for the observer master commit packet queue
+	 */
+	void setObserverMasterPacketSizeLimit(int sizeLimit);
 
-    /**
-     * @return Number of concurrent snapshots permitted to send to observers
-     */
-    int getMaxConcurrentSnapSyncs();
+	/**
+	 * @return Number of concurrent snapshots permitted to send to observers
+	 */
+	int getMaxConcurrentSnapSyncs();
 
-    /**
-     * @param maxConcurrentSnapSyncs Number of concurrent snapshots permitted to send to observers
-     */
-    void setMaxConcurrentSnapSyncs(int maxConcurrentSnapSyncs);
+	/**
+	 * @param maxConcurrentSnapSyncs Number of concurrent snapshots permitted to send to observers
+	 */
+	void setMaxConcurrentSnapSyncs(int maxConcurrentSnapSyncs);
 
-    /**
-     * @return Number of concurrent diff syncs permitted to send to observers
-     */
-    int getMaxConcurrentDiffSyncs();
+	/**
+	 * @return Number of concurrent diff syncs permitted to send to observers
+	 */
+	int getMaxConcurrentDiffSyncs();
 
-    /**
-     * @param maxConcurrentDiffSyncs Number of concurrent diff syncs permitted to send to observers
-     */
-    void setMaxConcurrentDiffSyncs(int maxConcurrentDiffSyncs);
+	/**
+	 * @param maxConcurrentDiffSyncs Number of concurrent diff syncs permitted to send to observers
+	 */
+	void setMaxConcurrentDiffSyncs(int maxConcurrentDiffSyncs);
 
 }

@@ -25,41 +25,41 @@ import javax.security.auth.spi.LoginModule;
 
 public class DigestLoginModule implements LoginModule {
 
-    private Subject subject;
+	private Subject subject;
 
-    public boolean abort() {
-        return false;
-    }
+	public boolean abort() {
+		return false;
+	}
 
-    public boolean commit() {
-        return true;
-    }
+	public boolean commit() {
+		return true;
+	}
 
-    public void initialize(
-        Subject subject,
-        CallbackHandler callbackHandler,
-        Map<String, ?> sharedState,
-        Map<String, ?> options) {
-        if (options.containsKey("username")) {
-            // Zookeeper client: get username and password from JAAS conf (only used if using DIGEST-MD5).
-            this.subject = subject;
-            String username = (String) options.get("username");
-            this.subject.getPublicCredentials().add(username);
-            String password = (String) options.get("password");
-            this.subject.getPrivateCredentials().add(password);
-        }
-        return;
-    }
+	public void initialize(
+		Subject subject,
+		CallbackHandler callbackHandler,
+		Map<String, ?> sharedState,
+		Map<String, ?> options) {
+		if (options.containsKey("username")) {
+			// Zookeeper client: get username and password from JAAS conf (only used if using DIGEST-MD5).
+			this.subject = subject;
+			String username = (String) options.get("username");
+			this.subject.getPublicCredentials().add(username);
+			String password = (String) options.get("password");
+			this.subject.getPrivateCredentials().add(password);
+		}
+		return;
+	}
 
-    public boolean logout() {
-        return true;
-    }
+	public boolean logout() {
+		return true;
+	}
 
-    public boolean login() {
-        // Unlike with Krb5LoginModule, we don't do any actual login or credential passing here: authentication to Zookeeper
-        // is done later, through the SASLClient object.
-        return true;
-    }
+	public boolean login() {
+		// Unlike with Krb5LoginModule, we don't do any actual login or credential passing here: authentication to Zookeeper
+		// is done later, through the SASLClient object.
+		return true;
+	}
 
 }
 

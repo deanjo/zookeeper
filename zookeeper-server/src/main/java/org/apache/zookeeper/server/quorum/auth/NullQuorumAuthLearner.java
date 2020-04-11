@@ -26,9 +26,9 @@ import java.net.Socket;
  */
 public class NullQuorumAuthLearner implements QuorumAuthLearner {
 
-    @Override
-    public void authenticate(Socket sock, String hostname) {
-        return; // simply return don't require auth
-    }
+	@Override
+	public void authenticate(Socket sock, String hostname) {
+		return; // simply return don't require auth
+	}
 
 }

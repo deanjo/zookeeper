@@ -20,9 +20,11 @@ package org.apache.zookeeper.server.quorum.auth;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -47,74 +49,74 @@ import org.junit.BeforeClass;
  */
 public class KerberosSecurityTestcase extends QuorumAuthTestBase {
 
-    private static MiniKdc kdc;
-    private static File workDir;
-    private static Properties conf;
+	private static MiniKdc kdc;
+	private static File workDir;
+	private static Properties conf;
 
-    @BeforeClass
-    public static void setUpSasl() throws Exception {
-        startMiniKdc();
-    }
+	@BeforeClass
+	public static void setUpSasl() throws Exception {
+		startMiniKdc();
+	}
 
-    @AfterClass
-    public static void tearDownSasl() throws Exception {
-        stopMiniKdc();
-        FileUtils.deleteQuietly(workDir);
-    }
+	@AfterClass
+	public static void tearDownSasl() throws Exception {
+		stopMiniKdc();
+		FileUtils.deleteQuietly(workDir);
+	}
 
-    public static void startMiniKdc() throws Exception {
-        createTestDir();
-        createMiniKdcConf();
+	public static void startMiniKdc() throws Exception {
+		createTestDir();
+		createMiniKdcConf();
 
-        kdc = new MiniKdc(conf, workDir);
-        kdc.start();
-    }
+		kdc = new MiniKdc(conf, workDir);
+		kdc.start();
+	}
 
-    /**
-     * Create a working directory, it should be the build directory. Under this
-     * directory an ApacheDS working directory will be created, this directory
-     * will be deleted when the MiniKdc stops.
-     *
-     * @throws IOException
-     */
-    public static void createTestDir() throws IOException {
-        workDir = createTmpDir(new File(System.getProperty("build.test.dir", "build")));
-    }
+	/**
+	 * Create a working directory, it should be the build directory. Under this
+	 * directory an ApacheDS working directory will be created, this directory
+	 * will be deleted when the MiniKdc stops.
+	 *
+	 * @throws IOException
+	 */
+	public static void createTestDir() throws IOException {
+		workDir = createTmpDir(new File(System.getProperty("build.test.dir", "build")));
+	}
 
-    static File createTmpDir(File parentDir) throws IOException {
-        File tmpFile = File.createTempFile("test", ".junit", parentDir);
-        // don't delete tmpFile - this ensures we don't attempt to create
-        // a tmpDir with a duplicate name
-        File tmpDir = new File(tmpFile + ".dir");
-        // never true if tmpfile does it's job
-        assertFalse(tmpDir.exists());
-        assertTrue(tmpDir.mkdirs());
-        return tmpDir;
-    }
+	static File createTmpDir(File parentDir) throws IOException {
+		File tmpFile = File.createTempFile("test", ".junit", parentDir);
+		// don't delete tmpFile - this ensures we don't attempt to create
+		// a tmpDir with a duplicate name
+		File tmpDir = new File(tmpFile + ".dir");
+		// never true if tmpfile does it's job
+		assertFalse(tmpDir.exists());
+		assertTrue(tmpDir.mkdirs());
+		return tmpDir;
+	}
 
-    /**
-     * Create a Kdc configuration
-     */
-    public static void createMiniKdcConf() {
-        conf = MiniKdc.createConf();
-    }
+	/**
+	 * Create a Kdc configuration
+	 */
+	public static void createMiniKdcConf() {
+		conf = MiniKdc.createConf();
+	}
 
-    public static void stopMiniKdc() {
-        if (kdc != null) {
-            kdc.stop();
-        }
-    }
+	public static void stopMiniKdc() {
+		if (kdc != null) {
+			kdc.stop();
+		}
+	}
 
-    public static MiniKdc getKdc() {
-        return kdc;
-    }
+	public static MiniKdc getKdc() {
+		return kdc;
+	}
 
-    public static File getWorkDir() {
-        return workDir;
-    }
+	public static File getWorkDir() {
+		return workDir;
+	}
 
-    public static Properties getConf() {
-        return conf;
-    }
+	public static Properties getConf() {
+		return conf;
+	}
 
 }

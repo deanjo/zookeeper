@@ -23,6 +23,7 @@ import java.math.RoundingMode;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.zookeeper.metrics.Summary;
 
 /**
@@ -31,91 +32,91 @@ import org.apache.zookeeper.metrics.Summary;
  */
 public class AvgMinMaxCounter extends Metric implements Summary {
 
-    private final String name;
-    private final AtomicLong total = new AtomicLong();
-    private final AtomicLong min = new AtomicLong(Long.MAX_VALUE);
-    private final AtomicLong max = new AtomicLong(Long.MIN_VALUE);
-    private final AtomicLong count = new AtomicLong();
+	private final String name;
+	private final AtomicLong total = new AtomicLong();
+	private final AtomicLong min = new AtomicLong(Long.MAX_VALUE);
+	private final AtomicLong max = new AtomicLong(Long.MIN_VALUE);
+	private final AtomicLong count = new AtomicLong();
 
-    public AvgMinMaxCounter(String name) {
-        this.name = name;
-    }
+	public AvgMinMaxCounter(String name) {
+		this.name = name;
+	}
 
-    public void addDataPoint(long value) {
-        total.addAndGet(value);
-        count.incrementAndGet();
-        setMin(value);
-        setMax(value);
-    }
+	public void addDataPoint(long value) {
+		total.addAndGet(value);
+		count.incrementAndGet();
+		setMin(value);
+		setMax(value);
+	}
 
-    private void setMax(long value) {
-        long current;
-        while (value > (current = max.get()) && !max.compareAndSet(current, value)) {
-            // no op
-        }
-    }
+	private void setMax(long value) {
+		long current;
+		while (value > (current = max.get()) && !max.compareAndSet(current, value)) {
+			// no op
+		}
+	}
 
-    private void setMin(long value) {
-        long current;
-        while (value < (current = min.get()) && !min.compareAndSet(current, value)) {
-            // no op
-        }
-    }
+	private void setMin(long value) {
+		long current;
+		while (value < (current = min.get()) && !min.compareAndSet(current, value)) {
+			// no op
+		}
+	}
 
-    public double getAvg() {
-        // There is possible race-condition but we don't need the stats to be
-        // extremely accurate.
-        long currentCount = count.get();
-        long currentTotal = total.get();
-        if (currentCount > 0) {
-            double avgLatency = currentTotal / (double) currentCount;
-            BigDecimal bg = new BigDecimal(avgLatency);
-            return bg.setScale(4, RoundingMode.HALF_UP).doubleValue();
-        }
-        return 0;
-    }
+	public double getAvg() {
+		// There is possible race-condition but we don't need the stats to be
+		// extremely accurate.
+		long currentCount = count.get();
+		long currentTotal = total.get();
+		if (currentCount > 0) {
+			double avgLatency = currentTotal / (double) currentCount;
+			BigDecimal bg = new BigDecimal(avgLatency);
+			return bg.setScale(4, RoundingMode.HALF_UP).doubleValue();
+		}
+		return 0;
+	}
 
-    public long getCount() {
-        return count.get();
-    }
+	public long getCount() {
+		return count.get();
+	}
 
-    public long getMax() {
-        long current = max.get();
-        return (current == Long.MIN_VALUE) ? 0 : current;
-    }
+	public long getMax() {
+		long current = max.get();
+		return (current == Long.MIN_VALUE) ? 0 : current;
+	}
 
-    public long getMin() {
-        long current = min.get();
-        return (current == Long.MAX_VALUE) ? 0 : current;
-    }
+	public long getMin() {
+		long current = min.get();
+		return (current == Long.MAX_VALUE) ? 0 : current;
+	}
 
-    public long getTotal() {
-        return total.get();
-    }
+	public long getTotal() {
+		return total.get();
+	}
 
-    public void resetMax() {
-        max.set(getMin());
-    }
+	public void resetMax() {
+		max.set(getMin());
+	}
 
-    public void reset() {
-        count.set(0);
-        total.set(0);
-        min.set(Long.MAX_VALUE);
-        max.set(Long.MIN_VALUE);
-    }
+	public void reset() {
+		count.set(0);
+		total.set(0);
+		min.set(Long.MAX_VALUE);
+		max.set(Long.MIN_VALUE);
+	}
 
-    public void add(long value) {
-        addDataPoint(value);
-    }
+	public void add(long value) {
+		addDataPoint(value);
+	}
 
-    public Map<String, Object> values() {
-        Map<String, Object> m = new LinkedHashMap<String, Object>();
-        m.put("avg_" + name, this.getAvg());
-        m.put("min_" + name, this.getMin());
-        m.put("max_" + name, this.getMax());
-        m.put("cnt_" + name, this.getCount());
-        m.put("sum_" + name, this.getTotal());
-        return m;
-    }
+	public Map<String, Object> values() {
+		Map<String, Object> m = new LinkedHashMap<String, Object>();
+		m.put("avg_" + name, this.getAvg());
+		m.put("min_" + name, this.getMin());
+		m.put("max_" + name, this.getMax());
+		m.put("cnt_" + name, this.getCount());
+		m.put("sum_" + name, this.getTotal());
+		return m;
+	}
 
 }

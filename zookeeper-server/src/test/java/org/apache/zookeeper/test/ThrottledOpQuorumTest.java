@@ -19,6 +19,7 @@
 package org.apache.zookeeper.test;
 
 import java.io.IOException;
+
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.server.ZooKeeperServer;
@@ -27,72 +28,72 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ThrottledOpQuorumTest extends QuorumBase {
-    @BeforeClass
-    public static void applyMockUps() {
-        ThrottledOpHelper.applyMockUps();
-    }
+	@BeforeClass
+	public static void applyMockUps() {
+		ThrottledOpHelper.applyMockUps();
+	}
 
-    @Test
-    public void testThrottledOpLeader() throws IOException, InterruptedException, KeeperException {
-        ZooKeeper zk = null;
-        try {
-            zk = createClient("localhost:" + getLeaderClientPort());
-            ZooKeeperServer zs = getLeaderQuorumPeer().getActiveServer();
-            ThrottledOpHelper test = new ThrottledOpHelper();
-            test.testThrottledOp(zk, zs);
-        } finally {
-            if (zk != null) {
-                zk.close();
-            }
-        }
-    }
+	@Test
+	public void testThrottledOpLeader() throws IOException, InterruptedException, KeeperException {
+		ZooKeeper zk = null;
+		try {
+			zk = createClient("localhost:" + getLeaderClientPort());
+			ZooKeeperServer zs = getLeaderQuorumPeer().getActiveServer();
+			ThrottledOpHelper test = new ThrottledOpHelper();
+			test.testThrottledOp(zk, zs);
+		} finally {
+			if (zk != null) {
+				zk.close();
+			}
+		}
+	}
 
-    @Test
-    public void testThrottledAclLeader() throws Exception {
-        ZooKeeper zk = null;
-        try {
-            zk = createClient("localhost:" + getLeaderClientPort());
-            ZooKeeperServer zs = getLeaderQuorumPeer().getActiveServer();
-            ThrottledOpHelper test = new ThrottledOpHelper();
-            test.testThrottledAcl(zk, zs);
-        } finally {
-            if (zk != null) {
-                zk.close();
-            }
-        }
-    }
+	@Test
+	public void testThrottledAclLeader() throws Exception {
+		ZooKeeper zk = null;
+		try {
+			zk = createClient("localhost:" + getLeaderClientPort());
+			ZooKeeperServer zs = getLeaderQuorumPeer().getActiveServer();
+			ThrottledOpHelper test = new ThrottledOpHelper();
+			test.testThrottledAcl(zk, zs);
+		} finally {
+			if (zk != null) {
+				zk.close();
+			}
+		}
+	}
 
-    @Test
-    public void testThrottledOpFollower() throws IOException, InterruptedException, KeeperException {
-        ZooKeeper zk = null;
-        try {
-            int clientPort = (getLeaderClientPort() == portClient1) ? portClient2 : portClient1;
-            zk = createClient("localhost:" + clientPort);
-            QuorumPeer qp = (getLeaderClientPort() == portClient1) ? s2 : s1;
-            ZooKeeperServer zs = qp.getActiveServer();
-            ThrottledOpHelper test = new ThrottledOpHelper();
-            test.testThrottledOp(zk, zs);
-        } finally {
-            if (zk != null) {
-                zk.close();
-            }
-        }
-    }
+	@Test
+	public void testThrottledOpFollower() throws IOException, InterruptedException, KeeperException {
+		ZooKeeper zk = null;
+		try {
+			int clientPort = (getLeaderClientPort() == portClient1) ? portClient2 : portClient1;
+			zk = createClient("localhost:" + clientPort);
+			QuorumPeer qp = (getLeaderClientPort() == portClient1) ? s2 : s1;
+			ZooKeeperServer zs = qp.getActiveServer();
+			ThrottledOpHelper test = new ThrottledOpHelper();
+			test.testThrottledOp(zk, zs);
+		} finally {
+			if (zk != null) {
+				zk.close();
+			}
+		}
+	}
 
-    @Test
-    public void testThrottledAclFollower() throws Exception {
-        ZooKeeper zk = null;
-        try {
-            int clientPort = (getLeaderClientPort() == portClient1) ? portClient2 : portClient1;
-            zk = createClient("localhost:" + clientPort);
-            QuorumPeer qp = (getLeaderClientPort() == portClient1) ? s2 : s1;
-            ZooKeeperServer zs = qp.getActiveServer();
-            ThrottledOpHelper test = new ThrottledOpHelper();
-            test.testThrottledAcl(zk, zs);
-        } finally {
-            if (zk != null) {
-                zk.close();
-            }
-        }
-    }
+	@Test
+	public void testThrottledAclFollower() throws Exception {
+		ZooKeeper zk = null;
+		try {
+			int clientPort = (getLeaderClientPort() == portClient1) ? portClient2 : portClient1;
+			zk = createClient("localhost:" + clientPort);
+			QuorumPeer qp = (getLeaderClientPort() == portClient1) ? s2 : s1;
+			ZooKeeperServer zs = qp.getActiveServer();
+			ThrottledOpHelper test = new ThrottledOpHelper();
+			test.testThrottledAcl(zk, zs);
+		} finally {
+			if (zk != null) {
+				zk.close();
+			}
+		}
+	}
 }

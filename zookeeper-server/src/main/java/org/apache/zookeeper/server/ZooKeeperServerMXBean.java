@@ -23,210 +23,254 @@ package org.apache.zookeeper.server;
  */
 public interface ZooKeeperServerMXBean {
 
-    /**
-     * @return the server socket port number
-     */
-    String getClientPort();
-    /**
-     * @return the zookeeper server version
-     */
-    String getVersion();
-    /**
-     * @return time the server was started
-     */
-    String getStartTime();
-    /**
-     * @return min request latency in ms
-     */
-    long getMinRequestLatency();
-    /**
-     * @return average request latency in ms
-     */
-    double getAvgRequestLatency();
-    /**
-     * @return max request latency in ms
-     */
-    long getMaxRequestLatency();
-    /**
-     * @return number of packets received so far
-     */
-    long getPacketsReceived();
-    /**
-     * @return number of packets sent so far
-     */
-    long getPacketsSent();
-    /**
-     * @return number of fsync threshold exceeds so far
-     */
-    long getFsyncThresholdExceedCount();
-    /**
-     * @return number of outstanding requests.
-     */
-    long getOutstandingRequests();
-    /**
-     * Current TickTime of server in milliseconds
-     */
-    int getTickTime();
-    /**
-     * Set TickTime of server in milliseconds
-     */
-    void setTickTime(int tickTime);
+	/**
+	 * @return the server socket port number
+	 */
+	String getClientPort();
 
-    /** Current maxClientCnxns allowed from a particular host */
-    int getMaxClientCnxnsPerHost();
+	/**
+	 * @return the zookeeper server version
+	 */
+	String getVersion();
 
-    /** Set maxClientCnxns allowed from a particular host */
-    void setMaxClientCnxnsPerHost(int max);
+	/**
+	 * @return time the server was started
+	 */
+	String getStartTime();
 
-    /**
-     * Current minSessionTimeout of the server in milliseconds
-     */
-    int getMinSessionTimeout();
-    /**
-     * Set minSessionTimeout of server in milliseconds
-     */
-    void setMinSessionTimeout(int min);
+	/**
+	 * @return min request latency in ms
+	 */
+	long getMinRequestLatency();
 
-    /**
-     * Current maxSessionTimeout of the server in milliseconds
-     */
-    int getMaxSessionTimeout();
-    /**
-     * Set maxSessionTimeout of server in milliseconds
-     */
-    void setMaxSessionTimeout(int max);
+	/**
+	 * @return average request latency in ms
+	 */
+	double getAvgRequestLatency();
 
-    boolean getResponseCachingEnabled();
-    void setResponseCachingEnabled(boolean isEnabled);
+	/**
+	 * @return max request latency in ms
+	 */
+	long getMaxRequestLatency();
 
-    /* Connection throttling settings */
-    int getConnectionMaxTokens();
-    void setConnectionMaxTokens(int val);
+	/**
+	 * @return number of packets received so far
+	 */
+	long getPacketsReceived();
 
-    int getConnectionTokenFillTime();
-    void setConnectionTokenFillTime(int val);
+	/**
+	 * @return number of packets sent so far
+	 */
+	long getPacketsSent();
 
-    int getConnectionTokenFillCount();
-    void setConnectionTokenFillCount(int val);
+	/**
+	 * @return number of fsync threshold exceeds so far
+	 */
+	long getFsyncThresholdExceedCount();
 
-    int getConnectionFreezeTime();
-    void setConnectionFreezeTime(int val);
+	/**
+	 * @return number of outstanding requests.
+	 */
+	long getOutstandingRequests();
 
-    double getConnectionDropIncrease();
-    void setConnectionDropIncrease(double val);
+	/**
+	 * Current TickTime of server in milliseconds
+	 */
+	int getTickTime();
 
-    double getConnectionDropDecrease();
-    void setConnectionDropDecrease(double val);
+	/**
+	 * Set TickTime of server in milliseconds
+	 */
+	void setTickTime(int tickTime);
 
-    double getConnectionDecreaseRatio();
-    void setConnectionDecreaseRatio(double val);
+	/**
+	 * Current maxClientCnxns allowed from a particular host
+	 */
+	int getMaxClientCnxnsPerHost();
 
-    int getCommitProcMaxReadBatchSize();
-    void setCommitProcMaxReadBatchSize(int size);
+	/**
+	 * Set maxClientCnxns allowed from a particular host
+	 */
+	void setMaxClientCnxnsPerHost(int max);
 
-    int getCommitProcMaxCommitBatchSize();
-    void setCommitProcMaxCommitBatchSize(int size);
+	/**
+	 * Current minSessionTimeout of the server in milliseconds
+	 */
+	int getMinSessionTimeout();
 
-    int getRequestThrottleLimit();
-    void setRequestThrottleLimit(int requests);
+	/**
+	 * Set minSessionTimeout of server in milliseconds
+	 */
+	void setMinSessionTimeout(int min);
 
-    int getRequestThrottleStallTime();
-    void setRequestThrottleStallTime(int time);
+	/**
+	 * Current maxSessionTimeout of the server in milliseconds
+	 */
+	int getMaxSessionTimeout();
 
-    boolean getRequestThrottleDropStale();
-    void setRequestThrottleDropStale(boolean drop);
+	/**
+	 * Set maxSessionTimeout of server in milliseconds
+	 */
+	void setMaxSessionTimeout(int max);
 
-    int getThrottledOpWaitTime();
-    void setThrottledOpWaitTime(int val);
+	boolean getResponseCachingEnabled();
 
-    boolean getRequestStaleLatencyCheck();
-    void setRequestStaleLatencyCheck(boolean check);
+	void setResponseCachingEnabled(boolean isEnabled);
 
-    boolean getRequestStaleConnectionCheck();
-    void setRequestStaleConnectionCheck(boolean check);
+	/* Connection throttling settings */
+	int getConnectionMaxTokens();
 
-    int getLargeRequestMaxBytes();
-    void setLargeRequestMaxBytes(int bytes);
+	void setConnectionMaxTokens(int val);
 
-    int getLargeRequestThreshold();
-    void setLargeRequestThreshold(int threshold);
+	int getConnectionTokenFillTime();
 
-    /**
-     * Reset packet and latency statistics
-     */
-    void resetStatistics();
-    /**
-     * Reset min/avg/max latency statistics
-     */
-    void resetLatency();
-    /**
-     * Reset max latency statistics only.
-     */
-    void resetMaxLatency();
-    /**
-     * Reset Fsync Threshold Exceed Count statistics only.
-     */
-    void resetFsyncThresholdExceedCount();
-    /**
-     * @return number of alive client connections
-     */
-    long getNumAliveConnections();
+	void setConnectionTokenFillTime(int val);
 
-    /**
-     * @return estimated size of data directory in bytes
-     */
-    long getDataDirSize();
-    /**
-     * @return estimated size of log directory in bytes
-     */
-    long getLogDirSize();
+	int getConnectionTokenFillCount();
 
-    /**
-     * @return secure client port
-     */
-    String getSecureClientPort();
-    /**
-     * @return secure client address
-     */
-    String getSecureClientAddress();
+	void setConnectionTokenFillCount(int val);
 
-    /**
-     * Returns the elapsed sync of time of transaction log in milliseconds.
-     */
-    long getTxnLogElapsedSyncTime();
+	int getConnectionFreezeTime();
 
-    /**
-     * @return Returns the value of the following config setting: jute.maxbuffer
-     */
-    int getJuteMaxBufferSize();
+	void setConnectionFreezeTime(int val);
 
-    /**
-     * @return size of latest generated client response
-     */
-    int getLastClientResponseSize();
+	double getConnectionDropIncrease();
 
-    /**
-     * @return size of smallest generated client response
-     */
-    int getMinClientResponseSize();
+	void setConnectionDropIncrease(double val);
 
-    /**
-     * @return size of largest generated client response
-     */
-    int getMaxClientResponseSize();
+	double getConnectionDropDecrease();
 
-    long getFlushDelay();
-    void setFlushDelay(long delay);
+	void setConnectionDropDecrease(double val);
 
-    long getMaxWriteQueuePollTime();
-    void setMaxWriteQueuePollTime(long delay);
+	double getConnectionDecreaseRatio();
 
-    int getMaxBatchSize();
-    void setMaxBatchSize(int size);
+	void setConnectionDecreaseRatio(double val);
 
-    /**
-     * @return Current maxCnxns allowed to a single ZooKeeper server
-     */
-   int getMaxCnxns();
+	int getCommitProcMaxReadBatchSize();
+
+	void setCommitProcMaxReadBatchSize(int size);
+
+	int getCommitProcMaxCommitBatchSize();
+
+	void setCommitProcMaxCommitBatchSize(int size);
+
+	int getRequestThrottleLimit();
+
+	void setRequestThrottleLimit(int requests);
+
+	int getRequestThrottleStallTime();
+
+	void setRequestThrottleStallTime(int time);
+
+	boolean getRequestThrottleDropStale();
+
+	void setRequestThrottleDropStale(boolean drop);
+
+	int getThrottledOpWaitTime();
+
+	void setThrottledOpWaitTime(int val);
+
+	boolean getRequestStaleLatencyCheck();
+
+	void setRequestStaleLatencyCheck(boolean check);
+
+	boolean getRequestStaleConnectionCheck();
+
+	void setRequestStaleConnectionCheck(boolean check);
+
+	int getLargeRequestMaxBytes();
+
+	void setLargeRequestMaxBytes(int bytes);
+
+	int getLargeRequestThreshold();
+
+	void setLargeRequestThreshold(int threshold);
+
+	/**
+	 * Reset packet and latency statistics
+	 */
+	void resetStatistics();
+
+	/**
+	 * Reset min/avg/max latency statistics
+	 */
+	void resetLatency();
+
+	/**
+	 * Reset max latency statistics only.
+	 */
+	void resetMaxLatency();
+
+	/**
+	 * Reset Fsync Threshold Exceed Count statistics only.
+	 */
+	void resetFsyncThresholdExceedCount();
+
+	/**
+	 * @return number of alive client connections
+	 */
+	long getNumAliveConnections();
+
+	/**
+	 * @return estimated size of data directory in bytes
+	 */
+	long getDataDirSize();
+
+	/**
+	 * @return estimated size of log directory in bytes
+	 */
+	long getLogDirSize();
+
+	/**
+	 * @return secure client port
+	 */
+	String getSecureClientPort();
+
+	/**
+	 * @return secure client address
+	 */
+	String getSecureClientAddress();
+
+	/**
+	 * Returns the elapsed sync of time of transaction log in milliseconds.
+	 */
+	long getTxnLogElapsedSyncTime();
+
+	/**
+	 * @return Returns the value of the following config setting: jute.maxbuffer
+	 */
+	int getJuteMaxBufferSize();
+
+	/**
+	 * @return size of latest generated client response
+	 */
+	int getLastClientResponseSize();
+
+	/**
+	 * @return size of smallest generated client response
+	 */
+	int getMinClientResponseSize();
+
+	/**
+	 * @return size of largest generated client response
+	 */
+	int getMaxClientResponseSize();
+
+	long getFlushDelay();
+
+	void setFlushDelay(long delay);
+
+	long getMaxWriteQueuePollTime();
+
+	void setMaxWriteQueuePollTime(long delay);
+
+	int getMaxBatchSize();
+
+	void setMaxBatchSize(int size);
+
+	/**
+	 * @return Current maxCnxns allowed to a single ZooKeeper server
+	 */
+	int getMaxCnxns();
 
 }

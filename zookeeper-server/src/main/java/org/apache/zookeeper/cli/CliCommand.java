@@ -20,6 +20,7 @@ package org.apache.zookeeper.cli;
 
 import java.io.PrintStream;
 import java.util.Map;
+
 import org.apache.zookeeper.ZooKeeper;
 
 /**
@@ -27,94 +28,102 @@ import org.apache.zookeeper.ZooKeeper;
  */
 public abstract class CliCommand {
 
-    protected ZooKeeper zk;
-    protected PrintStream out;
-    protected PrintStream err;
-    private String cmdStr;
-    private String optionStr;
+	protected ZooKeeper zk;
+	protected PrintStream out;
+	protected PrintStream err;
+	private String cmdStr;
+	private String optionStr;
 
-    /**
-     * a CLI command with command string and options.
-     * Using System.out and System.err for printing
-     * @param cmdStr the string used to call this command
-     * @param optionStr the string used to call this command
-     */
-    public CliCommand(String cmdStr, String optionStr) {
-        this.out = System.out;
-        this.err = System.err;
-        this.cmdStr = cmdStr;
-        this.optionStr = optionStr;
-    }
+	/**
+	 * a CLI command with command string and options.
+	 * Using System.out and System.err for printing
+	 *
+	 * @param cmdStr    the string used to call this command
+	 * @param optionStr the string used to call this command
+	 */
+	public CliCommand(String cmdStr, String optionStr) {
+		this.out = System.out;
+		this.err = System.err;
+		this.cmdStr = cmdStr;
+		this.optionStr = optionStr;
+	}
 
-    /**
-     * Set out printStream (usable for testing)
-     * @param out
-     */
-    public void setOut(PrintStream out) {
-        this.out = out;
-    }
+	/**
+	 * Set out printStream (usable for testing)
+	 *
+	 * @param out
+	 */
+	public void setOut(PrintStream out) {
+		this.out = out;
+	}
 
-    /**
-     * Set err printStream (usable for testing)
-     * @param err
-     */
-    public void setErr(PrintStream err) {
-        this.err = err;
-    }
+	/**
+	 * Set err printStream (usable for testing)
+	 *
+	 * @param err
+	 */
+	public void setErr(PrintStream err) {
+		this.err = err;
+	}
 
-    /**
-     * set the zookeeper instance
-     * @param zk the ZooKeeper instance.
-     */
-    public void setZk(ZooKeeper zk) {
-        this.zk = zk;
-    }
+	/**
+	 * set the zookeeper instance
+	 *
+	 * @param zk the ZooKeeper instance.
+	 */
+	public void setZk(ZooKeeper zk) {
+		this.zk = zk;
+	}
 
-    /**
-     * get the string used to call this command
-     * @return
-     */
-    public String getCmdStr() {
-        return cmdStr;
-    }
+	/**
+	 * get the string used to call this command
+	 *
+	 * @return
+	 */
+	public String getCmdStr() {
+		return cmdStr;
+	}
 
-    /**
-     * get the option string
-     * @return
-     */
-    public String getOptionStr() {
-        return optionStr;
-    }
+	/**
+	 * get the option string
+	 *
+	 * @return
+	 */
+	public String getOptionStr() {
+		return optionStr;
+	}
 
-    /**
-     * get a usage string, contains the command and the options
-     * @return
-     */
-    public String getUsageStr() {
-        return cmdStr + " " + optionStr;
-    }
+	/**
+	 * get a usage string, contains the command and the options
+	 *
+	 * @return
+	 */
+	public String getUsageStr() {
+		return cmdStr + " " + optionStr;
+	}
 
-    /**
-     * add this command to a map. Use the command string as key.
-     * @param cmdMap
-     */
-    public void addToMap(Map<String, CliCommand> cmdMap) {
-        cmdMap.put(cmdStr, this);
-    }
+	/**
+	 * add this command to a map. Use the command string as key.
+	 *
+	 * @param cmdMap
+	 */
+	public void addToMap(Map<String, CliCommand> cmdMap) {
+		cmdMap.put(cmdStr, this);
+	}
 
-    /**
-     * parse the command arguments
-     * @param cmdArgs
-     * @return this CliCommand
-     * @throws CliParseException
-     */
-    public abstract CliCommand parse(String[] cmdArgs) throws CliParseException;
+	/**
+	 * parse the command arguments
+	 *
+	 * @param cmdArgs
+	 * @return this CliCommand
+	 * @throws CliParseException
+	 */
+	public abstract CliCommand parse(String[] cmdArgs) throws CliParseException;
 
-    /**
-     *
-     * @return
-     * @throws CliException
-     */
-    public abstract boolean exec() throws CliException;
+	/**
+	 * @return
+	 * @throws CliException
+	 */
+	public abstract boolean exec() throws CliException;
 
 }

@@ -19,6 +19,7 @@
 package org.apache.zookeeper.server;
 
 import java.util.concurrent.CountDownLatch;
+
 import org.apache.zookeeper.server.ZooKeeperServer.State;
 
 /**
@@ -28,21 +29,21 @@ import org.apache.zookeeper.server.ZooKeeperServer.State;
  */
 class ZooKeeperServerShutdownHandler {
 
-    private final CountDownLatch shutdownLatch;
+	private final CountDownLatch shutdownLatch;
 
-    ZooKeeperServerShutdownHandler(CountDownLatch shutdownLatch) {
-        this.shutdownLatch = shutdownLatch;
-    }
+	ZooKeeperServerShutdownHandler(CountDownLatch shutdownLatch) {
+		this.shutdownLatch = shutdownLatch;
+	}
 
-    /**
-     * This will be invoked when the server transition to a new server state.
-     *
-     * @param state new server state
-     */
-    void handle(State state) {
-        if (state == State.ERROR || state == State.SHUTDOWN) {
-            shutdownLatch.countDown();
-        }
-    }
+	/**
+	 * This will be invoked when the server transition to a new server state.
+	 *
+	 * @param state new server state
+	 */
+	void handle(State state) {
+		if (state == State.ERROR || state == State.SHUTDOWN) {
+			shutdownLatch.countDown();
+		}
+	}
 
 }

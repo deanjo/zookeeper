@@ -23,69 +23,69 @@ package org.apache.zookeeper.server.quorum;
  */
 public class BufferStats {
 
-    public static final int INIT_VALUE = -1;
+	public static final int INIT_VALUE = -1;
 
-    /**
-     * Size of the last buffer usage.
-     */
-    private int lastBufferSize = INIT_VALUE;
+	/**
+	 * Size of the last buffer usage.
+	 */
+	private int lastBufferSize = INIT_VALUE;
 
-    /**
-     * Size of the smallest buffer usage.
-     */
-    private int minBufferSize = INIT_VALUE;
+	/**
+	 * Size of the smallest buffer usage.
+	 */
+	private int minBufferSize = INIT_VALUE;
 
-    /**
-     * Size of the largest buffer usage.
-     */
-    private int maxBufferSize = INIT_VALUE;
+	/**
+	 * Size of the largest buffer usage.
+	 */
+	private int maxBufferSize = INIT_VALUE;
 
-    /**
-     * Size of the last buffer usage.
-     */
-    public synchronized int getLastBufferSize() {
-        return lastBufferSize;
-    }
+	/**
+	 * Size of the last buffer usage.
+	 */
+	public synchronized int getLastBufferSize() {
+		return lastBufferSize;
+	}
 
-    /**
-     * Updates statistics by setting the last buffer usage size.
-     */
-    public synchronized void setLastBufferSize(int value) {
-        lastBufferSize = value;
-        if (minBufferSize == INIT_VALUE || value < minBufferSize) {
-            minBufferSize = value;
-        }
-        if (value > maxBufferSize) {
-            maxBufferSize = value;
-        }
-    }
+	/**
+	 * Updates statistics by setting the last buffer usage size.
+	 */
+	public synchronized void setLastBufferSize(int value) {
+		lastBufferSize = value;
+		if (minBufferSize == INIT_VALUE || value < minBufferSize) {
+			minBufferSize = value;
+		}
+		if (value > maxBufferSize) {
+			maxBufferSize = value;
+		}
+	}
 
-    /**
-     * Size of the smallest buffer usage.
-     */
-    public synchronized int getMinBufferSize() {
-        return minBufferSize;
-    }
+	/**
+	 * Size of the smallest buffer usage.
+	 */
+	public synchronized int getMinBufferSize() {
+		return minBufferSize;
+	}
 
-    /**
-     * Size of the largest buffer usage.
-     */
-    public synchronized int getMaxBufferSize() {
-        return maxBufferSize;
-    }
+	/**
+	 * Size of the largest buffer usage.
+	 */
+	public synchronized int getMaxBufferSize() {
+		return maxBufferSize;
+	}
 
-    /**
-     * Reset statistics.
-     */
-    public synchronized void reset() {
-        lastBufferSize = INIT_VALUE;
-        minBufferSize = INIT_VALUE;
-        maxBufferSize = INIT_VALUE;
-    }
+	/**
+	 * Reset statistics.
+	 */
+	public synchronized void reset() {
+		lastBufferSize = INIT_VALUE;
+		minBufferSize = INIT_VALUE;
+		maxBufferSize = INIT_VALUE;
+	}
 
-    @Override
-    public synchronized String toString() {
-        return String.format("%d/%d/%d", lastBufferSize, minBufferSize, maxBufferSize);
-    }
+	@Override
+	public synchronized String toString() {
+		return String.format("%d/%d/%d", lastBufferSize, minBufferSize, maxBufferSize);
+	}
 
 }

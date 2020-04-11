@@ -18,6 +18,7 @@
 package org.apache.zookeeper.cli;
 
 import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -33,54 +34,54 @@ import org.apache.zookeeper.data.Stat;
  */
 public class GetAclCommand extends CliCommand {
 
-    private static Options options = new Options();
-    private String[] args;
-    private CommandLine cl;
+	private static Options options = new Options();
+	private String[] args;
+	private CommandLine cl;
 
-    static {
-        options.addOption("s", false, "stats");
-    }
+	static {
+		options.addOption("s", false, "stats");
+	}
 
-    public GetAclCommand() {
-        super("getAcl", "[-s] path");
-    }
+	public GetAclCommand() {
+		super("getAcl", "[-s] path");
+	}
 
-    @Override
-    public CliCommand parse(String[] cmdArgs) throws CliParseException {
-        Parser parser = new PosixParser();
-        try {
-            cl = parser.parse(options, cmdArgs);
-        } catch (ParseException ex) {
-            throw new CliParseException(ex);
-        }
-        args = cl.getArgs();
-        if (args.length < 2) {
-            throw new CliParseException(getUsageStr());
-        }
+	@Override
+	public CliCommand parse(String[] cmdArgs) throws CliParseException {
+		Parser parser = new PosixParser();
+		try {
+			cl = parser.parse(options, cmdArgs);
+		} catch (ParseException ex) {
+			throw new CliParseException(ex);
+		}
+		args = cl.getArgs();
+		if (args.length < 2) {
+			throw new CliParseException(getUsageStr());
+		}
 
-        return this;
-    }
+		return this;
+	}
 
-    @Override
-    public boolean exec() throws CliException {
-        String path = args[1];
-        Stat stat = new Stat();
-        List<ACL> acl;
-        try {
-            acl = zk.getACL(path, stat);
-        } catch (IllegalArgumentException ex) {
-            throw new MalformedPathException(ex.getMessage());
-        } catch (KeeperException | InterruptedException ex) {
-            throw new CliWrapperException(ex);
-        }
+	@Override
+	public boolean exec() throws CliException {
+		String path = args[1];
+		Stat stat = new Stat();
+		List<ACL> acl;
+		try {
+			acl = zk.getACL(path, stat);
+		} catch (IllegalArgumentException ex) {
+			throw new MalformedPathException(ex.getMessage());
+		} catch (KeeperException | InterruptedException ex) {
+			throw new CliWrapperException(ex);
+		}
 
-        for (ACL a : acl) {
-            out.println(a.getId() + ": " + ZKUtil.getPermString(a.getPerms()));
-        }
+		for (ACL a : acl) {
+			out.println(a.getId() + ": " + ZKUtil.getPermString(a.getPerms()));
+		}
 
-        if (cl.hasOption("s")) {
-            new StatPrinter(out).print(stat);
-        }
-        return false;
-    }
+		if (cl.hasOption("s")) {
+			new StatPrinter(out).print(stat);
+		}
+		return false;
+	}
 }

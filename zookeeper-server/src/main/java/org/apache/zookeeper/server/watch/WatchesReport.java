@@ -29,56 +29,56 @@ import java.util.Set;
  */
 public class WatchesReport {
 
-    private final Map<Long, Set<String>> id2paths;
+	private final Map<Long, Set<String>> id2paths;
 
-    /**
-     * Creates a new report.
-     *
-     * @param id2paths map of session IDs to paths that each session has set
-     * a watch on
-     */
-    WatchesReport(Map<Long, Set<String>> id2paths) {
-        this.id2paths = Collections.unmodifiableMap(deepCopy(id2paths));
-    }
+	/**
+	 * Creates a new report.
+	 *
+	 * @param id2paths map of session IDs to paths that each session has set
+	 *                 a watch on
+	 */
+	WatchesReport(Map<Long, Set<String>> id2paths) {
+		this.id2paths = Collections.unmodifiableMap(deepCopy(id2paths));
+	}
 
-    private static Map<Long, Set<String>> deepCopy(Map<Long, Set<String>> m) {
-        Map<Long, Set<String>> m2 = new HashMap<Long, Set<String>>();
-        for (Map.Entry<Long, Set<String>> e : m.entrySet()) {
-            m2.put(e.getKey(), new HashSet<String>(e.getValue()));
-        }
-        return m2;
-    }
+	private static Map<Long, Set<String>> deepCopy(Map<Long, Set<String>> m) {
+		Map<Long, Set<String>> m2 = new HashMap<Long, Set<String>>();
+		for (Map.Entry<Long, Set<String>> e : m.entrySet()) {
+			m2.put(e.getKey(), new HashSet<String>(e.getValue()));
+		}
+		return m2;
+	}
 
-    /**
-     * Checks if the given session has watches set.
-     *
-     * @param sessionId session ID
-     * @return true if session has paths with watches set
-     */
-    public boolean hasPaths(long sessionId) {
-        return id2paths.containsKey(sessionId);
-    }
+	/**
+	 * Checks if the given session has watches set.
+	 *
+	 * @param sessionId session ID
+	 * @return true if session has paths with watches set
+	 */
+	public boolean hasPaths(long sessionId) {
+		return id2paths.containsKey(sessionId);
+	}
 
-    /**
-     * Gets the paths that the given session has set watches on. The returned
-     * set is immutable.
-     *
-     * @param sessionId session ID
-     * @return paths that have watches set by the session, or null if none
-     */
-    public Set<String> getPaths(long sessionId) {
-        Set<String> s = id2paths.get(sessionId);
-        return s != null ? Collections.unmodifiableSet(s) : null;
-    }
+	/**
+	 * Gets the paths that the given session has set watches on. The returned
+	 * set is immutable.
+	 *
+	 * @param sessionId session ID
+	 * @return paths that have watches set by the session, or null if none
+	 */
+	public Set<String> getPaths(long sessionId) {
+		Set<String> s = id2paths.get(sessionId);
+		return s != null ? Collections.unmodifiableSet(s) : null;
+	}
 
-    /**
-     * Converts this report to a map. The returned map is mutable, and changes
-     * to it do not reflect back into this report.
-     *
-     * @return map representation of report
-     */
-    public Map<Long, Set<String>> toMap() {
-        return deepCopy(id2paths);
-    }
+	/**
+	 * Converts this report to a map. The returned map is mutable, and changes
+	 * to it do not reflect back into this report.
+	 *
+	 * @return map representation of report
+	 */
+	public Map<Long, Set<String>> toMap() {
+		return deepCopy(id2paths);
+	}
 
 }

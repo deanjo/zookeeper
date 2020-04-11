@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,51 +45,51 @@ import com.sun.jersey.api.client.ClientResponse;
  */
 @RunWith(Parameterized.class)
 public class DeleteTest extends Base {
-    protected static final Logger LOG = LoggerFactory.getLogger(DeleteTest.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(DeleteTest.class);
 
-    private String zpath;
-    private ClientResponse.Status expectedStatus;
+	private String zpath;
+	private ClientResponse.Status expectedStatus;
 
-    public static class MyWatcher implements Watcher {
-        public void process(WatchedEvent event) {
-            // FIXME ignore for now
-        }
-    }
+	public static class MyWatcher implements Watcher {
+		public void process(WatchedEvent event) {
+			// FIXME ignore for now
+		}
+	}
 
-    @Parameters
-    public static Collection<Object[]> data() throws Exception {
-        String baseZnode = Base.createBaseZNode();
+	@Parameters
+	public static Collection<Object[]> data() throws Exception {
+		String baseZnode = Base.createBaseZNode();
 
-        return Arrays.asList(new Object[][] {
-          {baseZnode, baseZnode, ClientResponse.Status.NO_CONTENT },
-          {baseZnode, baseZnode, ClientResponse.Status.NO_CONTENT }
-        });
-    }
+		return Arrays.asList(new Object[][]{
+			{baseZnode, baseZnode, ClientResponse.Status.NO_CONTENT},
+			{baseZnode, baseZnode, ClientResponse.Status.NO_CONTENT}
+		});
+	}
 
-    public DeleteTest(String path, String zpath, ClientResponse.Status status) {
-        this.zpath = zpath;
-        this.expectedStatus = status;
-    }
+	public DeleteTest(String path, String zpath, ClientResponse.Status status) {
+		this.zpath = zpath;
+		this.expectedStatus = status;
+	}
 
-    public void verify(String type) throws Exception {
-        if (expectedStatus != ClientResponse.Status.NOT_FOUND) {
-            zpath = zk.create(zpath, null, Ids.OPEN_ACL_UNSAFE,
-                    CreateMode.PERSISTENT_SEQUENTIAL);
-        }
+	public void verify(String type) throws Exception {
+		if (expectedStatus != ClientResponse.Status.NOT_FOUND) {
+			zpath = zk.create(zpath, null, Ids.OPEN_ACL_UNSAFE,
+				CreateMode.PERSISTENT_SEQUENTIAL);
+		}
 
-        ClientResponse cr = znodesr.path(zpath).accept(type).type(type)
-            .delete(ClientResponse.class);
-        Assert.assertEquals(expectedStatus, cr.getClientResponseStatus());
+		ClientResponse cr = znodesr.path(zpath).accept(type).type(type)
+			.delete(ClientResponse.class);
+		Assert.assertEquals(expectedStatus, cr.getClientResponseStatus());
 
-        // use out-of-band method to verify
-        Stat stat = zk.exists(zpath, false);
-        Assert.assertNull(stat);
-    }
+		// use out-of-band method to verify
+		Stat stat = zk.exists(zpath, false);
+		Assert.assertNull(stat);
+	}
 
-    @Test
-    public void testDelete() throws Exception {
-        verify(MediaType.APPLICATION_OCTET_STREAM);
-        verify(MediaType.APPLICATION_JSON);
-        verify(MediaType.APPLICATION_XML);
-    }
+	@Test
+	public void testDelete() throws Exception {
+		verify(MediaType.APPLICATION_OCTET_STREAM);
+		verify(MediaType.APPLICATION_JSON);
+		verify(MediaType.APPLICATION_XML);
+	}
 }

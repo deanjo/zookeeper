@@ -21,10 +21,12 @@ package org.apache.zookeeper.test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
+
 import org.apache.zookeeper.PortAssignment;
 import org.apache.zookeeper.ZKTestCase;
 import org.apache.zookeeper.server.quorum.FastLeaderElection;
@@ -36,68 +38,68 @@ import org.slf4j.LoggerFactory;
 
 public class FLEPredicateTest extends ZKTestCase {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(FLEPredicateTest.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(FLEPredicateTest.class);
 
-    class MockFLE extends FastLeaderElection {
+	class MockFLE extends FastLeaderElection {
 
-        MockFLE(QuorumPeer peer) {
-            super(peer, peer.createCnxnManager());
-        }
+		MockFLE(QuorumPeer peer) {
+			super(peer, peer.createCnxnManager());
+		}
 
-        boolean predicate(long newId, long newZxid, long newEpoch, long curId, long curZxid, long curEpoch) {
-            return this.totalOrderPredicate(newId, newZxid, newEpoch, curId, curZxid, curEpoch);
-        }
+		boolean predicate(long newId, long newZxid, long newEpoch, long curId, long curZxid, long curEpoch) {
+			return this.totalOrderPredicate(newId, newZxid, newEpoch, curId, curZxid, curEpoch);
+		}
 
-    }
+	}
 
-    HashMap<Long, QuorumServer> peers;
+	HashMap<Long, QuorumServer> peers;
 
-    @Test
-    public void testPredicate() throws IOException {
+	@Test
+	public void testPredicate() throws IOException {
 
-        peers = new HashMap<Long, QuorumServer>(3);
+		peers = new HashMap<Long, QuorumServer>(3);
 
-        /*
-         * Creates list of peers.
-         */
-        for (int i = 0; i < 3; i++) {
-            peers.put(Long.valueOf(i), new QuorumServer(i, new InetSocketAddress("127.0.0.1", PortAssignment.unique()), new InetSocketAddress("127.0.0.1", PortAssignment.unique())));
-        }
+		/*
+		 * Creates list of peers.
+		 */
+		for (int i = 0; i < 3; i++) {
+			peers.put(Long.valueOf(i), new QuorumServer(i, new InetSocketAddress("127.0.0.1", PortAssignment.unique()), new InetSocketAddress("127.0.0.1", PortAssignment.unique())));
+		}
 
-        /*
-         * Creating peer.
-         */
-        try {
-            File tmpDir = ClientBase.createTmpDir();
-            QuorumPeer peer = new QuorumPeer(peers, tmpDir, tmpDir, PortAssignment.unique(), 3, 0, 1000, 2, 2, 2);
+		/*
+		 * Creating peer.
+		 */
+		try {
+			File tmpDir = ClientBase.createTmpDir();
+			QuorumPeer peer = new QuorumPeer(peers, tmpDir, tmpDir, PortAssignment.unique(), 3, 0, 1000, 2, 2, 2);
 
-            MockFLE mock = new MockFLE(peer);
-            mock.start();
+			MockFLE mock = new MockFLE(peer);
+			mock.start();
 
-            /*
-             * Lower epoch must return false
-             */
+			/*
+			 * Lower epoch must return false
+			 */
 
-            assertFalse(mock.predicate(4L, 0L, 0L, 3L, 0L, 2L));
+			assertFalse(mock.predicate(4L, 0L, 0L, 3L, 0L, 2L));
 
-            /*
-             * Later epoch
-             */
-            assertTrue(mock.predicate(0L, 0L, 1L, 1L, 0L, 0L));
+			/*
+			 * Later epoch
+			 */
+			assertTrue(mock.predicate(0L, 0L, 1L, 1L, 0L, 0L));
 
-            /*
-             * Higher zxid
-             */
-            assertTrue(mock.predicate(0L, 1L, 0L, 1L, 0L, 0L));
+			/*
+			 * Higher zxid
+			 */
+			assertTrue(mock.predicate(0L, 1L, 0L, 1L, 0L, 0L));
 
-            /*
-             * Higher id
-             */
-            assertTrue(mock.predicate(1L, 1L, 0L, 0L, 1L, 0L));
-        } catch (IOException e) {
-            LOG.error("Exception while creating quorum peer", e);
-            fail("Exception while creating quorum peer");
-        }
-    }
+			/*
+			 * Higher id
+			 */
+			assertTrue(mock.predicate(1L, 1L, 0L, 0L, 1L, 0L));
+		} catch (IOException e) {
+			LOG.error("Exception while creating quorum peer", e);
+			fail("Exception while creating quorum peer");
+		}
+	}
 
 }

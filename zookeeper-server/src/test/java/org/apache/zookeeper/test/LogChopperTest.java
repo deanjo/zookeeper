@@ -21,6 +21,7 @@ package org.apache.zookeeper.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -30,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.server.persistence.FileTxnLog;
 import org.apache.zookeeper.server.persistence.TxnLog;
@@ -40,91 +42,94 @@ import org.junit.Test;
 
 class Pair<V1, V2> {
 
-    private V1 v1;
-    private V2 v2;
-    Pair(V1 v1, V2 v2) {
-        this.v1 = v1;
-        this.v2 = v2;
-    }
-    public V1 getFirst() {
-        return v1;
-    }
-    public V2 getSecond() {
-        return v2;
-    }
+	private V1 v1;
+	private V2 v2;
+
+	Pair(V1 v1, V2 v2) {
+		this.v1 = v1;
+		this.v2 = v2;
+	}
+
+	public V1 getFirst() {
+		return v1;
+	}
+
+	public V2 getSecond() {
+		return v2;
+	}
 
 }
 
 public class LogChopperTest extends ClientBase {
 
-    void rmr(File dir) throws IOException {
-        Files.walkFileTree(dir.toPath(), new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes a) throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
+	void rmr(File dir) throws IOException {
+		Files.walkFileTree(dir.toPath(), new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes a) throws IOException {
+				Files.delete(file);
+				return FileVisitResult.CONTINUE;
+			}
 
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException {
-                Files.delete(dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
-    }
+			@Override
+			public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException {
+				Files.delete(dir);
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	}
 
-    Pair<Long, Long> getFirstLastZxid(File logFile) throws IOException {
-        File tmp = createTmpDir();
-        Files.copy(logFile.toPath(), new File(tmp, "log.0").toPath());
-        FileTxnLog txnLog = new FileTxnLog(tmp);
-        TxnLog.TxnIterator it = txnLog.read(0);
-        long firstZxid = it.getHeader().getZxid();
-        long lastZxid = firstZxid;
-        while (it.next()) {
-            lastZxid = it.getHeader().getZxid();
-        }
-        txnLog.close();
-        rmr(tmp);
-        return new Pair<Long, Long>(firstZxid, lastZxid);
-    }
+	Pair<Long, Long> getFirstLastZxid(File logFile) throws IOException {
+		File tmp = createTmpDir();
+		Files.copy(logFile.toPath(), new File(tmp, "log.0").toPath());
+		FileTxnLog txnLog = new FileTxnLog(tmp);
+		TxnLog.TxnIterator it = txnLog.read(0);
+		long firstZxid = it.getHeader().getZxid();
+		long lastZxid = firstZxid;
+		while (it.next()) {
+			lastZxid = it.getHeader().getZxid();
+		}
+		txnLog.close();
+		rmr(tmp);
+		return new Pair<Long, Long>(firstZxid, lastZxid);
+	}
 
-    @Test
-    public void testChopper() throws IOException {
-        long clientId = 17;
-        int cxid = 77;
-        long zxid = 1000;
-        long time = 1;
-        int type = ZooDefs.OpCode.delete;
-        DeleteTxn txn = new DeleteTxn("/foo");
-        File tmpDir = createTmpDir();
-        FileTxnLog txnLog = new FileTxnLog(tmpDir);
+	@Test
+	public void testChopper() throws IOException {
+		long clientId = 17;
+		int cxid = 77;
+		long zxid = 1000;
+		long time = 1;
+		int type = ZooDefs.OpCode.delete;
+		DeleteTxn txn = new DeleteTxn("/foo");
+		File tmpDir = createTmpDir();
+		FileTxnLog txnLog = new FileTxnLog(tmpDir);
 
-        for (int i = 0; i < 100; i++) {
-            TxnHeader hdr = new TxnHeader(clientId, cxid, ++zxid, ++time, type);
-            txnLog.append(hdr, txn);
-        }
+		for (int i = 0; i < 100; i++) {
+			TxnHeader hdr = new TxnHeader(clientId, cxid, ++zxid, ++time, type);
+			txnLog.append(hdr, txn);
+		}
 
-        // append a txn with gap
-        TxnHeader hdr = new TxnHeader(clientId, cxid, zxid + 10, ++time, type);
-        txnLog.append(hdr, txn);
+		// append a txn with gap
+		TxnHeader hdr = new TxnHeader(clientId, cxid, zxid + 10, ++time, type);
+		txnLog.append(hdr, txn);
 
-        txnLog.commit();
+		txnLog.commit();
 
-        // now find the log we just created.
-        final File logFile = new File(tmpDir, "log." + Integer.toHexString(1001));
-        Pair<Long, Long> firstLast = getFirstLastZxid(logFile);
-        assertEquals(1001, (long) firstLast.getFirst());
-        assertEquals(1110, (long) firstLast.getSecond());
+		// now find the log we just created.
+		final File logFile = new File(tmpDir, "log." + Integer.toHexString(1001));
+		Pair<Long, Long> firstLast = getFirstLastZxid(logFile);
+		assertEquals(1001, (long) firstLast.getFirst());
+		assertEquals(1110, (long) firstLast.getSecond());
 
-        File choppedFile = new File(tmpDir, "chopped_failed");
-        assertFalse(LogChopper.chop(new FileInputStream(logFile), new FileOutputStream(choppedFile), 1107));
+		File choppedFile = new File(tmpDir, "chopped_failed");
+		assertFalse(LogChopper.chop(new FileInputStream(logFile), new FileOutputStream(choppedFile), 1107));
 
-        choppedFile = new File(tmpDir, "chopped");
-        assertTrue(LogChopper.chop(new FileInputStream(logFile), new FileOutputStream(choppedFile), 1017));
+		choppedFile = new File(tmpDir, "chopped");
+		assertTrue(LogChopper.chop(new FileInputStream(logFile), new FileOutputStream(choppedFile), 1017));
 
-        firstLast = getFirstLastZxid(choppedFile);
-        assertEquals(1001, (long) firstLast.getFirst());
-        assertEquals(1017, (long) firstLast.getSecond());
-    }
+		firstLast = getFirstLastZxid(choppedFile);
+		assertEquals(1001, (long) firstLast.getFirst());
+		assertEquals(1017, (long) firstLast.getSecond());
+	}
 
 }

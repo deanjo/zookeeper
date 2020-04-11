@@ -26,104 +26,104 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MessageTrackerTest {
-    private static final int BUFFERED_MESSAGE_SIZE = 5;
-    private static final Logger LOG = LoggerFactory.getLogger(MessageTrackerTest.class);
+	private static final int BUFFERED_MESSAGE_SIZE = 5;
+	private static final Logger LOG = LoggerFactory.getLogger(MessageTrackerTest.class);
 
-    @Before
-    public void setup() {
-        System.setProperty(MessageTracker.MESSAGE_TRACKER_ENABLED, "true");
-    }
+	@Before
+	public void setup() {
+		System.setProperty(MessageTracker.MESSAGE_TRACKER_ENABLED, "true");
+	}
 
-    @After
-    public void tearDown() throws Exception {
-        System.clearProperty(MessageTracker.MESSAGE_TRACKER_ENABLED);
-    }
+	@After
+	public void tearDown() throws Exception {
+		System.clearProperty(MessageTracker.MESSAGE_TRACKER_ENABLED);
+	}
 
-    @Test
-    public void testTrackSend() throws InterruptedException {
-        long timestamp1 = System.currentTimeMillis();
-        MessageTracker messageTracker = new MessageTracker(BUFFERED_MESSAGE_SIZE);
+	@Test
+	public void testTrackSend() throws InterruptedException {
+		long timestamp1 = System.currentTimeMillis();
+		MessageTracker messageTracker = new MessageTracker(BUFFERED_MESSAGE_SIZE);
 
-        // First timestamp is added
-        messageTracker.trackSent(timestamp1);
-        Assert.assertEquals(messageTracker.peekSentTimestamp(), timestamp1);
+		// First timestamp is added
+		messageTracker.trackSent(timestamp1);
+		Assert.assertEquals(messageTracker.peekSentTimestamp(), timestamp1);
 
-        Thread.sleep(2);
+		Thread.sleep(2);
 
-        // Second timestamp is added
-        long timestamp2 = System.currentTimeMillis();
-        messageTracker.trackSent(timestamp2);
-        Assert.assertEquals(messageTracker.peekSentTimestamp(), timestamp1);
-    }
+		// Second timestamp is added
+		long timestamp2 = System.currentTimeMillis();
+		messageTracker.trackSent(timestamp2);
+		Assert.assertEquals(messageTracker.peekSentTimestamp(), timestamp1);
+	}
 
-    @Test
-    public void testTrackReceived() throws InterruptedException {
-        long timestamp1 = System.currentTimeMillis();
-        MessageTracker messageTracker = new MessageTracker(BUFFERED_MESSAGE_SIZE);
+	@Test
+	public void testTrackReceived() throws InterruptedException {
+		long timestamp1 = System.currentTimeMillis();
+		MessageTracker messageTracker = new MessageTracker(BUFFERED_MESSAGE_SIZE);
 
-        // First timestamp is added
-        messageTracker.trackReceived(timestamp1);
-        Assert.assertEquals(messageTracker.peekReceivedTimestamp(), timestamp1);
+		// First timestamp is added
+		messageTracker.trackReceived(timestamp1);
+		Assert.assertEquals(messageTracker.peekReceivedTimestamp(), timestamp1);
 
-        Thread.sleep(2);
+		Thread.sleep(2);
 
-        // Second timestamp is added
-        long timestamp2 = System.currentTimeMillis();
-        messageTracker.trackReceived(timestamp2);
-        Assert.assertEquals(messageTracker.peekReceivedTimestamp(), timestamp1);
-    }
+		// Second timestamp is added
+		long timestamp2 = System.currentTimeMillis();
+		messageTracker.trackReceived(timestamp2);
+		Assert.assertEquals(messageTracker.peekReceivedTimestamp(), timestamp1);
+	}
 
-    @Test
-    public void testMessageTrackerFull() throws InterruptedException {
-        MessageTracker messageTracker = new MessageTracker(BUFFERED_MESSAGE_SIZE);
+	@Test
+	public void testMessageTrackerFull() throws InterruptedException {
+		MessageTracker messageTracker = new MessageTracker(BUFFERED_MESSAGE_SIZE);
 
-        // Add up to capacity + 1
-        long timestampSent = 0;
-        long timestampReceived = 0;
-        for (int i = 0; i <= BUFFERED_MESSAGE_SIZE; i++) {
-            if (i == 1) {
-                timestampSent = System.currentTimeMillis();
-                messageTracker.trackSent(timestampSent);
-                Thread.sleep(2);
-                timestampReceived = System.currentTimeMillis();
-                messageTracker.trackReceived(timestampReceived);
-            } else {
-                messageTracker.trackSent(System.currentTimeMillis());
-                messageTracker.trackReceived(System.currentTimeMillis());
-            }
-            Thread.sleep(1);
-        }
+		// Add up to capacity + 1
+		long timestampSent = 0;
+		long timestampReceived = 0;
+		for (int i = 0; i <= BUFFERED_MESSAGE_SIZE; i++) {
+			if (i == 1) {
+				timestampSent = System.currentTimeMillis();
+				messageTracker.trackSent(timestampSent);
+				Thread.sleep(2);
+				timestampReceived = System.currentTimeMillis();
+				messageTracker.trackReceived(timestampReceived);
+			} else {
+				messageTracker.trackSent(System.currentTimeMillis());
+				messageTracker.trackReceived(System.currentTimeMillis());
+			}
+			Thread.sleep(1);
+		}
 
-        Assert.assertEquals(messageTracker.peekSentTimestamp(), timestampSent);
-        Assert.assertEquals(messageTracker.peekReceivedTimestamp(), timestampReceived);
-    }
+		Assert.assertEquals(messageTracker.peekSentTimestamp(), timestampSent);
+		Assert.assertEquals(messageTracker.peekReceivedTimestamp(), timestampReceived);
+	}
 
-    @Test
-    public void testDumpToLog() {
-        long timestamp1 = System.currentTimeMillis();
-        MessageTracker messageTracker = new MessageTracker(BUFFERED_MESSAGE_SIZE);
-        String sid = "127.0.0.1";
+	@Test
+	public void testDumpToLog() {
+		long timestamp1 = System.currentTimeMillis();
+		MessageTracker messageTracker = new MessageTracker(BUFFERED_MESSAGE_SIZE);
+		String sid = "127.0.0.1";
 
-        // MessageTracker is empty
-        messageTracker.dumpToLog(sid);
-        Assert.assertNull(messageTracker.peekSent());
-        Assert.assertNull(messageTracker.peekReceived());
+		// MessageTracker is empty
+		messageTracker.dumpToLog(sid);
+		Assert.assertNull(messageTracker.peekSent());
+		Assert.assertNull(messageTracker.peekReceived());
 
-        // There is 1 sent and 0 received
-        messageTracker.trackSent(timestamp1);
-        Assert.assertEquals(messageTracker.peekSentTimestamp(), timestamp1);
-        Assert.assertNull(messageTracker.peekReceived());
-        messageTracker.dumpToLog(sid);
-        Assert.assertNull(messageTracker.peekSent());
-        Assert.assertNull(messageTracker.peekReceived());
+		// There is 1 sent and 0 received
+		messageTracker.trackSent(timestamp1);
+		Assert.assertEquals(messageTracker.peekSentTimestamp(), timestamp1);
+		Assert.assertNull(messageTracker.peekReceived());
+		messageTracker.dumpToLog(sid);
+		Assert.assertNull(messageTracker.peekSent());
+		Assert.assertNull(messageTracker.peekReceived());
 
-        // There is 1 sent and 1 received
-        messageTracker.trackSent(timestamp1);
-        messageTracker.trackReceived(timestamp1);
-        Assert.assertEquals(messageTracker.peekSentTimestamp(), timestamp1);
-        Assert.assertEquals(messageTracker.peekReceivedTimestamp(), timestamp1);
-        messageTracker.dumpToLog(sid);
-        Assert.assertNull(messageTracker.peekSent());
-        Assert.assertNull(messageTracker.peekReceived());
-    }
+		// There is 1 sent and 1 received
+		messageTracker.trackSent(timestamp1);
+		messageTracker.trackReceived(timestamp1);
+		Assert.assertEquals(messageTracker.peekSentTimestamp(), timestamp1);
+		Assert.assertEquals(messageTracker.peekReceivedTimestamp(), timestamp1);
+		messageTracker.dumpToLog(sid);
+		Assert.assertNull(messageTracker.peekSent());
+		Assert.assertNull(messageTracker.peekReceived());
+	}
 }

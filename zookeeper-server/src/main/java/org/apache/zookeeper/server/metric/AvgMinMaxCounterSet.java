@@ -21,6 +21,7 @@ package org.apache.zookeeper.server.metric;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.zookeeper.metrics.SummarySet;
 
 /**
@@ -30,46 +31,46 @@ import org.apache.zookeeper.metrics.SummarySet;
  */
 public class AvgMinMaxCounterSet extends Metric implements SummarySet {
 
-    private final String name;
+	private final String name;
 
-    private ConcurrentHashMap<String, AvgMinMaxCounter> counters = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, AvgMinMaxCounter> counters = new ConcurrentHashMap<>();
 
-    public AvgMinMaxCounterSet(String name) {
-        this.name = name;
-    }
+	public AvgMinMaxCounterSet(String name) {
+		this.name = name;
+	}
 
-    private AvgMinMaxCounter getCounterForKey(String key) {
-        return counters.computeIfAbsent(key, k-> new AvgMinMaxCounter(k + "_" + name));
-    }
+	private AvgMinMaxCounter getCounterForKey(String key) {
+		return counters.computeIfAbsent(key, k -> new AvgMinMaxCounter(k + "_" + name));
+	}
 
-    public void addDataPoint(String key, long value) {
-        getCounterForKey(key).addDataPoint(value);
-    }
+	public void addDataPoint(String key, long value) {
+		getCounterForKey(key).addDataPoint(value);
+	}
 
-    public void resetMax() {
-        for (Map.Entry<String, AvgMinMaxCounter> entry : counters.entrySet()) {
-            entry.getValue().resetMax();
-        }
-    }
+	public void resetMax() {
+		for (Map.Entry<String, AvgMinMaxCounter> entry : counters.entrySet()) {
+			entry.getValue().resetMax();
+		}
+	}
 
-    public void reset() {
-        for (Map.Entry<String, AvgMinMaxCounter> entry : counters.entrySet()) {
-            entry.getValue().reset();
-        }
-    }
+	public void reset() {
+		for (Map.Entry<String, AvgMinMaxCounter> entry : counters.entrySet()) {
+			entry.getValue().reset();
+		}
+	}
 
-    @Override
-    public void add(String key, long value) {
-        addDataPoint(key, value);
-    }
+	@Override
+	public void add(String key, long value) {
+		addDataPoint(key, value);
+	}
 
-    @Override
-    public Map<String, Object> values() {
-        Map<String, Object> m = new LinkedHashMap<>();
-        for (Map.Entry<String, AvgMinMaxCounter> entry : counters.entrySet()) {
-            m.putAll(entry.getValue().values());
-        }
-        return m;
-    }
+	@Override
+	public Map<String, Object> values() {
+		Map<String, Object> m = new LinkedHashMap<>();
+		for (Map.Entry<String, AvgMinMaxCounter> entry : counters.entrySet()) {
+			m.putAll(entry.getValue().values());
+		}
+		return m;
+	}
 
 }

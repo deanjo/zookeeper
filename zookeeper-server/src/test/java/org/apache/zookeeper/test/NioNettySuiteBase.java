@@ -33,26 +33,26 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 public class NioNettySuiteBase {
 
-    @BeforeClass
-    public static void setUp() {
-        System.setProperty(ServerCnxnFactory.ZOOKEEPER_SERVER_CNXN_FACTORY, NettyServerCnxnFactory.class.getName());
-        System.setProperty("zookeeper.admin.enableServer", "false");
-    }
+	@BeforeClass
+	public static void setUp() {
+		System.setProperty(ServerCnxnFactory.ZOOKEEPER_SERVER_CNXN_FACTORY, NettyServerCnxnFactory.class.getName());
+		System.setProperty("zookeeper.admin.enableServer", "false");
+	}
 
-    @AfterClass
-    public static void tearDown() {
-        System.clearProperty(ServerCnxnFactory.ZOOKEEPER_SERVER_CNXN_FACTORY);
-    }
+	@AfterClass
+	public static void tearDown() {
+		System.clearProperty(ServerCnxnFactory.ZOOKEEPER_SERVER_CNXN_FACTORY);
+	}
 
-    @Before
-    public void setUpTest() throws Exception {
-        TestByteBufAllocatorTestHelper.setTestAllocator(TestByteBufAllocator.getInstance());
-    }
+	@Before
+	public void setUpTest() throws Exception {
+		TestByteBufAllocatorTestHelper.setTestAllocator(TestByteBufAllocator.getInstance());
+	}
 
-    @After
-    public void tearDownTest() throws Exception {
-        TestByteBufAllocatorTestHelper.clearTestAllocator();
-        TestByteBufAllocator.checkForLeaks();
-    }
+	@After
+	public void tearDownTest() throws Exception {
+		TestByteBufAllocatorTestHelper.clearTestAllocator();
+		TestByteBufAllocator.checkForLeaks();
+	}
 
 }

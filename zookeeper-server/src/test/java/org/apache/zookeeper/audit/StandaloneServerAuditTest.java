@@ -21,12 +21,14 @@ package org.apache.zookeeper.audit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -42,49 +44,48 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 
-
 public class StandaloneServerAuditTest extends ClientBase {
-    private static ByteArrayOutputStream os;
+	private static ByteArrayOutputStream os;
 
-    @BeforeClass
-    public static void setup() {
-        System.setProperty(ZKAuditProvider.AUDIT_ENABLE, "true");
-        // setup the logger to capture all the logs
-        Layout layout = new SimpleLayout();
-        os = new ByteArrayOutputStream();
-        WriterAppender appender = new WriterAppender(layout, os);
-        appender.setImmediateFlush(true);
-        appender.setThreshold(Level.INFO);
-        Logger zLogger = Logger.getLogger(Log4jAuditLogger.class);
-        zLogger.addAppender(appender);
-    }
+	@BeforeClass
+	public static void setup() {
+		System.setProperty(ZKAuditProvider.AUDIT_ENABLE, "true");
+		// setup the logger to capture all the logs
+		Layout layout = new SimpleLayout();
+		os = new ByteArrayOutputStream();
+		WriterAppender appender = new WriterAppender(layout, os);
+		appender.setImmediateFlush(true);
+		appender.setThreshold(Level.INFO);
+		Logger zLogger = Logger.getLogger(Log4jAuditLogger.class);
+		zLogger.addAppender(appender);
+	}
 
-    @AfterClass
-    public static void teardown() {
-        System.clearProperty(ZKAuditProvider.AUDIT_ENABLE);
-    }
+	@AfterClass
+	public static void teardown() {
+		System.clearProperty(ZKAuditProvider.AUDIT_ENABLE);
+	}
 
-    @Test
-    public void testCreateAuditLog() throws KeeperException, InterruptedException, IOException {
-        final ZooKeeper zk = createClient();
-        String path = "/createPath";
-        zk.create(path, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,
-                CreateMode.PERSISTENT);
-        List<String> logs = readAuditLog(os);
-        assertEquals(1, logs.size());
-        assertTrue(logs.get(0).endsWith("operation=create\tznode=/createPath\tznode_type=persistent\tresult=success"));
-    }
+	@Test
+	public void testCreateAuditLog() throws KeeperException, InterruptedException, IOException {
+		final ZooKeeper zk = createClient();
+		String path = "/createPath";
+		zk.create(path, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,
+			CreateMode.PERSISTENT);
+		List<String> logs = readAuditLog(os);
+		assertEquals(1, logs.size());
+		assertTrue(logs.get(0).endsWith("operation=create\tznode=/createPath\tznode_type=persistent\tresult=success"));
+	}
 
-    private static List<String> readAuditLog(ByteArrayOutputStream os) throws IOException {
-        List<String> logs = new ArrayList<>();
-        LineNumberReader r = new LineNumberReader(
-                new StringReader(os.toString()));
-        String line;
-        while ((line = r.readLine()) != null) {
-            logs.add(line);
-        }
-        os.reset();
-        return logs;
-    }
+	private static List<String> readAuditLog(ByteArrayOutputStream os) throws IOException {
+		List<String> logs = new ArrayList<>();
+		LineNumberReader r = new LineNumberReader(
+			new StringReader(os.toString()));
+		String line;
+		while ((line = r.readLine()) != null) {
+			logs.add(line);
+		}
+		os.reset();
+		return logs;
+	}
 }
 

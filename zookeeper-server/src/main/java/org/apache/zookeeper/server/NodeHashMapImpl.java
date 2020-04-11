@@ -21,6 +21,7 @@ package org.apache.zookeeper.server;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.server.util.AdHash;
 
@@ -30,100 +31,100 @@ import org.apache.zookeeper.server.util.AdHash;
  */
 public class NodeHashMapImpl implements NodeHashMap {
 
-    private final ConcurrentHashMap<String, DataNode> nodes;
-    private final boolean digestEnabled;
-    private final DigestCalculator digestCalculator;
+	private final ConcurrentHashMap<String, DataNode> nodes;
+	private final boolean digestEnabled;
+	private final DigestCalculator digestCalculator;
 
-    private final AdHash hash;
+	private final AdHash hash;
 
-    public NodeHashMapImpl(DigestCalculator digestCalculator) {
-        this.digestCalculator = digestCalculator;
-        nodes = new ConcurrentHashMap<>();
-        hash = new AdHash();
-        digestEnabled = ZooKeeperServer.isDigestEnabled();
-    }
+	public NodeHashMapImpl(DigestCalculator digestCalculator) {
+		this.digestCalculator = digestCalculator;
+		nodes = new ConcurrentHashMap<>();
+		hash = new AdHash();
+		digestEnabled = ZooKeeperServer.isDigestEnabled();
+	}
 
-    @Override
-    public DataNode put(String path, DataNode node) {
-        DataNode oldNode = nodes.put(path, node);
-        addDigest(path, node);
-        if (oldNode != null) {
-            removeDigest(path, oldNode);
-        }
-        return oldNode;
-    }
+	@Override
+	public DataNode put(String path, DataNode node) {
+		DataNode oldNode = nodes.put(path, node);
+		addDigest(path, node);
+		if (oldNode != null) {
+			removeDigest(path, oldNode);
+		}
+		return oldNode;
+	}
 
-    @Override
-    public DataNode putWithoutDigest(String path, DataNode node) {
-        return nodes.put(path, node);
-    }
+	@Override
+	public DataNode putWithoutDigest(String path, DataNode node) {
+		return nodes.put(path, node);
+	}
 
-    @Override
-    public DataNode get(String path) {
-        return nodes.get(path);
-    }
+	@Override
+	public DataNode get(String path) {
+		return nodes.get(path);
+	}
 
-    @Override
-    public DataNode remove(String path) {
-        DataNode oldNode = nodes.remove(path);
-        if (oldNode != null) {
-            removeDigest(path, oldNode);
-        }
-        return oldNode;
-    }
+	@Override
+	public DataNode remove(String path) {
+		DataNode oldNode = nodes.remove(path);
+		if (oldNode != null) {
+			removeDigest(path, oldNode);
+		}
+		return oldNode;
+	}
 
-    @Override
-    public Set<Map.Entry<String, DataNode>> entrySet() {
-        return nodes.entrySet();
-    }
+	@Override
+	public Set<Map.Entry<String, DataNode>> entrySet() {
+		return nodes.entrySet();
+	}
 
-    @Override
-    public void clear() {
-        nodes.clear();
-        hash.clear();
-    }
+	@Override
+	public void clear() {
+		nodes.clear();
+		hash.clear();
+	}
 
-    @Override
-    public int size() {
-        return nodes.size();
-    }
+	@Override
+	public int size() {
+		return nodes.size();
+	}
 
-    @Override
-    public void preChange(String path, DataNode node) {
-        removeDigest(path, node);
-    }
+	@Override
+	public void preChange(String path, DataNode node) {
+		removeDigest(path, node);
+	}
 
-    @Override
-    public void postChange(String path, DataNode node) {
-        // we just made a change, so make sure the digest is
-        // invalidated
-        node.digestCached = false;
-        addDigest(path, node);
-    }
+	@Override
+	public void postChange(String path, DataNode node) {
+		// we just made a change, so make sure the digest is
+		// invalidated
+		node.digestCached = false;
+		addDigest(path, node);
+	}
 
-    private void addDigest(String path, DataNode node) {
-        // Excluding everything under '/zookeeper/' for digest calculation.
-        if (path.startsWith(ZooDefs.ZOOKEEPER_NODE_SUBTREE)) {
-            return;
-        }
-        if (digestEnabled) {
-            hash.addDigest(digestCalculator.calculateDigest(path, node));
-        }
-    }
+	private void addDigest(String path, DataNode node) {
+		// Excluding everything under '/zookeeper/' for digest calculation.
+		if (path.startsWith(ZooDefs.ZOOKEEPER_NODE_SUBTREE)) {
+			return;
+		}
+		if (digestEnabled) {
+			hash.addDigest(digestCalculator.calculateDigest(path, node));
+		}
+	}
 
-    private void removeDigest(String path, DataNode node) {
-        // Excluding everything under '/zookeeper/' for digest calculation.
-        if (path.startsWith(ZooDefs.ZOOKEEPER_NODE_SUBTREE)) {
-            return;
-        }
-        if (digestEnabled) {
-            hash.removeDigest(digestCalculator.calculateDigest(path, node));
-        }
-    }
+	private void removeDigest(String path, DataNode node) {
+		// Excluding everything under '/zookeeper/' for digest calculation.
+		if (path.startsWith(ZooDefs.ZOOKEEPER_NODE_SUBTREE)) {
+			return;
+		}
+		if (digestEnabled) {
+			hash.removeDigest(digestCalculator.calculateDigest(path, node));
+		}
+	}
 
-    @Override
-    public long getDigest() {
-        return hash.getHash();
-    }
+	@Override
+	public long getDigest() {
+		return hash.getHash();
+	}
 
 }

@@ -20,6 +20,7 @@ package org.apache.zookeeper.server.util;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import org.apache.zookeeper.server.quorum.Leader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,129 +34,130 @@ import org.slf4j.LoggerFactory;
  */
 public class MessageTracker {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MessageTracker.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MessageTracker.class);
 
-    private final CircularBuffer<BufferedMessage> sentBuffer;
-    private final CircularBuffer<BufferedMessage> receivedBuffer;
+	private final CircularBuffer<BufferedMessage> sentBuffer;
+	private final CircularBuffer<BufferedMessage> receivedBuffer;
 
-    public static final String MESSAGE_TRACKER_BUFFER_SIZE = "zookeeper.messageTracker.BufferSize";
-    public static final String MESSAGE_TRACKER_ENABLED = "zookeeper.messageTracker.Enabled";
-    public static final int BUFFERED_MESSAGE_SIZE;
-    private static final boolean enabled;
-    static {
-        BUFFERED_MESSAGE_SIZE = Integer.getInteger(MESSAGE_TRACKER_BUFFER_SIZE, 10);
-        enabled = Boolean.getBoolean(MESSAGE_TRACKER_ENABLED);
-    }
+	public static final String MESSAGE_TRACKER_BUFFER_SIZE = "zookeeper.messageTracker.BufferSize";
+	public static final String MESSAGE_TRACKER_ENABLED = "zookeeper.messageTracker.Enabled";
+	public static final int BUFFERED_MESSAGE_SIZE;
+	private static final boolean enabled;
 
-    public MessageTracker(int buffer_size) {
-        this.sentBuffer = new CircularBuffer<>(BufferedMessage.class, buffer_size);
-        this.receivedBuffer = new CircularBuffer<>(BufferedMessage.class, buffer_size);
-    }
+	static {
+		BUFFERED_MESSAGE_SIZE = Integer.getInteger(MESSAGE_TRACKER_BUFFER_SIZE, 10);
+		enabled = Boolean.getBoolean(MESSAGE_TRACKER_ENABLED);
+	}
 
-    public void trackSent(long timestamp) {
-        if (enabled) {
-            sentBuffer.write(new BufferedMessage(timestamp));
-        }
-    }
+	public MessageTracker(int buffer_size) {
+		this.sentBuffer = new CircularBuffer<>(BufferedMessage.class, buffer_size);
+		this.receivedBuffer = new CircularBuffer<>(BufferedMessage.class, buffer_size);
+	}
 
-    public void trackSent(int packetType) {
-        if (enabled) {
-            sentBuffer.write(new BufferedMessage(packetType));
-        }
-    }
+	public void trackSent(long timestamp) {
+		if (enabled) {
+			sentBuffer.write(new BufferedMessage(timestamp));
+		}
+	}
 
-    public void trackReceived(long timestamp) {
-        if (enabled) {
-            receivedBuffer.write(new BufferedMessage(timestamp));
-        }
-    }
+	public void trackSent(int packetType) {
+		if (enabled) {
+			sentBuffer.write(new BufferedMessage(packetType));
+		}
+	}
 
-    public void trackReceived(int packetType) {
-        if (enabled) {
-            receivedBuffer.write(new BufferedMessage(packetType));
-        }
-    }
+	public void trackReceived(long timestamp) {
+		if (enabled) {
+			receivedBuffer.write(new BufferedMessage(timestamp));
+		}
+	}
 
-    public final BufferedMessage peekSent() {
-        return sentBuffer.peek();
-    }
+	public void trackReceived(int packetType) {
+		if (enabled) {
+			receivedBuffer.write(new BufferedMessage(packetType));
+		}
+	}
 
-    public final BufferedMessage peekReceived() {
-        return receivedBuffer.peek();
-    }
+	public final BufferedMessage peekSent() {
+		return sentBuffer.peek();
+	}
 
-    public final long peekSentTimestamp() {
-        return enabled ? sentBuffer.peek().getTimestamp() : 0;
-    }
+	public final BufferedMessage peekReceived() {
+		return receivedBuffer.peek();
+	}
 
-    public final long peekReceivedTimestamp() {
-        return enabled ? receivedBuffer.peek().getTimestamp() : 0;
-    }
+	public final long peekSentTimestamp() {
+		return enabled ? sentBuffer.peek().getTimestamp() : 0;
+	}
 
-    public void dumpToLog(String serverAddress) {
-        if (!enabled) {
-            return;
-        }
-        logMessages(serverAddress, receivedBuffer, Direction.RECEIVED);
-        logMessages(serverAddress, sentBuffer, Direction.SENT);
-    }
+	public final long peekReceivedTimestamp() {
+		return enabled ? receivedBuffer.peek().getTimestamp() : 0;
+	}
 
-    private static void logMessages(
-        String serverAddr,
-        CircularBuffer<BufferedMessage> messages,
-        Direction direction) {
-        String sentOrReceivedText = direction == Direction.SENT ? "sentBuffer to" : "receivedBuffer from";
+	public void dumpToLog(String serverAddress) {
+		if (!enabled) {
+			return;
+		}
+		logMessages(serverAddress, receivedBuffer, Direction.RECEIVED);
+		logMessages(serverAddress, sentBuffer, Direction.SENT);
+	}
 
-        if (messages.isEmpty()) {
-            LOG.info("No buffered timestamps for messages {} {}", sentOrReceivedText, serverAddr);
-        } else {
-            LOG.warn("Last {} timestamps for messages {} {}:", messages.size(), sentOrReceivedText, serverAddr);
-            while (!messages.isEmpty()) {
-                LOG.warn("{} {}  {}", sentOrReceivedText, serverAddr, messages.take().toString());
-            }
-        }
-    }
+	private static void logMessages(
+		String serverAddr,
+		CircularBuffer<BufferedMessage> messages,
+		Direction direction) {
+		String sentOrReceivedText = direction == Direction.SENT ? "sentBuffer to" : "receivedBuffer from";
 
-    /**
-     * Direction for message track.
-     */
-    private enum Direction {
-        SENT, RECEIVED
-    }
+		if (messages.isEmpty()) {
+			LOG.info("No buffered timestamps for messages {} {}", sentOrReceivedText, serverAddr);
+		} else {
+			LOG.warn("Last {} timestamps for messages {} {}:", messages.size(), sentOrReceivedText, serverAddr);
+			while (!messages.isEmpty()) {
+				LOG.warn("{} {}  {}", sentOrReceivedText, serverAddr, messages.take().toString());
+			}
+		}
+	}
 
-    private static class BufferedMessage {
+	/**
+	 * Direction for message track.
+	 */
+	private enum Direction {
+		SENT, RECEIVED
+	}
 
-        private long timestamp;
-        private int messageType;
+	private static class BufferedMessage {
 
-        private long getTimestamp() {
-            return timestamp;
-        }
+		private long timestamp;
+		private int messageType;
 
-        BufferedMessage(int messageType) {
-            this.messageType = messageType;
-            this.timestamp = System.currentTimeMillis();
-        }
+		private long getTimestamp() {
+			return timestamp;
+		}
 
-        BufferedMessage(long timestamp) {
-            this.messageType = -1;
-            this.timestamp = timestamp;
-        }
+		BufferedMessage(int messageType) {
+			this.messageType = messageType;
+			this.timestamp = System.currentTimeMillis();
+		}
 
-        @Override
-        /**
-         * ToString examples are as follows:
-         * TimeStamp: 2016-06-06 11:07:58,594 Type: PROPOSAL
-         * TimeStamp: 2016-06-06 11:07:58,187
-         */
-        public String toString() {
-            if (messageType == -1) {
-                return "TimeStamp: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS")
-                    .format(new Date(timestamp));
-            } else {
-                return "TimeStamp: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS")
-                    .format(new Date(timestamp)) + " Type: " + Leader.getPacketType(messageType);
-            }
-        }
-    }
+		BufferedMessage(long timestamp) {
+			this.messageType = -1;
+			this.timestamp = timestamp;
+		}
+
+		@Override
+		/**
+		 * ToString examples are as follows:
+		 * TimeStamp: 2016-06-06 11:07:58,594 Type: PROPOSAL
+		 * TimeStamp: 2016-06-06 11:07:58,187
+		 */
+		public String toString() {
+			if (messageType == -1) {
+				return "TimeStamp: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS")
+					.format(new Date(timestamp));
+			} else {
+				return "TimeStamp: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS")
+					.format(new Date(timestamp)) + " Type: " + Leader.getPacketType(messageType);
+			}
+		}
+	}
 }

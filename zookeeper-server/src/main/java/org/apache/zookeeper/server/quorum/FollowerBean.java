@@ -26,70 +26,70 @@ import org.apache.zookeeper.server.ZooKeeperServerBean;
  */
 public class FollowerBean extends ZooKeeperServerBean implements FollowerMXBean {
 
-    private final Follower follower;
+	private final Follower follower;
 
-    public FollowerBean(Follower follower, ZooKeeperServer zks) {
-        super(zks);
-        this.follower = follower;
-    }
+	public FollowerBean(Follower follower, ZooKeeperServer zks) {
+		super(zks);
+		this.follower = follower;
+	}
 
-    public String getName() {
-        return "Follower";
-    }
+	public String getName() {
+		return "Follower";
+	}
 
-    public String getQuorumAddress() {
-        return follower.sock.toString();
-    }
+	public String getQuorumAddress() {
+		return follower.sock.toString();
+	}
 
-    public String getLastQueuedZxid() {
-        return "0x" + Long.toHexString(follower.getLastQueued());
-    }
+	public String getLastQueuedZxid() {
+		return "0x" + Long.toHexString(follower.getLastQueued());
+	}
 
-    public int getPendingRevalidationCount() {
-        return follower.getPendingRevalidationsCount();
-    }
+	public int getPendingRevalidationCount() {
+		return follower.getPendingRevalidationsCount();
+	}
 
-    @Override
-    public long getElectionTimeTaken() {
-        return follower.self.getElectionTimeTaken();
-    }
+	@Override
+	public long getElectionTimeTaken() {
+		return follower.self.getElectionTimeTaken();
+	}
 
-    @Override
-    public int getObserverMasterPacketSizeLimit() {
-        return follower.om == null ? -1 : follower.om.getPktsSizeLimit();
-    }
+	@Override
+	public int getObserverMasterPacketSizeLimit() {
+		return follower.om == null ? -1 : follower.om.getPktsSizeLimit();
+	}
 
-    @Override
-    public void setObserverMasterPacketSizeLimit(int sizeLimit) {
-        ObserverMaster.setPktsSizeLimit(sizeLimit);
-    }
+	@Override
+	public void setObserverMasterPacketSizeLimit(int sizeLimit) {
+		ObserverMaster.setPktsSizeLimit(sizeLimit);
+	}
 
-    @Override
-    public int getMaxConcurrentSnapSyncs() {
-        final ObserverMaster om = follower.om;
-        return om == null ? -1 : om.getMaxConcurrentSnapSyncs();
-    }
+	@Override
+	public int getMaxConcurrentSnapSyncs() {
+		final ObserverMaster om = follower.om;
+		return om == null ? -1 : om.getMaxConcurrentSnapSyncs();
+	}
 
-    @Override
-    public void setMaxConcurrentSnapSyncs(int maxConcurrentSnapshots) {
-        final ObserverMaster om = follower.om;
-        if (om != null) {
-            om.setMaxConcurrentSnapSyncs(maxConcurrentSnapshots);
-        }
-    }
+	@Override
+	public void setMaxConcurrentSnapSyncs(int maxConcurrentSnapshots) {
+		final ObserverMaster om = follower.om;
+		if (om != null) {
+			om.setMaxConcurrentSnapSyncs(maxConcurrentSnapshots);
+		}
+	}
 
-    @Override
-    public int getMaxConcurrentDiffSyncs() {
-        final ObserverMaster om = follower.om;
-        return om == null ? -1 : om.getMaxConcurrentDiffSyncs();
-    }
+	@Override
+	public int getMaxConcurrentDiffSyncs() {
+		final ObserverMaster om = follower.om;
+		return om == null ? -1 : om.getMaxConcurrentDiffSyncs();
+	}
 
-    @Override
-    public void setMaxConcurrentDiffSyncs(int maxConcurrentDiffSyncs) {
-        final ObserverMaster om = follower.om;
-        if (om != null) {
-            om.setMaxConcurrentDiffSyncs(maxConcurrentDiffSyncs);
-        }
-    }
+	@Override
+	public void setMaxConcurrentDiffSyncs(int maxConcurrentDiffSyncs) {
+		final ObserverMaster om = follower.om;
+		if (om != null) {
+			om.setMaxConcurrentDiffSyncs(maxConcurrentDiffSyncs);
+		}
+	}
 
 }

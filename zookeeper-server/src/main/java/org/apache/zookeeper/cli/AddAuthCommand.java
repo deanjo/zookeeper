@@ -29,41 +29,41 @@ import org.apache.commons.cli.PosixParser;
  */
 public class AddAuthCommand extends CliCommand {
 
-    private static Options options = new Options();
-    private String[] args;
+	private static Options options = new Options();
+	private String[] args;
 
-    public AddAuthCommand() {
-        super("addauth", "scheme auth");
-    }
+	public AddAuthCommand() {
+		super("addauth", "scheme auth");
+	}
 
-    @Override
-    public CliCommand parse(String[] cmdArgs) throws CliParseException {
-        Parser parser = new PosixParser();
-        CommandLine cl;
-        try {
-            cl = parser.parse(options, cmdArgs);
-        } catch (ParseException ex) {
-            throw new CliParseException(ex);
-        }
+	@Override
+	public CliCommand parse(String[] cmdArgs) throws CliParseException {
+		Parser parser = new PosixParser();
+		CommandLine cl;
+		try {
+			cl = parser.parse(options, cmdArgs);
+		} catch (ParseException ex) {
+			throw new CliParseException(ex);
+		}
 
-        args = cl.getArgs();
-        if (args.length < 2) {
-            throw new CliParseException(getUsageStr());
-        }
+		args = cl.getArgs();
+		if (args.length < 2) {
+			throw new CliParseException(getUsageStr());
+		}
 
-        return this;
-    }
+		return this;
+	}
 
-    @Override
-    public boolean exec() throws CliException {
-        byte[] b = null;
-        if (args.length >= 3) {
-            b = args[2].getBytes();
-        }
+	@Override
+	public boolean exec() throws CliException {
+		byte[] b = null;
+		if (args.length >= 3) {
+			b = args[2].getBytes();
+		}
 
-        zk.addAuthInfo(args[1], b);
+		zk.addAuthInfo(args[1], b);
 
-        return false;
-    }
+		return false;
+	}
 
 }

@@ -25,14 +25,14 @@ import org.slf4j.LoggerFactory;
  * Log4j based audit logger
  */
 public class Log4jAuditLogger implements AuditLogger {
-    private static final Logger LOG = LoggerFactory.getLogger(Log4jAuditLogger.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Log4jAuditLogger.class);
 
-    @Override
-    public void logAuditEvent(AuditEvent auditEvent) {
-        if (auditEvent.getResult() == Result.FAILURE) {
-            LOG.error(auditEvent.toString());
-        } else {
-            LOG.info(auditEvent.toString());
-        }
-    }
+	@Override
+	public void logAuditEvent(AuditEvent auditEvent) {
+		if (auditEvent.getResult() == Result.FAILURE) {
+			LOG.error(auditEvent.toString());
+		} else {
+			LOG.info(auditEvent.toString());
+		}
+	}
 }

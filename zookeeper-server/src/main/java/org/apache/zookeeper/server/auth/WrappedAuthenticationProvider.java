@@ -27,54 +27,54 @@ import org.apache.zookeeper.server.ServerCnxn;
  */
 class WrappedAuthenticationProvider extends ServerAuthenticationProvider {
 
-    private final AuthenticationProvider implementation;
+	private final AuthenticationProvider implementation;
 
-    static ServerAuthenticationProvider wrap(AuthenticationProvider provider) {
-        if (provider == null) {
-            return null;
-        }
-        return (provider instanceof ServerAuthenticationProvider)
-            ? (ServerAuthenticationProvider) provider
-            : new WrappedAuthenticationProvider(provider);
-    }
+	static ServerAuthenticationProvider wrap(AuthenticationProvider provider) {
+		if (provider == null) {
+			return null;
+		}
+		return (provider instanceof ServerAuthenticationProvider)
+			? (ServerAuthenticationProvider) provider
+			: new WrappedAuthenticationProvider(provider);
+	}
 
-    private WrappedAuthenticationProvider(AuthenticationProvider implementation) {
-        this.implementation = implementation;
-    }
+	private WrappedAuthenticationProvider(AuthenticationProvider implementation) {
+		this.implementation = implementation;
+	}
 
-    /**
-     * {@inheritDoc}
-     *
-     * forwards to older method {@link #handleAuthentication(ServerCnxn, byte[])}
-     */
-    @Override
-    public KeeperException.Code handleAuthentication(ServerObjs serverObjs, byte[] authData) {
-        return implementation.handleAuthentication(serverObjs.getCnxn(), authData);
-    }
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * forwards to older method {@link #handleAuthentication(ServerCnxn, byte[])}
+	 */
+	@Override
+	public KeeperException.Code handleAuthentication(ServerObjs serverObjs, byte[] authData) {
+		return implementation.handleAuthentication(serverObjs.getCnxn(), authData);
+	}
 
-    /**
-     * {@inheritDoc}
-     *
-     * forwards to older method {@link #matches(String, String)}
-     */
-    @Override
-    public boolean matches(ServerObjs serverObjs, MatchValues matchValues) {
-        return implementation.matches(matchValues.getId(), matchValues.getAclExpr());
-    }
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * forwards to older method {@link #matches(String, String)}
+	 */
+	@Override
+	public boolean matches(ServerObjs serverObjs, MatchValues matchValues) {
+		return implementation.matches(matchValues.getId(), matchValues.getAclExpr());
+	}
 
-    @Override
-    public String getScheme() {
-        return implementation.getScheme();
-    }
+	@Override
+	public String getScheme() {
+		return implementation.getScheme();
+	}
 
-    @Override
-    public boolean isAuthenticated() {
-        return implementation.isAuthenticated();
-    }
+	@Override
+	public boolean isAuthenticated() {
+		return implementation.isAuthenticated();
+	}
 
-    @Override
-    public boolean isValid(String id) {
-        return implementation.isValid(id);
-    }
+	@Override
+	public boolean isValid(String id) {
+		return implementation.isValid(id);
+	}
 
 }

@@ -31,62 +31,62 @@ import org.slf4j.LoggerFactory;
  */
 public class ProposalRequestProcessor implements RequestProcessor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProposalRequestProcessor.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ProposalRequestProcessor.class);
 
-    LeaderZooKeeperServer zks;
+	LeaderZooKeeperServer zks;
 
-    RequestProcessor nextProcessor;
+	RequestProcessor nextProcessor;
 
-    SyncRequestProcessor syncProcessor;
+	SyncRequestProcessor syncProcessor;
 
-    public ProposalRequestProcessor(LeaderZooKeeperServer zks, RequestProcessor nextProcessor) {
-        this.zks = zks;
-        this.nextProcessor = nextProcessor;
-        AckRequestProcessor ackProcessor = new AckRequestProcessor(zks.getLeader());
-        syncProcessor = new SyncRequestProcessor(zks, ackProcessor);
-    }
+	public ProposalRequestProcessor(LeaderZooKeeperServer zks, RequestProcessor nextProcessor) {
+		this.zks = zks;
+		this.nextProcessor = nextProcessor;
+		AckRequestProcessor ackProcessor = new AckRequestProcessor(zks.getLeader());
+		syncProcessor = new SyncRequestProcessor(zks, ackProcessor);
+	}
 
-    /**
-     * initialize this processor
-     */
-    public void initialize() {
-        syncProcessor.start();
-    }
+	/**
+	 * initialize this processor
+	 */
+	public void initialize() {
+		syncProcessor.start();
+	}
 
-    public void processRequest(Request request) throws RequestProcessorException {
-        // LOG.warn("Ack>>> cxid = " + request.cxid + " type = " +
-        // request.type + " id = " + request.sessionId);
-        // request.addRQRec(">prop");
+	public void processRequest(Request request) throws RequestProcessorException {
+		// LOG.warn("Ack>>> cxid = " + request.cxid + " type = " +
+		// request.type + " id = " + request.sessionId);
+		// request.addRQRec(">prop");
 
 
-        /* In the following IF-THEN-ELSE block, we process syncs on the leader.
-         * If the sync is coming from a follower, then the follower
-         * handler adds it to syncHandler. Otherwise, if it is a client of
-         * the leader that issued the sync command, then syncHandler won't
-         * contain the handler. In this case, we add it to syncHandler, and
-         * call processRequest on the next processor.
-         */
+		/* In the following IF-THEN-ELSE block, we process syncs on the leader.
+		 * If the sync is coming from a follower, then the follower
+		 * handler adds it to syncHandler. Otherwise, if it is a client of
+		 * the leader that issued the sync command, then syncHandler won't
+		 * contain the handler. In this case, we add it to syncHandler, and
+		 * call processRequest on the next processor.
+		 */
 
-        if (request instanceof LearnerSyncRequest) {
-            zks.getLeader().processSync((LearnerSyncRequest) request);
-        } else {
-            nextProcessor.processRequest(request);
-            if (request.getHdr() != null) {
-                // We need to sync and get consensus on any transactions
-                try {
-                    zks.getLeader().propose(request);
-                } catch (XidRolloverException e) {
-                    throw new RequestProcessorException(e.getMessage(), e);
-                }
-                syncProcessor.processRequest(request);
-            }
-        }
-    }
+		if (request instanceof LearnerSyncRequest) {
+			zks.getLeader().processSync((LearnerSyncRequest) request);
+		} else {
+			nextProcessor.processRequest(request);
+			if (request.getHdr() != null) {
+				// We need to sync and get consensus on any transactions
+				try {
+					zks.getLeader().propose(request);
+				} catch (XidRolloverException e) {
+					throw new RequestProcessorException(e.getMessage(), e);
+				}
+				syncProcessor.processRequest(request);
+			}
+		}
+	}
 
-    public void shutdown() {
-        LOG.info("Shutting down");
-        nextProcessor.shutdown();
-        syncProcessor.shutdown();
-    }
+	public void shutdown() {
+		LOG.info("Shutting down");
+		nextProcessor.shutdown();
+		syncProcessor.shutdown();
+	}
 
 }

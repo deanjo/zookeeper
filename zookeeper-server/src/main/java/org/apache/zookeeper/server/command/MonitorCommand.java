@@ -19,47 +19,48 @@
 package org.apache.zookeeper.server.command;
 
 import java.io.PrintWriter;
+
 import org.apache.zookeeper.server.ServerCnxn;
 import org.apache.zookeeper.server.ServerMetrics;
 
 public class MonitorCommand extends AbstractFourLetterCommand {
 
-    MonitorCommand(PrintWriter pw, ServerCnxn serverCnxn) {
-        super(pw, serverCnxn);
-    }
+	MonitorCommand(PrintWriter pw, ServerCnxn serverCnxn) {
+		super(pw, serverCnxn);
+	}
 
-    @Override
-    public void commandRun() {
-        if (!isZKServerRunning()) {
-            pw.println(ZK_NOT_SERVING);
-            return;
-        }
+	@Override
+	public void commandRun() {
+		if (!isZKServerRunning()) {
+			pw.println(ZK_NOT_SERVING);
+			return;
+		}
 
-        // non metrics
-        zkServer.dumpMonitorValues(this::print);
+		// non metrics
+		zkServer.dumpMonitorValues(this::print);
 
-        ServerMetrics.getMetrics().getMetricsProvider().dump(this::print);
-    }
+		ServerMetrics.getMetrics().getMetricsProvider().dump(this::print);
+	}
 
-    private void print(String key, Object value) {
-        if (value == null) {
-            output(key, null);
-        } else if (value instanceof Long || value instanceof Integer) {
-            // format as integers
-            output(key, value + "");
-        } else if (value instanceof Number) {
-            // format as floating point
-            output(key, ((Number) value).doubleValue() + "");
-        } else {
-            output(key, value.toString());
-        }
-    }
+	private void print(String key, Object value) {
+		if (value == null) {
+			output(key, null);
+		} else if (value instanceof Long || value instanceof Integer) {
+			// format as integers
+			output(key, value + "");
+		} else if (value instanceof Number) {
+			// format as floating point
+			output(key, ((Number) value).doubleValue() + "");
+		} else {
+			output(key, value.toString());
+		}
+	}
 
-    private void output(String key, String value) {
-        pw.print("zk_");
-        pw.print(key);
-        pw.print("\t");
-        pw.println(value);
-    }
+	private void output(String key, String value) {
+		pw.print("zk_");
+		pw.print(key);
+		pw.print("\t");
+		pw.println(value);
+	}
 
 }

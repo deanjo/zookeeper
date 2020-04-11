@@ -20,6 +20,7 @@ package org.apache.zookeeper.recipes.lock;
 
 import java.util.Objects;
 import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,106 +37,106 @@ import org.slf4j.LoggerFactory;
  */
 class ZNodeName implements Comparable<ZNodeName> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ZNodeName.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ZNodeName.class);
 
-    private final String name;
-    private final String prefix;
-    private final Optional<Integer> sequence;
+	private final String name;
+	private final String prefix;
+	private final Optional<Integer> sequence;
 
-    /**
-     * Instantiate a ZNodeName with the provided znode name.
-     *
-     * @param name The name of the znode
-     * @throws NullPointerException if {@code name} is {@code null}
-     */
-    public ZNodeName(final String name) {
-        this.name = Objects.requireNonNull(name, "ZNode name cannot be null");
+	/**
+	 * Instantiate a ZNodeName with the provided znode name.
+	 *
+	 * @param name The name of the znode
+	 * @throws NullPointerException if {@code name} is {@code null}
+	 */
+	public ZNodeName(final String name) {
+		this.name = Objects.requireNonNull(name, "ZNode name cannot be null");
 
-        final int idx = name.lastIndexOf('-');
-        if (idx < 0) {
-            this.prefix = name;
-            this.sequence = Optional.empty();
-        } else {
-            this.prefix = name.substring(0, idx);
-            this.sequence = Optional.ofNullable(parseSequenceString(name.substring(idx + 1)));
-        }
-    }
+		final int idx = name.lastIndexOf('-');
+		if (idx < 0) {
+			this.prefix = name;
+			this.sequence = Optional.empty();
+		} else {
+			this.prefix = name.substring(0, idx);
+			this.sequence = Optional.ofNullable(parseSequenceString(name.substring(idx + 1)));
+		}
+	}
 
-    private Integer parseSequenceString(final String seq) {
-        try {
-            return Integer.parseInt(seq);
-        } catch (Exception e) {
-            LOG.warn("Number format exception for {}", seq, e);
-            return null;
-        }
-    }
+	private Integer parseSequenceString(final String seq) {
+		try {
+			return Integer.parseInt(seq);
+		} catch (Exception e) {
+			LOG.warn("Number format exception for {}", seq, e);
+			return null;
+		}
+	}
 
-    @Override
-    public String toString() {
-      return "ZNodeName [name=" + name + ", prefix=" + prefix + ", sequence="
-          + sequence + "]";
-    }
+	@Override
+	public String toString() {
+		return "ZNodeName [name=" + name + ", prefix=" + prefix + ", sequence="
+			+ sequence + "]";
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
-        ZNodeName other = (ZNodeName) o;
+		ZNodeName other = (ZNodeName) o;
 
-        return name.equals(other.name);
-    }
+		return name.equals(other.name);
+	}
 
-    @Override
-    public int hashCode() {
-        return name.hashCode();
-    }
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
 
-    /**
-     * Compare znodes based on their sequence number.
-     *
-     * @param that other znode to compare to
-     * @return the difference between their sequence numbers: a positive value if this
-     *         znode has a larger sequence number, 0 if they have the same sequence number
-     *         or a negative number if this znode has a lower sequence number
-     */
-    public int compareTo(final ZNodeName that) {
-        if (this.sequence.isPresent() && that.sequence.isPresent()) {
-            int cseq = Integer.compare(this.sequence.get(), that.sequence.get());
-            return (cseq != 0) ? cseq : this.prefix.compareTo(that.prefix);
-        }
-        if (this.sequence.isPresent()) {
-            return -1;
-        }
-        if (that.sequence.isPresent()) {
-            return 1;
-        }
-        return this.prefix.compareTo(that.prefix);
-    }
+	/**
+	 * Compare znodes based on their sequence number.
+	 *
+	 * @param that other znode to compare to
+	 * @return the difference between their sequence numbers: a positive value if this
+	 * znode has a larger sequence number, 0 if they have the same sequence number
+	 * or a negative number if this znode has a lower sequence number
+	 */
+	public int compareTo(final ZNodeName that) {
+		if (this.sequence.isPresent() && that.sequence.isPresent()) {
+			int cseq = Integer.compare(this.sequence.get(), that.sequence.get());
+			return (cseq != 0) ? cseq : this.prefix.compareTo(that.prefix);
+		}
+		if (this.sequence.isPresent()) {
+			return -1;
+		}
+		if (that.sequence.isPresent()) {
+			return 1;
+		}
+		return this.prefix.compareTo(that.prefix);
+	}
 
-    /**
-     * Returns the name of the znode.
-     */
-    public String getName() {
-        return name;
-    }
+	/**
+	 * Returns the name of the znode.
+	 */
+	public String getName() {
+		return name;
+	}
 
-    /**
-     * Returns the optional sequence number.
-     */
-    public Optional<Integer> getSequence() {
-        return sequence;
-    }
+	/**
+	 * Returns the optional sequence number.
+	 */
+	public Optional<Integer> getSequence() {
+		return sequence;
+	}
 
-    /**
-     * Returns the text prefix before the sequence number.
-     */
-    public String getPrefix() {
-        return prefix;
-    }
+	/**
+	 * Returns the text prefix before the sequence number.
+	 */
+	public String getPrefix() {
+		return prefix;
+	}
 
 }

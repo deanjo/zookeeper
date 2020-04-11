@@ -22,77 +22,77 @@ import java.util.Map;
 import java.util.Set;
 
 public final class AuditEvent {
-    private static final char PAIR_SEPARATOR = '\t';
-    private static final String KEY_VAL_SEPARATOR = "=";
-    // Holds the entries which to be logged.
-    private Map<String, String> logEntries = new LinkedHashMap<>();
-    private Result result;
+	private static final char PAIR_SEPARATOR = '\t';
+	private static final String KEY_VAL_SEPARATOR = "=";
+	// Holds the entries which to be logged.
+	private Map<String, String> logEntries = new LinkedHashMap<>();
+	private Result result;
 
-    AuditEvent(Result result) {
-        this.result = result;
-    }
+	AuditEvent(Result result) {
+		this.result = result;
+	}
 
-    /**
-     * Gives all entries to be logged.
-     *
-     * @return log entries
-     */
-    public Set<Map.Entry<String, String>> getLogEntries() {
-        return logEntries.entrySet();
-    }
+	/**
+	 * Gives all entries to be logged.
+	 *
+	 * @return log entries
+	 */
+	public Set<Map.Entry<String, String>> getLogEntries() {
+		return logEntries.entrySet();
+	}
 
-    void addEntry(FieldName fieldName, String value) {
-        if (value != null) {
-            logEntries.put(fieldName.name().toLowerCase(), value);
-        }
-    }
+	void addEntry(FieldName fieldName, String value) {
+		if (value != null) {
+			logEntries.put(fieldName.name().toLowerCase(), value);
+		}
+	}
 
-    public String getValue(FieldName fieldName) {
-        return logEntries.get(fieldName.name().toLowerCase());
-    }
+	public String getValue(FieldName fieldName) {
+		return logEntries.get(fieldName.name().toLowerCase());
+	}
 
-    public Result getResult() {
-        return result;
-    }
+	public Result getResult() {
+		return result;
+	}
 
-    /**
-     * Gives the string to be logged, ignores fields with null values
-     *
-     * @return String
-     */
-    @Override
-    public String toString() {
-        StringBuilder buffer = new StringBuilder();
-        boolean first = true;
-        for (Map.Entry<String, String> entry : logEntries.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (null != value) {
-                // if first field then no need to add the tabs
-                if (first) {
-                    first = false;
-                } else {
-                    buffer.append(PAIR_SEPARATOR);
-                }
-                buffer.append(key).append(KEY_VAL_SEPARATOR)
-                        .append(value);
-            }
-        }
-        //add result field
-        if (buffer.length() > 0) {
-            buffer.append(PAIR_SEPARATOR);
-        }
-        buffer.append("result").append(KEY_VAL_SEPARATOR)
-                .append(result.name().toLowerCase());
-        return buffer.toString();
-    }
+	/**
+	 * Gives the string to be logged, ignores fields with null values
+	 *
+	 * @return String
+	 */
+	@Override
+	public String toString() {
+		StringBuilder buffer = new StringBuilder();
+		boolean first = true;
+		for (Map.Entry<String, String> entry : logEntries.entrySet()) {
+			String key = entry.getKey();
+			String value = entry.getValue();
+			if (null != value) {
+				// if first field then no need to add the tabs
+				if (first) {
+					first = false;
+				} else {
+					buffer.append(PAIR_SEPARATOR);
+				}
+				buffer.append(key).append(KEY_VAL_SEPARATOR)
+					.append(value);
+			}
+		}
+		//add result field
+		if (buffer.length() > 0) {
+			buffer.append(PAIR_SEPARATOR);
+		}
+		buffer.append("result").append(KEY_VAL_SEPARATOR)
+			.append(result.name().toLowerCase());
+		return buffer.toString();
+	}
 
-    public enum FieldName {
-        USER, OPERATION, IP, ACL, ZNODE, SESSION, ZNODE_TYPE
-    }
+	public enum FieldName {
+		USER, OPERATION, IP, ACL, ZNODE, SESSION, ZNODE_TYPE
+	}
 
-    public enum Result {
-        SUCCESS, FAILURE, INVOKED
-    }
+	public enum Result {
+		SUCCESS, FAILURE, INVOKED
+	}
 }
 

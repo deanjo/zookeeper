@@ -19,6 +19,7 @@
 package org.apache.zookeeper.test;
 
 import static org.junit.Assert.assertFalse;
+
 import org.apache.zookeeper.PortAssignment;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
@@ -29,44 +30,45 @@ import org.slf4j.LoggerFactory;
 
 public class ObserverTest extends QuorumPeerTestBase implements Watcher {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ObserverTest.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(ObserverTest.class);
 
-    ZooKeeper zk;
+	ZooKeeper zk;
 
-    /**
-     * This test ensures that an Observer does not elect itself as a leader, or
-     * indeed come up properly, if it is the lone member of an ensemble.
-     * @throws Exception
-     */
-    @Test
-    public void testObserverOnly() throws Exception {
-        ClientBase.setupTestEnv();
-        final int CLIENT_PORT_QP1 = PortAssignment.unique();
+	/**
+	 * This test ensures that an Observer does not elect itself as a leader, or
+	 * indeed come up properly, if it is the lone member of an ensemble.
+	 *
+	 * @throws Exception
+	 */
+	@Test
+	public void testObserverOnly() throws Exception {
+		ClientBase.setupTestEnv();
+		final int CLIENT_PORT_QP1 = PortAssignment.unique();
 
-        String quorumCfgSection = "server.1=127.0.0.1:" + (PortAssignment.unique()) + ":" + (PortAssignment.unique()) + ":observer;" + CLIENT_PORT_QP1 + "\n";
+		String quorumCfgSection = "server.1=127.0.0.1:" + (PortAssignment.unique()) + ":" + (PortAssignment.unique()) + ":observer;" + CLIENT_PORT_QP1 + "\n";
 
-        MainThread q1 = new MainThread(1, CLIENT_PORT_QP1, quorumCfgSection);
-        q1.start();
-        q1.join(ClientBase.CONNECTION_TIMEOUT);
-        assertFalse(q1.isAlive());
-    }
+		MainThread q1 = new MainThread(1, CLIENT_PORT_QP1, quorumCfgSection);
+		q1.start();
+		q1.join(ClientBase.CONNECTION_TIMEOUT);
+		assertFalse(q1.isAlive());
+	}
 
-    /**
-     * Ensure that observer only comes up when a proper ensemble is configured.
-     * (and will not come up with standalone server).
-     */
-    @Test
-    public void testObserverWithStandlone() throws Exception {
-        ClientBase.setupTestEnv();
-        final int CLIENT_PORT_QP1 = PortAssignment.unique();
+	/**
+	 * Ensure that observer only comes up when a proper ensemble is configured.
+	 * (and will not come up with standalone server).
+	 */
+	@Test
+	public void testObserverWithStandlone() throws Exception {
+		ClientBase.setupTestEnv();
+		final int CLIENT_PORT_QP1 = PortAssignment.unique();
 
-        String quorumCfgSection = "server.1=127.0.0.1:" + (PortAssignment.unique()) + ":" + (PortAssignment.unique()) + ":observer\n"
-                                  + "server.2=127.0.0.1:" + (PortAssignment.unique()) + ":" + (PortAssignment.unique()) + "\npeerType=observer\n";
+		String quorumCfgSection = "server.1=127.0.0.1:" + (PortAssignment.unique()) + ":" + (PortAssignment.unique()) + ":observer\n"
+			+ "server.2=127.0.0.1:" + (PortAssignment.unique()) + ":" + (PortAssignment.unique()) + "\npeerType=observer\n";
 
-        MainThread q1 = new MainThread(1, CLIENT_PORT_QP1, quorumCfgSection);
-        q1.start();
-        q1.join(ClientBase.CONNECTION_TIMEOUT);
-        assertFalse(q1.isAlive());
-    }
+		MainThread q1 = new MainThread(1, CLIENT_PORT_QP1, quorumCfgSection);
+		q1.start();
+		q1.join(ClientBase.CONNECTION_TIMEOUT);
+		assertFalse(q1.isAlive());
+	}
 
 }

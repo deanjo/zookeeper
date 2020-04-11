@@ -21,134 +21,135 @@ package org.apache.zookeeper.common;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
 import org.junit.Before;
 import org.junit.Test;
 
 public class PathTrieTest {
 
-    private PathTrie pathTrie;
+	private PathTrie pathTrie;
 
-    @Before
-    public void before() {
-        this.pathTrie = new PathTrie();
-    }
+	@Before
+	public void before() {
+		this.pathTrie = new PathTrie();
+	}
 
-    @Test(expected = NullPointerException.class)
-    public void addNullPath() {
-        this.pathTrie.addPath(null);
-    }
+	@Test(expected = NullPointerException.class)
+	public void addNullPath() {
+		this.pathTrie.addPath(null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void addIllegalPath() {
-        this.pathTrie.addPath("");
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void addIllegalPath() {
+		this.pathTrie.addPath("");
+	}
 
-    @Test
-    public void addPathToRoot() {
-        this.pathTrie.addPath("node1");
-        assertTrue(this.pathTrie.existsNode("/node1"));
-    }
+	@Test
+	public void addPathToRoot() {
+		this.pathTrie.addPath("node1");
+		assertTrue(this.pathTrie.existsNode("/node1"));
+	}
 
-    @Test
-    public void addPathToRootLeaves() {
-        this.pathTrie.addPath("node1");
-        this.pathTrie.addPath("node1/node2");
-        this.pathTrie.addPath("node1/node3");
-        assertTrue(this.pathTrie.existsNode("/node1"));
-        assertTrue(this.pathTrie.existsNode("/node1/node2"));
-        assertTrue(this.pathTrie.existsNode("/node1/node3"));
-    }
+	@Test
+	public void addPathToRootLeaves() {
+		this.pathTrie.addPath("node1");
+		this.pathTrie.addPath("node1/node2");
+		this.pathTrie.addPath("node1/node3");
+		assertTrue(this.pathTrie.existsNode("/node1"));
+		assertTrue(this.pathTrie.existsNode("/node1/node2"));
+		assertTrue(this.pathTrie.existsNode("/node1/node3"));
+	}
 
-    @Test(expected = NullPointerException.class)
-    public void deleteNullPath() {
-        this.pathTrie.deletePath(null);
-    }
+	@Test(expected = NullPointerException.class)
+	public void deleteNullPath() {
+		this.pathTrie.deletePath(null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void deleteIllegalPath() {
-        this.pathTrie.deletePath("");
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void deleteIllegalPath() {
+		this.pathTrie.deletePath("");
+	}
 
-    @Test
-    public void deletePathFromRoot() {
-        this.pathTrie.addPath("node1");
-        this.pathTrie.deletePath("node1");
-        assertFalse(this.pathTrie.existsNode("/node1"));
-    }
+	@Test
+	public void deletePathFromRoot() {
+		this.pathTrie.addPath("node1");
+		this.pathTrie.deletePath("node1");
+		assertFalse(this.pathTrie.existsNode("/node1"));
+	}
 
-    @Test
-    public void deletePathFromRootLeaves() {
-        this.pathTrie.addPath("node1");
-        this.pathTrie.addPath("node1/node2");
-        this.pathTrie.addPath("node1/node3");
+	@Test
+	public void deletePathFromRootLeaves() {
+		this.pathTrie.addPath("node1");
+		this.pathTrie.addPath("node1/node2");
+		this.pathTrie.addPath("node1/node3");
 
-        this.pathTrie.deletePath("node1/node3");
+		this.pathTrie.deletePath("node1/node3");
 
-        assertTrue(this.pathTrie.existsNode("/node1"));
-        assertTrue(this.pathTrie.existsNode("/node1/node2"));
-        assertFalse(this.pathTrie.existsNode("/node1/node3"));
+		assertTrue(this.pathTrie.existsNode("/node1"));
+		assertTrue(this.pathTrie.existsNode("/node1/node2"));
+		assertFalse(this.pathTrie.existsNode("/node1/node3"));
 
-        this.pathTrie.deletePath("node1/node2");
+		this.pathTrie.deletePath("node1/node2");
 
-        assertTrue(this.pathTrie.existsNode("/node1"));
-        assertFalse(this.pathTrie.existsNode("/node1/node2"));
+		assertTrue(this.pathTrie.existsNode("/node1"));
+		assertFalse(this.pathTrie.existsNode("/node1/node2"));
 
-        this.pathTrie.deletePath("node1");
-        assertFalse(this.pathTrie.existsNode("/node1"));
-    }
+		this.pathTrie.deletePath("node1");
+		assertFalse(this.pathTrie.existsNode("/node1"));
+	}
 
-    @Test
-    public void deletePathDoesNotExist() {
-        this.pathTrie.addPath("node1");
-        this.pathTrie.addPath("node1/node2");
+	@Test
+	public void deletePathDoesNotExist() {
+		this.pathTrie.addPath("node1");
+		this.pathTrie.addPath("node1/node2");
 
-        this.pathTrie.deletePath("node1/node3");
+		this.pathTrie.deletePath("node1/node3");
 
-        assertTrue(this.pathTrie.existsNode("/node1"));
-        assertTrue(this.pathTrie.existsNode("/node1/node2"));
-    }
+		assertTrue(this.pathTrie.existsNode("/node1"));
+		assertTrue(this.pathTrie.existsNode("/node1/node2"));
+	}
 
-    @Test
-    public void deleteRootPath() {
-        this.pathTrie.addPath("node1");
-        this.pathTrie.addPath("node1/node2");
-        this.pathTrie.addPath("node1/node3");
+	@Test
+	public void deleteRootPath() {
+		this.pathTrie.addPath("node1");
+		this.pathTrie.addPath("node1/node2");
+		this.pathTrie.addPath("node1/node3");
 
-        // Nodes are only removed from the trie if they are a leaf node
-        this.pathTrie.deletePath("node1");
+		// Nodes are only removed from the trie if they are a leaf node
+		this.pathTrie.deletePath("node1");
 
-        assertTrue(this.pathTrie.existsNode("/node1"));
-        assertTrue(this.pathTrie.existsNode("/node1/node2"));
-        assertTrue(this.pathTrie.existsNode("/node1/node3"));
-    }
+		assertTrue(this.pathTrie.existsNode("/node1"));
+		assertTrue(this.pathTrie.existsNode("/node1/node2"));
+		assertTrue(this.pathTrie.existsNode("/node1/node3"));
+	}
 
-    @Test(expected = NullPointerException.class)
-    public void findMaxPrefixNullPath() {
-        this.pathTrie.findMaxPrefix(null);
-    }
+	@Test(expected = NullPointerException.class)
+	public void findMaxPrefixNullPath() {
+		this.pathTrie.findMaxPrefix(null);
+	}
 
-    @Test
-    public void findMaxPrefixRootPath() {
-        assertEquals("/", this.pathTrie.findMaxPrefix("/"));
-    }
+	@Test
+	public void findMaxPrefixRootPath() {
+		assertEquals("/", this.pathTrie.findMaxPrefix("/"));
+	}
 
-    @Test
-    public void findMaxPrefixChildren() {
-        this.pathTrie.addPath("node1");
-        this.pathTrie.addPath("node1/node2");
-        this.pathTrie.addPath("node1/node3");
+	@Test
+	public void findMaxPrefixChildren() {
+		this.pathTrie.addPath("node1");
+		this.pathTrie.addPath("node1/node2");
+		this.pathTrie.addPath("node1/node3");
 
-        assertEquals("/node1", this.pathTrie.findMaxPrefix("/node1"));
-        assertEquals("/node1/node2", this.pathTrie.findMaxPrefix("/node1/node2"));
-        assertEquals("/node1/node3", this.pathTrie.findMaxPrefix("/node1/node3"));
-    }
+		assertEquals("/node1", this.pathTrie.findMaxPrefix("/node1"));
+		assertEquals("/node1/node2", this.pathTrie.findMaxPrefix("/node1/node2"));
+		assertEquals("/node1/node3", this.pathTrie.findMaxPrefix("/node1/node3"));
+	}
 
-    @Test
-    public void findMaxPrefixChildrenPrefix() {
-        this.pathTrie.addPath("node1");
+	@Test
+	public void findMaxPrefixChildrenPrefix() {
+		this.pathTrie.addPath("node1");
 
-        assertEquals("/node1", this.pathTrie.findMaxPrefix("/node1/node2"));
-        assertEquals("/node1", this.pathTrie.findMaxPrefix("/node1/node3"));
-    }
+		assertEquals("/node1", this.pathTrie.findMaxPrefix("/node1/node2"));
+		assertEquals("/node1", this.pathTrie.findMaxPrefix("/node1/node3"));
+	}
 
 }

@@ -19,8 +19,11 @@
 package org.apache.zookeeper.metrics.prometheus;
 
 import static org.junit.Assert.assertEquals;
+
 import io.prometheus.client.CollectorRegistry;
+
 import java.util.Properties;
+
 import org.junit.Test;
 
 /**
@@ -29,33 +32,33 @@ import org.junit.Test;
  */
 public class ExportJvmInfoTest {
 
-    @Test
-    public void exportInfo() throws Exception {
-        runTest(true);
-    }
+	@Test
+	public void exportInfo() throws Exception {
+		runTest(true);
+	}
 
-    @Test
-    public void doNotExportInfo() throws Exception {
-        runTest(false);
-    }
+	@Test
+	public void doNotExportInfo() throws Exception {
+		runTest(false);
+	}
 
-    private void runTest(boolean exportJvmInfo) throws Exception {
-        CollectorRegistry.defaultRegistry.clear();
-        PrometheusMetricsProvider provider = new PrometheusMetricsProvider();
-        try {
-            Properties configuration = new Properties();
-            configuration.setProperty("httpPort", "0"); // ephemeral port
-            configuration.setProperty("exportJvmInfo", exportJvmInfo + "");
-            provider.configure(configuration);
-            provider.start();
-            boolean[] found = {false};
-            provider.dump((k, v) -> {
-                found[0] = found[0] || k.contains("heap");
-            });
-            assertEquals(exportJvmInfo, found[0]);
-        } finally {
-            provider.stop();
-        }
-    }
+	private void runTest(boolean exportJvmInfo) throws Exception {
+		CollectorRegistry.defaultRegistry.clear();
+		PrometheusMetricsProvider provider = new PrometheusMetricsProvider();
+		try {
+			Properties configuration = new Properties();
+			configuration.setProperty("httpPort", "0"); // ephemeral port
+			configuration.setProperty("exportJvmInfo", exportJvmInfo + "");
+			provider.configure(configuration);
+			provider.start();
+			boolean[] found = {false};
+			provider.dump((k, v) -> {
+				found[0] = found[0] || k.contains("heap");
+			});
+			assertEquals(exportJvmInfo, found[0]);
+		} finally {
+			provider.stop();
+		}
+	}
 
 }

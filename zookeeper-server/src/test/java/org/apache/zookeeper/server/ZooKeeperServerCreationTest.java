@@ -21,6 +21,7 @@ package org.apache.zookeeper.server;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.ByteBuffer;
+
 import org.apache.jute.BinaryOutputArchive;
 import org.apache.zookeeper.proto.ConnectRequest;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
@@ -29,33 +30,33 @@ import org.junit.Test;
 
 public class ZooKeeperServerCreationTest {
 
-    /**
-     * Test the default ZooKeeperServer and call processConnectRequest() to make sure
-     * that all needed fields are initialized properly, etc.
-     */
-    @Test
-    public void testDefaultConstructor() throws Exception {
-        File tmpDir = ClientBase.createEmptyTestDir();
-        FileTxnSnapLog fileTxnSnapLog = new FileTxnSnapLog(new File(tmpDir, "data"), new File(tmpDir, "data_txnlog"));
+	/**
+	 * Test the default ZooKeeperServer and call processConnectRequest() to make sure
+	 * that all needed fields are initialized properly, etc.
+	 */
+	@Test
+	public void testDefaultConstructor() throws Exception {
+		File tmpDir = ClientBase.createEmptyTestDir();
+		FileTxnSnapLog fileTxnSnapLog = new FileTxnSnapLog(new File(tmpDir, "data"), new File(tmpDir, "data_txnlog"));
 
-        ZooKeeperServer zks = new ZooKeeperServer() {
-            @Override
-            public void submitRequest(Request si) {
-                // NOP
-            }
-        };
-        zks.setTxnLogFactory(fileTxnSnapLog);
-        zks.setZKDatabase(new ZKDatabase(fileTxnSnapLog));
-        zks.createSessionTracker();
+		ZooKeeperServer zks = new ZooKeeperServer() {
+			@Override
+			public void submitRequest(Request si) {
+				// NOP
+			}
+		};
+		zks.setTxnLogFactory(fileTxnSnapLog);
+		zks.setZKDatabase(new ZKDatabase(fileTxnSnapLog));
+		zks.createSessionTracker();
 
-        ServerCnxnFactory cnxnFactory = ServerCnxnFactory.createFactory();
-        ServerCnxn cnxn = new MockServerCnxn();
+		ServerCnxnFactory cnxnFactory = ServerCnxnFactory.createFactory();
+		ServerCnxn cnxn = new MockServerCnxn();
 
-        ConnectRequest connReq = new ConnectRequest();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        BinaryOutputArchive boa = BinaryOutputArchive.getArchive(baos);
-        connReq.serialize(boa, "connect");
-        zks.processConnectRequest(cnxn, ByteBuffer.wrap(baos.toByteArray()));
-    }
+		ConnectRequest connReq = new ConnectRequest();
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		BinaryOutputArchive boa = BinaryOutputArchive.getArchive(baos);
+		connReq.serialize(boa, "connect");
+		zks.processConnectRequest(cnxn, ByteBuffer.wrap(baos.toByteArray()));
+	}
 
 }

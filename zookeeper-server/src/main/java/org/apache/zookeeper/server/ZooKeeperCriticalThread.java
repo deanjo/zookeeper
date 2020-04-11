@@ -27,28 +27,26 @@ import org.slf4j.LoggerFactory;
  */
 public class ZooKeeperCriticalThread extends ZooKeeperThread {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ZooKeeperCriticalThread.class);
-    private final ZooKeeperServerListener listener;
+	private static final Logger LOG = LoggerFactory.getLogger(ZooKeeperCriticalThread.class);
+	private final ZooKeeperServerListener listener;
 
-    public ZooKeeperCriticalThread(String threadName, ZooKeeperServerListener listener) {
-        super(threadName);
-        this.listener = listener;
-    }
+	public ZooKeeperCriticalThread(String threadName, ZooKeeperServerListener listener) {
+		super(threadName);
+		this.listener = listener;
+	}
 
-    /**
-     * This will be used by the uncaught exception handler and make the system
-     * exit.
-     *
-     * @param threadName
-     *            - thread name
-     * @param e
-     *            - exception object
-     */
-    @Override
-    protected void handleException(String threadName, Throwable e) {
-        LOG.error("Severe unrecoverable error, from thread : {}", threadName, e);
-        listener.notifyStopping(threadName, ExitCode.UNEXPECTED_ERROR.getValue());
-        ServerMetrics.getMetrics().UNRECOVERABLE_ERROR_COUNT.add(1);
-    }
+	/**
+	 * This will be used by the uncaught exception handler and make the system
+	 * exit.
+	 *
+	 * @param threadName - thread name
+	 * @param e          - exception object
+	 */
+	@Override
+	protected void handleException(String threadName, Throwable e) {
+		LOG.error("Severe unrecoverable error, from thread : {}", threadName, e);
+		listener.notifyStopping(threadName, ExitCode.UNEXPECTED_ERROR.getValue());
+		ServerMetrics.getMetrics().UNRECOVERABLE_ERROR_COUNT.add(1);
+	}
 
 }

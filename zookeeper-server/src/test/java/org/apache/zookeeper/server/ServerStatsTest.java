@@ -23,122 +23,123 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+
 import org.apache.zookeeper.ZKTestCase;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ServerStatsTest extends ZKTestCase {
 
-    private ServerStats.Provider providerMock;
+	private ServerStats.Provider providerMock;
 
-    @Before
-    public void setUp() {
-        providerMock = mock(ServerStats.Provider.class);
-    }
+	@Before
+	public void setUp() {
+		providerMock = mock(ServerStats.Provider.class);
+	}
 
-    @Test
-    public void testPacketsMetrics() {
-        // Given ...
-        ServerStats serverStats = new ServerStats(providerMock);
-        int incrementCount = 20;
+	@Test
+	public void testPacketsMetrics() {
+		// Given ...
+		ServerStats serverStats = new ServerStats(providerMock);
+		int incrementCount = 20;
 
-        // When increment ...
-        for (int i = 0; i < incrementCount; i++) {
-            serverStats.incrementPacketsSent();
-            serverStats.incrementPacketsReceived();
-            serverStats.incrementPacketsReceived();
-        }
+		// When increment ...
+		for (int i = 0; i < incrementCount; i++) {
+			serverStats.incrementPacketsSent();
+			serverStats.incrementPacketsReceived();
+			serverStats.incrementPacketsReceived();
+		}
 
-        // Then ...
-        assertEquals(incrementCount, serverStats.getPacketsSent());
-        assertEquals(incrementCount * 2, serverStats.getPacketsReceived());
+		// Then ...
+		assertEquals(incrementCount, serverStats.getPacketsSent());
+		assertEquals(incrementCount * 2, serverStats.getPacketsReceived());
 
-        // When reset ...
-        serverStats.resetRequestCounters();
+		// When reset ...
+		serverStats.resetRequestCounters();
 
-        // Then ...
-        assertAllPacketsZero(serverStats);
+		// Then ...
+		assertAllPacketsZero(serverStats);
 
-    }
+	}
 
-    @Test
-    public void testLatencyMetrics() {
-        // Given ...
-        ServerStats serverStats = new ServerStats(providerMock);
+	@Test
+	public void testLatencyMetrics() {
+		// Given ...
+		ServerStats serverStats = new ServerStats(providerMock);
 
-        // When incremented...
-        Request fakeRequest = new Request(0, 0, 0, null, null, 0);
-        serverStats.updateLatency(fakeRequest, fakeRequest.createTime + 1000);
-        serverStats.updateLatency(fakeRequest, fakeRequest.createTime + 2000);
+		// When incremented...
+		Request fakeRequest = new Request(0, 0, 0, null, null, 0);
+		serverStats.updateLatency(fakeRequest, fakeRequest.createTime + 1000);
+		serverStats.updateLatency(fakeRequest, fakeRequest.createTime + 2000);
 
-        // Then ...
-        assertThat("Max latency check", 2000L, lessThanOrEqualTo(serverStats.getMaxLatency()));
-        assertThat("Min latency check", 1000L, lessThanOrEqualTo(serverStats.getMinLatency()));
-        assertEquals(1500, serverStats.getAvgLatency(), 200);
+		// Then ...
+		assertThat("Max latency check", 2000L, lessThanOrEqualTo(serverStats.getMaxLatency()));
+		assertThat("Min latency check", 1000L, lessThanOrEqualTo(serverStats.getMinLatency()));
+		assertEquals(1500, serverStats.getAvgLatency(), 200);
 
-        // When reset...
-        serverStats.resetLatency();
+		// When reset...
+		serverStats.resetLatency();
 
-        // Then ...
-        assertAllLatencyZero(serverStats);
-    }
+		// Then ...
+		assertAllLatencyZero(serverStats);
+	}
 
-    @Test
-    public void testFsyncThresholdExceedMetrics() {
-        // Given ...
-        ServerStats serverStats = new ServerStats(providerMock);
-        int incrementCount = 30;
+	@Test
+	public void testFsyncThresholdExceedMetrics() {
+		// Given ...
+		ServerStats serverStats = new ServerStats(providerMock);
+		int incrementCount = 30;
 
-        // When increment ...
-        for (int i = 0; i < incrementCount; i++) {
-            serverStats.incrementFsyncThresholdExceedCount();
-        }
+		// When increment ...
+		for (int i = 0; i < incrementCount; i++) {
+			serverStats.incrementFsyncThresholdExceedCount();
+		}
 
-        // Then ...
-        assertEquals(incrementCount, serverStats.getFsyncThresholdExceedCount());
+		// Then ...
+		assertEquals(incrementCount, serverStats.getFsyncThresholdExceedCount());
 
-        // When reset ...
-        serverStats.resetFsyncThresholdExceedCount();
+		// When reset ...
+		serverStats.resetFsyncThresholdExceedCount();
 
-        // Then ...
-        assertFsyncThresholdExceedCountZero(serverStats);
+		// Then ...
+		assertFsyncThresholdExceedCountZero(serverStats);
 
-    }
+	}
 
-    @Test
-    public void testReset() {
-        // Given ...
-        ServerStats serverStats = new ServerStats(providerMock);
+	@Test
+	public void testReset() {
+		// Given ...
+		ServerStats serverStats = new ServerStats(providerMock);
 
-        assertAllPacketsZero(serverStats);
-        assertAllLatencyZero(serverStats);
+		assertAllPacketsZero(serverStats);
+		assertAllLatencyZero(serverStats);
 
-        // When ...
-        Request fakeRequest = new Request(0, 0, 0, null, null, 0);
-        serverStats.incrementPacketsSent();
-        serverStats.incrementPacketsReceived();
-        serverStats.updateLatency(fakeRequest, fakeRequest.createTime + 1000);
+		// When ...
+		Request fakeRequest = new Request(0, 0, 0, null, null, 0);
+		serverStats.incrementPacketsSent();
+		serverStats.incrementPacketsReceived();
+		serverStats.updateLatency(fakeRequest, fakeRequest.createTime + 1000);
 
-        serverStats.reset();
+		serverStats.reset();
 
-        // Then ...
-        assertAllPacketsZero(serverStats);
-        assertAllLatencyZero(serverStats);
-    }
+		// Then ...
+		assertAllPacketsZero(serverStats);
+		assertAllLatencyZero(serverStats);
+	}
 
-    private void assertAllPacketsZero(ServerStats serverStats) {
-        assertEquals(0L, serverStats.getPacketsSent());
-        assertEquals(0L, serverStats.getPacketsReceived());
-    }
+	private void assertAllPacketsZero(ServerStats serverStats) {
+		assertEquals(0L, serverStats.getPacketsSent());
+		assertEquals(0L, serverStats.getPacketsReceived());
+	}
 
-    private void assertAllLatencyZero(ServerStats serverStats) {
-        assertEquals(0L, serverStats.getMaxLatency());
-        assertEquals(0L, serverStats.getMinLatency());
-        assertEquals(0, serverStats.getAvgLatency(), 0.00001);
-    }
+	private void assertAllLatencyZero(ServerStats serverStats) {
+		assertEquals(0L, serverStats.getMaxLatency());
+		assertEquals(0L, serverStats.getMinLatency());
+		assertEquals(0, serverStats.getAvgLatency(), 0.00001);
+	}
 
-    private void assertFsyncThresholdExceedCountZero(ServerStats serverStats) {
-        assertEquals(0L, serverStats.getFsyncThresholdExceedCount());
-    }
+	private void assertFsyncThresholdExceedCountZero(ServerStats serverStats) {
+		assertEquals(0L, serverStats.getFsyncThresholdExceedCount());
+	}
 
 }

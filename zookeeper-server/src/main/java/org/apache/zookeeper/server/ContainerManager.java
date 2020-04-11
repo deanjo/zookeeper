@@ -26,6 +26,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.common.Time;
 import org.slf4j.Logger;
@@ -41,169 +42,169 @@ import org.slf4j.LoggerFactory;
  */
 public class ContainerManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ContainerManager.class);
-    private final ZKDatabase zkDb;
-    private final RequestProcessor requestProcessor;
-    private final int checkIntervalMs;
-    private final int maxPerMinute;
-    private final long maxNeverUsedIntervalMs;
-    private final Timer timer;
-    private final AtomicReference<TimerTask> task = new AtomicReference<TimerTask>(null);
+	private static final Logger LOG = LoggerFactory.getLogger(ContainerManager.class);
+	private final ZKDatabase zkDb;
+	private final RequestProcessor requestProcessor;
+	private final int checkIntervalMs;
+	private final int maxPerMinute;
+	private final long maxNeverUsedIntervalMs;
+	private final Timer timer;
+	private final AtomicReference<TimerTask> task = new AtomicReference<TimerTask>(null);
 
-    /**
-     * @param zkDb the ZK database
-     * @param requestProcessor request processer - used to inject delete
-     *                         container requests
-     * @param checkIntervalMs how often to check containers in milliseconds
-     * @param maxPerMinute the max containers to delete per second - avoids
-     *                     herding of container deletions
-     */
-    public ContainerManager(ZKDatabase zkDb, RequestProcessor requestProcessor, int checkIntervalMs, int maxPerMinute) {
-        this(zkDb, requestProcessor, checkIntervalMs, maxPerMinute, 0);
-    }
+	/**
+	 * @param zkDb             the ZK database
+	 * @param requestProcessor request processer - used to inject delete
+	 *                         container requests
+	 * @param checkIntervalMs  how often to check containers in milliseconds
+	 * @param maxPerMinute     the max containers to delete per second - avoids
+	 *                         herding of container deletions
+	 */
+	public ContainerManager(ZKDatabase zkDb, RequestProcessor requestProcessor, int checkIntervalMs, int maxPerMinute) {
+		this(zkDb, requestProcessor, checkIntervalMs, maxPerMinute, 0);
+	}
 
-    /**
-     * @param zkDb the ZK database
-     * @param requestProcessor request processer - used to inject delete
-     *                         container requests
-     * @param checkIntervalMs how often to check containers in milliseconds
-     * @param maxPerMinute the max containers to delete per second - avoids
-     *                     herding of container deletions
-     * @param maxNeverUsedIntervalMs the max time in milliseconds that a container that has never had
-     *                                  any children is retained
-     */
-    public ContainerManager(ZKDatabase zkDb, RequestProcessor requestProcessor, int checkIntervalMs, int maxPerMinute, long maxNeverUsedIntervalMs) {
-        this.zkDb = zkDb;
-        this.requestProcessor = requestProcessor;
-        this.checkIntervalMs = checkIntervalMs;
-        this.maxPerMinute = maxPerMinute;
-        this.maxNeverUsedIntervalMs = maxNeverUsedIntervalMs;
-        timer = new Timer("ContainerManagerTask", true);
+	/**
+	 * @param zkDb                   the ZK database
+	 * @param requestProcessor       request processer - used to inject delete
+	 *                               container requests
+	 * @param checkIntervalMs        how often to check containers in milliseconds
+	 * @param maxPerMinute           the max containers to delete per second - avoids
+	 *                               herding of container deletions
+	 * @param maxNeverUsedIntervalMs the max time in milliseconds that a container that has never had
+	 *                               any children is retained
+	 */
+	public ContainerManager(ZKDatabase zkDb, RequestProcessor requestProcessor, int checkIntervalMs, int maxPerMinute, long maxNeverUsedIntervalMs) {
+		this.zkDb = zkDb;
+		this.requestProcessor = requestProcessor;
+		this.checkIntervalMs = checkIntervalMs;
+		this.maxPerMinute = maxPerMinute;
+		this.maxNeverUsedIntervalMs = maxNeverUsedIntervalMs;
+		timer = new Timer("ContainerManagerTask", true);
 
-        LOG.info("Using checkIntervalMs={} maxPerMinute={} maxNeverUsedIntervalMs={}", checkIntervalMs, maxPerMinute, maxNeverUsedIntervalMs);
-    }
+		LOG.info("Using checkIntervalMs={} maxPerMinute={} maxNeverUsedIntervalMs={}", checkIntervalMs, maxPerMinute, maxNeverUsedIntervalMs);
+	}
 
-    /**
-     * start/restart the timer the runs the check. Can safely be called
-     * multiple times.
-     */
-    public void start() {
-        if (task.get() == null) {
-            TimerTask timerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    try {
-                        checkContainers();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        LOG.info("interrupted");
-                        cancel();
-                    } catch (Throwable e) {
-                        LOG.error("Error checking containers", e);
-                    }
-                }
-            };
-            if (task.compareAndSet(null, timerTask)) {
-                timer.scheduleAtFixedRate(timerTask, checkIntervalMs, checkIntervalMs);
-            }
-        }
-    }
+	/**
+	 * start/restart the timer the runs the check. Can safely be called
+	 * multiple times.
+	 */
+	public void start() {
+		if (task.get() == null) {
+			TimerTask timerTask = new TimerTask() {
+				@Override
+				public void run() {
+					try {
+						checkContainers();
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+						LOG.info("interrupted");
+						cancel();
+					} catch (Throwable e) {
+						LOG.error("Error checking containers", e);
+					}
+				}
+			};
+			if (task.compareAndSet(null, timerTask)) {
+				timer.scheduleAtFixedRate(timerTask, checkIntervalMs, checkIntervalMs);
+			}
+		}
+	}
 
-    /**
-     * stop the timer if necessary. Can safely be called multiple times.
-     */
-    public void stop() {
-        TimerTask timerTask = task.getAndSet(null);
-        if (timerTask != null) {
-            timerTask.cancel();
-        }
-        timer.cancel();
-    }
+	/**
+	 * stop the timer if necessary. Can safely be called multiple times.
+	 */
+	public void stop() {
+		TimerTask timerTask = task.getAndSet(null);
+		if (timerTask != null) {
+			timerTask.cancel();
+		}
+		timer.cancel();
+	}
 
-    /**
-     * Manually check the containers. Not normally used directly
-     */
-    public void checkContainers() throws InterruptedException {
-        long minIntervalMs = getMinIntervalMs();
-        for (String containerPath : getCandidates()) {
-            long startMs = Time.currentElapsedTime();
+	/**
+	 * Manually check the containers. Not normally used directly
+	 */
+	public void checkContainers() throws InterruptedException {
+		long minIntervalMs = getMinIntervalMs();
+		for (String containerPath : getCandidates()) {
+			long startMs = Time.currentElapsedTime();
 
-            ByteBuffer path = ByteBuffer.wrap(containerPath.getBytes());
-            Request request = new Request(null, 0, 0, ZooDefs.OpCode.deleteContainer, path, null);
-            try {
-                LOG.info("Attempting to delete candidate container: {}", containerPath);
-                postDeleteRequest(request);
-            } catch (Exception e) {
-                LOG.error("Could not delete container: {}", containerPath, e);
-            }
+			ByteBuffer path = ByteBuffer.wrap(containerPath.getBytes());
+			Request request = new Request(null, 0, 0, ZooDefs.OpCode.deleteContainer, path, null);
+			try {
+				LOG.info("Attempting to delete candidate container: {}", containerPath);
+				postDeleteRequest(request);
+			} catch (Exception e) {
+				LOG.error("Could not delete container: {}", containerPath, e);
+			}
 
-            long elapsedMs = Time.currentElapsedTime() - startMs;
-            long waitMs = minIntervalMs - elapsedMs;
-            if (waitMs > 0) {
-                Thread.sleep(waitMs);
-            }
-        }
-    }
+			long elapsedMs = Time.currentElapsedTime() - startMs;
+			long waitMs = minIntervalMs - elapsedMs;
+			if (waitMs > 0) {
+				Thread.sleep(waitMs);
+			}
+		}
+	}
 
-    // VisibleForTesting
-    protected void postDeleteRequest(Request request) throws RequestProcessor.RequestProcessorException {
-        requestProcessor.processRequest(request);
-    }
+	// VisibleForTesting
+	protected void postDeleteRequest(Request request) throws RequestProcessor.RequestProcessorException {
+		requestProcessor.processRequest(request);
+	}
 
-    // VisibleForTesting
-    protected long getMinIntervalMs() {
-        return TimeUnit.MINUTES.toMillis(1) / maxPerMinute;
-    }
+	// VisibleForTesting
+	protected long getMinIntervalMs() {
+		return TimeUnit.MINUTES.toMillis(1) / maxPerMinute;
+	}
 
-    // VisibleForTesting
-    protected Collection<String> getCandidates() {
-        Set<String> candidates = new HashSet<String>();
-        for (String containerPath : zkDb.getDataTree().getContainers()) {
-            DataNode node = zkDb.getDataTree().getNode(containerPath);
-            if ((node != null) && node.getChildren().isEmpty()) {
+	// VisibleForTesting
+	protected Collection<String> getCandidates() {
+		Set<String> candidates = new HashSet<String>();
+		for (String containerPath : zkDb.getDataTree().getContainers()) {
+			DataNode node = zkDb.getDataTree().getNode(containerPath);
+			if ((node != null) && node.getChildren().isEmpty()) {
                 /*
                     cversion > 0: keep newly created containers from being deleted
                     before any children have been added. If you were to create the
                     container just before a container cleaning period the container
                     would be immediately be deleted.
                  */
-                if (node.stat.getCversion() > 0) {
-                    candidates.add(containerPath);
-                } else {
+				if (node.stat.getCversion() > 0) {
+					candidates.add(containerPath);
+				} else {
                     /*
                         Users may not want unused containers to live indefinitely. Allow a system
                         property to be set that sets the max time for a cversion-0 container
                         to stay before being deleted
                      */
-                    if ((maxNeverUsedIntervalMs != 0) && (getElapsed(node) > maxNeverUsedIntervalMs)) {
-                        candidates.add(containerPath);
-                    }
-                }
-            }
-            if ((node != null) && (node.stat.getCversion() > 0) && (node.getChildren().isEmpty())) {
-                candidates.add(containerPath);
-            }
-        }
-        for (String ttlPath : zkDb.getDataTree().getTtls()) {
-            DataNode node = zkDb.getDataTree().getNode(ttlPath);
-            if (node != null) {
-                Set<String> children = node.getChildren();
-                if (children.isEmpty()) {
-                    if (EphemeralType.get(node.stat.getEphemeralOwner()) == EphemeralType.TTL) {
-                        long ttl = EphemeralType.TTL.getValue(node.stat.getEphemeralOwner());
-                        if ((ttl != 0) && (getElapsed(node) > ttl)) {
-                            candidates.add(ttlPath);
-                        }
-                    }
-                }
-            }
-        }
-        return candidates;
-    }
+					if ((maxNeverUsedIntervalMs != 0) && (getElapsed(node) > maxNeverUsedIntervalMs)) {
+						candidates.add(containerPath);
+					}
+				}
+			}
+			if ((node != null) && (node.stat.getCversion() > 0) && (node.getChildren().isEmpty())) {
+				candidates.add(containerPath);
+			}
+		}
+		for (String ttlPath : zkDb.getDataTree().getTtls()) {
+			DataNode node = zkDb.getDataTree().getNode(ttlPath);
+			if (node != null) {
+				Set<String> children = node.getChildren();
+				if (children.isEmpty()) {
+					if (EphemeralType.get(node.stat.getEphemeralOwner()) == EphemeralType.TTL) {
+						long ttl = EphemeralType.TTL.getValue(node.stat.getEphemeralOwner());
+						if ((ttl != 0) && (getElapsed(node) > ttl)) {
+							candidates.add(ttlPath);
+						}
+					}
+				}
+			}
+		}
+		return candidates;
+	}
 
-    // VisibleForTesting
-    protected long getElapsed(DataNode node) {
-        return Time.currentWallTime() - node.stat.getMtime();
-    }
+	// VisibleForTesting
+	protected long getElapsed(DataNode node) {
+		return Time.currentWallTime() - node.stat.getMtime();
+	}
 
 }

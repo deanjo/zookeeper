@@ -19,59 +19,60 @@
 package org.apache.zookeeper.server.quorum;
 
 import java.util.concurrent.LinkedBlockingQueue;
+
 import org.apache.zookeeper.server.Request;
 import org.apache.zookeeper.server.RequestProcessor;
 
 /**
  * Allows the blocking of the request processor queue on a ZooKeeperServer.
- *
+ * <p>
  * This is used to simulate arbitrary length delays or to produce delays
  * in request processing that are maximally inconvenient for a given feature
  * for the purposes of testing it.
  */
 public class DelayRequestProcessor implements RequestProcessor {
 
-    private boolean blocking;
-    RequestProcessor next;
+	private boolean blocking;
+	RequestProcessor next;
 
-    private LinkedBlockingQueue<Request> incomingRequests = new LinkedBlockingQueue<>();
+	private LinkedBlockingQueue<Request> incomingRequests = new LinkedBlockingQueue<>();
 
-    private DelayRequestProcessor(RequestProcessor next) {
-        this.blocking = true;
-        this.next = next;
-    }
+	private DelayRequestProcessor(RequestProcessor next) {
+		this.blocking = true;
+		this.next = next;
+	}
 
-    @Override
-    public void processRequest(Request request) throws RequestProcessorException {
-        if (blocking) {
-            incomingRequests.add(request);
-        } else {
-            next.processRequest(request);
-        }
-    }
+	@Override
+	public void processRequest(Request request) throws RequestProcessorException {
+		if (blocking) {
+			incomingRequests.add(request);
+		} else {
+			next.processRequest(request);
+		}
+	}
 
-    public void submitRequest(Request request) throws RequestProcessorException {
-        next.processRequest(request);
-    }
+	public void submitRequest(Request request) throws RequestProcessorException {
+		next.processRequest(request);
+	}
 
-    @Override
-    public void shutdown() {
-    }
+	@Override
+	public void shutdown() {
+	}
 
-    public void unblockQueue() throws RequestProcessorException {
-        if (blocking) {
-            for (Request request : incomingRequests) {
-                next.processRequest(request);
-            }
-            blocking = false;
-        }
-    }
+	public void unblockQueue() throws RequestProcessorException {
+		if (blocking) {
+			for (Request request : incomingRequests) {
+				next.processRequest(request);
+			}
+			blocking = false;
+		}
+	}
 
-    public static DelayRequestProcessor injectDelayRequestProcessor(FollowerZooKeeperServer zooKeeperServer) {
-        RequestProcessor finalRequestProcessor = zooKeeperServer.commitProcessor.nextProcessor;
-        DelayRequestProcessor delayRequestProcessor = new DelayRequestProcessor(finalRequestProcessor);
-        zooKeeperServer.commitProcessor.nextProcessor = delayRequestProcessor;
-        return delayRequestProcessor;
-    }
+	public static DelayRequestProcessor injectDelayRequestProcessor(FollowerZooKeeperServer zooKeeperServer) {
+		RequestProcessor finalRequestProcessor = zooKeeperServer.commitProcessor.nextProcessor;
+		DelayRequestProcessor delayRequestProcessor = new DelayRequestProcessor(finalRequestProcessor);
+		zooKeeperServer.commitProcessor.nextProcessor = delayRequestProcessor;
+		return delayRequestProcessor;
+	}
 
 }

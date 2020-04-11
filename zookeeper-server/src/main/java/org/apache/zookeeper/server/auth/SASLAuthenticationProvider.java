@@ -23,45 +23,45 @@ import org.apache.zookeeper.server.ServerCnxn;
 
 public class SASLAuthenticationProvider implements AuthenticationProvider {
 
-    public String getScheme() {
-        return "sasl";
-    }
+	public String getScheme() {
+		return "sasl";
+	}
 
-    public KeeperException.Code handleAuthentication(ServerCnxn cnxn, byte[] authData) {
-        // Should never call this: SASL authentication is negotiated at session initiation.
-        // TODO: consider substituting current implementation of direct ClientCnxn manipulation with
-        // a call to this method (SASLAuthenticationProvider:handleAuthentication()) at session initiation.
-        return KeeperException.Code.AUTHFAILED;
+	public KeeperException.Code handleAuthentication(ServerCnxn cnxn, byte[] authData) {
+		// Should never call this: SASL authentication is negotiated at session initiation.
+		// TODO: consider substituting current implementation of direct ClientCnxn manipulation with
+		// a call to this method (SASLAuthenticationProvider:handleAuthentication()) at session initiation.
+		return KeeperException.Code.AUTHFAILED;
 
-    }
+	}
 
-    public boolean matches(String id, String aclExpr) {
-        if ((id.equals("super") || id.equals(aclExpr))) {
-            return true;
-        }
-        String readAccessUser = System.getProperty("zookeeper.letAnySaslUserDoX");
-        return readAccessUser != null && aclExpr.equals(readAccessUser);
-    }
+	public boolean matches(String id, String aclExpr) {
+		if ((id.equals("super") || id.equals(aclExpr))) {
+			return true;
+		}
+		String readAccessUser = System.getProperty("zookeeper.letAnySaslUserDoX");
+		return readAccessUser != null && aclExpr.equals(readAccessUser);
+	}
 
-    public boolean isAuthenticated() {
-        return true;
-    }
+	public boolean isAuthenticated() {
+		return true;
+	}
 
-    public boolean isValid(String id) {
-        // Since the SASL authenticator will usually be used with Kerberos authentication,
-        // it should enforce that these names are valid according to Kerberos's
-        // syntax for principals.
-        //
-        // Use the KerberosName(id) constructor to define validity:
-        // if KerberosName(id) throws IllegalArgumentException, then id is invalid.
-        // otherwise, it is valid.
-        //
-        try {
-            new KerberosName(id);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
+	public boolean isValid(String id) {
+		// Since the SASL authenticator will usually be used with Kerberos authentication,
+		// it should enforce that these names are valid according to Kerberos's
+		// syntax for principals.
+		//
+		// Use the KerberosName(id) constructor to define validity:
+		// if KerberosName(id) throws IllegalArgumentException, then id is invalid.
+		// otherwise, it is valid.
+		//
+		try {
+			new KerberosName(id);
+			return true;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
 
 }

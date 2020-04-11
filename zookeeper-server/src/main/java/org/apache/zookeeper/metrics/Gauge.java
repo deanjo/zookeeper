@@ -24,13 +24,13 @@ package org.apache.zookeeper.metrics;
  */
 public interface Gauge {
 
-    /**
-     * Returns the current value associated with this gauge.
-     * The MetricsProvider will call this callback without taking care of synchronization, it is up to the application
-     * to handle thread safety.
-     *
-     * @return the current value for the gauge
-     */
-    Number get();
+	/**
+	 * Returns the current value associated with this gauge.
+	 * The MetricsProvider will call this callback without taking care of synchronization, it is up to the application
+	 * to handle thread safety.
+	 *
+	 * @return the current value for the gauge
+	 */
+	Number get();
 
 }

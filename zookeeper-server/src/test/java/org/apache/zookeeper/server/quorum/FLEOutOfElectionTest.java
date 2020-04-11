@@ -20,10 +20,12 @@ package org.apache.zookeeper.server.quorum;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.zookeeper.PortAssignment;
 import org.apache.zookeeper.server.quorum.FastLeaderElection.Notification;
 import org.apache.zookeeper.server.quorum.QuorumPeer.QuorumServer;
@@ -38,88 +40,88 @@ import org.junit.Test;
  */
 public class FLEOutOfElectionTest {
 
-    private FastLeaderElection fle;
+	private FastLeaderElection fle;
 
-    @Before
-    public void setUp() throws Exception {
-        File tmpdir = ClientBase.createTmpDir();
-        Map<Long, QuorumServer> peers = new HashMap<Long, QuorumServer>();
-        for (int i = 0; i < 5; i++) {
-            peers.put(Long.valueOf(i), new QuorumServer(Long.valueOf(i), new InetSocketAddress("127.0.0.1", PortAssignment.unique())));
-        }
-        QuorumPeer peer = new QuorumPeer(peers, tmpdir, tmpdir, PortAssignment.unique(), 3, 3, 1000, 2, 2, 2);
-        fle = new FastLeaderElection(peer, peer.createCnxnManager());
-    }
+	@Before
+	public void setUp() throws Exception {
+		File tmpdir = ClientBase.createTmpDir();
+		Map<Long, QuorumServer> peers = new HashMap<Long, QuorumServer>();
+		for (int i = 0; i < 5; i++) {
+			peers.put(Long.valueOf(i), new QuorumServer(Long.valueOf(i), new InetSocketAddress("127.0.0.1", PortAssignment.unique())));
+		}
+		QuorumPeer peer = new QuorumPeer(peers, tmpdir, tmpdir, PortAssignment.unique(), 3, 3, 1000, 2, 2, 2);
+		fle = new FastLeaderElection(peer, peer.createCnxnManager());
+	}
 
-    @Test
-    public void testIgnoringZxidElectionEpoch() {
-        Map<Long, Vote> votes = new HashMap<Long, Vote>();
-        votes.put(0L, new Vote(0x1, 4L, ZxidUtils.makeZxid(1, 1), 1, 2, ServerState.FOLLOWING));
-        votes.put(1L, new Vote(0x1, 4L, ZxidUtils.makeZxid(1, 2), 1, 2, ServerState.FOLLOWING));
-        votes.put(3L, new Vote(0x1, 4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.FOLLOWING));
-        votes.put(4L, new Vote(0x1, 4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.LEADING));
+	@Test
+	public void testIgnoringZxidElectionEpoch() {
+		Map<Long, Vote> votes = new HashMap<Long, Vote>();
+		votes.put(0L, new Vote(0x1, 4L, ZxidUtils.makeZxid(1, 1), 1, 2, ServerState.FOLLOWING));
+		votes.put(1L, new Vote(0x1, 4L, ZxidUtils.makeZxid(1, 2), 1, 2, ServerState.FOLLOWING));
+		votes.put(3L, new Vote(0x1, 4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.FOLLOWING));
+		votes.put(4L, new Vote(0x1, 4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.LEADING));
 
-        assertTrue(fle.getVoteTracker(votes, new Vote(4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.FOLLOWING)).hasAllQuorums());
-    }
+		assertTrue(fle.getVoteTracker(votes, new Vote(4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.FOLLOWING)).hasAllQuorums());
+	}
 
-    @Test
-    public void testElectionWIthDifferentVersion() {
-        Map<Long, Vote> votes = new HashMap<Long, Vote>();
-        votes.put(0L, new Vote(0x1, 4L, ZxidUtils.makeZxid(1, 1), 1, 1, ServerState.FOLLOWING));
-        votes.put(1L, new Vote(0x1, 4L, ZxidUtils.makeZxid(1, 1), 1, 1, ServerState.FOLLOWING));
-        votes.put(3L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.FOLLOWING));
-        votes.put(4L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.LEADING));
+	@Test
+	public void testElectionWIthDifferentVersion() {
+		Map<Long, Vote> votes = new HashMap<Long, Vote>();
+		votes.put(0L, new Vote(0x1, 4L, ZxidUtils.makeZxid(1, 1), 1, 1, ServerState.FOLLOWING));
+		votes.put(1L, new Vote(0x1, 4L, ZxidUtils.makeZxid(1, 1), 1, 1, ServerState.FOLLOWING));
+		votes.put(3L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.FOLLOWING));
+		votes.put(4L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.LEADING));
 
-        assertTrue(fle.getVoteTracker(votes, new Vote(4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.FOLLOWING)).hasAllQuorums());
-    }
+		assertTrue(fle.getVoteTracker(votes, new Vote(4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.FOLLOWING)).hasAllQuorums());
+	}
 
-    @Test
-    public void testLookingNormal() {
-        Map<Long, Vote> votes = new HashMap<Long, Vote>();
-        votes.put(0L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 1, 1, ServerState.LOOKING));
-        votes.put(1L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 1, 1, ServerState.LOOKING));
-        votes.put(3L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 1, 1, ServerState.LOOKING));
-        votes.put(4L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 1, 1, ServerState.LEADING));
+	@Test
+	public void testLookingNormal() {
+		Map<Long, Vote> votes = new HashMap<Long, Vote>();
+		votes.put(0L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 1, 1, ServerState.LOOKING));
+		votes.put(1L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 1, 1, ServerState.LOOKING));
+		votes.put(3L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 1, 1, ServerState.LOOKING));
+		votes.put(4L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 1, 1, ServerState.LEADING));
 
-        assertTrue(fle.getVoteTracker(votes, new Vote(4L, ZxidUtils.makeZxid(2, 1), 1, 1, ServerState.LOOKING)).hasAllQuorums());
-    }
+		assertTrue(fle.getVoteTracker(votes, new Vote(4L, ZxidUtils.makeZxid(2, 1), 1, 1, ServerState.LOOKING)).hasAllQuorums());
+	}
 
-    @Test
-    public void testLookingDiffRounds() {
-        HashMap<Long, Vote> votes = new HashMap<Long, Vote>();
-        votes.put(0L, new Vote(4L, ZxidUtils.makeZxid(1, 1), 1, 1, ServerState.LOOKING));
-        votes.put(1L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.LOOKING));
-        votes.put(3L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 3, 2, ServerState.LOOKING));
-        votes.put(4L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 3, 2, ServerState.LEADING));
+	@Test
+	public void testLookingDiffRounds() {
+		HashMap<Long, Vote> votes = new HashMap<Long, Vote>();
+		votes.put(0L, new Vote(4L, ZxidUtils.makeZxid(1, 1), 1, 1, ServerState.LOOKING));
+		votes.put(1L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.LOOKING));
+		votes.put(3L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 3, 2, ServerState.LOOKING));
+		votes.put(4L, new Vote(4L, ZxidUtils.makeZxid(2, 1), 3, 2, ServerState.LEADING));
 
-        assertFalse(fle.getVoteTracker(votes, new Vote(4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.LOOKING)).hasAllQuorums());
-    }
+		assertFalse(fle.getVoteTracker(votes, new Vote(4L, ZxidUtils.makeZxid(2, 1), 2, 2, ServerState.LOOKING)).hasAllQuorums());
+	}
 
-    @Test
-    public void testOutofElection() {
-        HashMap<Long, Vote> outofelection = new HashMap<Long, Vote>();
+	@Test
+	public void testOutofElection() {
+		HashMap<Long, Vote> outofelection = new HashMap<Long, Vote>();
 
-        outofelection.put(1L, new Vote(0x0, 5, ZxidUtils.makeZxid(15, 0), 0xa, 0x17, ServerState.FOLLOWING));
-        outofelection.put(2L, new Vote(0x0, 5, ZxidUtils.makeZxid(15, 0), 0xa, 0x17, ServerState.FOLLOWING));
-        outofelection.put(4L, new Vote(0x1, 5, ZxidUtils.makeZxid(15, 0), 0xa, 0x18, ServerState.FOLLOWING));
-        Vote vote = new Vote(0x1, 5, ZxidUtils.makeZxid(15, 0), 0xa, 0x18, ServerState.LEADING);
-        outofelection.put(5L, vote);
+		outofelection.put(1L, new Vote(0x0, 5, ZxidUtils.makeZxid(15, 0), 0xa, 0x17, ServerState.FOLLOWING));
+		outofelection.put(2L, new Vote(0x0, 5, ZxidUtils.makeZxid(15, 0), 0xa, 0x17, ServerState.FOLLOWING));
+		outofelection.put(4L, new Vote(0x1, 5, ZxidUtils.makeZxid(15, 0), 0xa, 0x18, ServerState.FOLLOWING));
+		Vote vote = new Vote(0x1, 5, ZxidUtils.makeZxid(15, 0), 0xa, 0x18, ServerState.LEADING);
+		outofelection.put(5L, vote);
 
-        Notification n = new Notification();
-        n.version = vote.getVersion();
-        n.leader = vote.getId();
-        n.zxid = vote.getZxid();
-        n.electionEpoch = vote.getElectionEpoch();
-        n.state = vote.getState();
-        n.peerEpoch = vote.getPeerEpoch();
-        n.sid = 5L;
+		Notification n = new Notification();
+		n.version = vote.getVersion();
+		n.leader = vote.getId();
+		n.zxid = vote.getZxid();
+		n.electionEpoch = vote.getElectionEpoch();
+		n.state = vote.getState();
+		n.peerEpoch = vote.getPeerEpoch();
+		n.sid = 5L;
 
-        // Set the logical clock to 1 on fle instance of server 3.
-        fle.logicalclock.set(0x1);
+		// Set the logical clock to 1 on fle instance of server 3.
+		fle.logicalclock.set(0x1);
 
-        assertTrue("Quorum check failed", fle.getVoteTracker(outofelection, new Vote(n.version, n.leader, n.zxid, n.electionEpoch, n.peerEpoch, n.state)).hasAllQuorums());
+		assertTrue("Quorum check failed", fle.getVoteTracker(outofelection, new Vote(n.version, n.leader, n.zxid, n.electionEpoch, n.peerEpoch, n.state)).hasAllQuorums());
 
-        assertTrue("Leader check failed", fle.checkLeader(outofelection, n.leader, n.electionEpoch));
-    }
+		assertTrue("Leader check failed", fle.checkLeader(outofelection, n.leader, n.electionEpoch));
+	}
 
 }

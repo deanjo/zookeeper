@@ -26,12 +26,12 @@ import java.util.Set;
 /**
  * Using BitSet to store all the elements, and use HashSet to cache limited
  * number of elements to find a balance between memory and time complexity.
- *
+ * <p>
  * Without HashSet, we need to use O(N) time to get the elements, N is
  * the bit numbers in elementBits. But we need to keep the size small to make
  * sure it doesn't cost too much in memory, there is a trade off between
  * memory and time complexity.
- *
+ * <p>
  * Previously, was deciding to dynamically switch between SparseBitSet and
  * HashSet based on the memory consumption, but it will take time to copy
  * data over and may have some herd effect of keep copying data from one
@@ -40,123 +40,123 @@ import java.util.Set;
  */
 public class BitHashSet implements Iterable<Integer> {
 
-    /**
-     * Change to SparseBitSet if we we want to optimize more, the number of
-     * elements on a single server is usually limited, so BitSet should be
-     * fine.
-     */
-    private final BitSet elementBits = new BitSet();
+	/**
+	 * Change to SparseBitSet if we we want to optimize more, the number of
+	 * elements on a single server is usually limited, so BitSet should be
+	 * fine.
+	 */
+	private final BitSet elementBits = new BitSet();
 
-    /**
-     * HashSet is used to optimize the iterating, if there is a single
-     * element in this BitHashSet, but the bit is very large, without
-     * HashSet we need to go through all the words before return that
-     * element, which is not efficient.
-     */
-    private final Set<Integer> cache = new HashSet<Integer>();
+	/**
+	 * HashSet is used to optimize the iterating, if there is a single
+	 * element in this BitHashSet, but the bit is very large, without
+	 * HashSet we need to go through all the words before return that
+	 * element, which is not efficient.
+	 */
+	private final Set<Integer> cache = new HashSet<Integer>();
 
-    private final int cacheSize;
+	private final int cacheSize;
 
-    // To record how many elements in this set.
-    private int elementCount = 0;
+	// To record how many elements in this set.
+	private int elementCount = 0;
 
-    public BitHashSet() {
-        this(Integer.getInteger("zookeeper.bitHashCacheSize", 10));
-    }
+	public BitHashSet() {
+		this(Integer.getInteger("zookeeper.bitHashCacheSize", 10));
+	}
 
-    public BitHashSet(int cacheSize) {
-        this.cacheSize = cacheSize;
-    }
+	public BitHashSet(int cacheSize) {
+		this.cacheSize = cacheSize;
+	}
 
-    public synchronized boolean add(Integer elementBit) {
-        if (elementBit == null || elementBits.get(elementBit)) {
-            return false;
-        }
-        if (cache.size() < cacheSize) {
-            cache.add(elementBit);
-        }
-        elementBits.set(elementBit);
-        elementCount++;
-        return true;
-    }
+	public synchronized boolean add(Integer elementBit) {
+		if (elementBit == null || elementBits.get(elementBit)) {
+			return false;
+		}
+		if (cache.size() < cacheSize) {
+			cache.add(elementBit);
+		}
+		elementBits.set(elementBit);
+		elementCount++;
+		return true;
+	}
 
-    /**
-     * Remove the watches, and return the number of watches being removed.
-     */
-    public synchronized int remove(Set<Integer> bitSet, BitSet bits) {
-        cache.removeAll(bitSet);
-        elementBits.andNot(bits);
-        int elementCountBefore = elementCount;
-        elementCount = elementBits.cardinality();
-        return elementCountBefore - elementCount;
-    }
+	/**
+	 * Remove the watches, and return the number of watches being removed.
+	 */
+	public synchronized int remove(Set<Integer> bitSet, BitSet bits) {
+		cache.removeAll(bitSet);
+		elementBits.andNot(bits);
+		int elementCountBefore = elementCount;
+		elementCount = elementBits.cardinality();
+		return elementCountBefore - elementCount;
+	}
 
-    public synchronized boolean remove(Integer elementBit) {
-        if (elementBit == null || !elementBits.get(elementBit)) {
-            return false;
-        }
+	public synchronized boolean remove(Integer elementBit) {
+		if (elementBit == null || !elementBits.get(elementBit)) {
+			return false;
+		}
 
-        cache.remove(elementBit);
-        elementBits.clear(elementBit);
-        elementCount--;
-        return true;
-    }
+		cache.remove(elementBit);
+		elementBits.clear(elementBit);
+		elementCount--;
+		return true;
+	}
 
-    public synchronized boolean contains(Integer elementBit) {
-        if (elementBit == null) {
-            return false;
-        }
-        return elementBits.get(elementBit);
-    }
+	public synchronized boolean contains(Integer elementBit) {
+		if (elementBit == null) {
+			return false;
+		}
+		return elementBits.get(elementBit);
+	}
 
-    public synchronized int size() {
-        return elementCount;
-    }
+	public synchronized int size() {
+		return elementCount;
+	}
 
-    /**
-     * This function is not thread-safe, need to synchronized when
-     * iterate through this set.
-     */
-    @Override
-    public Iterator<Integer> iterator() {
-        // sample current size at the beginning
-        int currentSize = size();
+	/**
+	 * This function is not thread-safe, need to synchronized when
+	 * iterate through this set.
+	 */
+	@Override
+	public Iterator<Integer> iterator() {
+		// sample current size at the beginning
+		int currentSize = size();
 
-        if (cache.size() == currentSize) {
-            return cache.iterator();
-        }
+		if (cache.size() == currentSize) {
+			return cache.iterator();
+		}
 
-        return new Iterator<Integer>() {
-            int returnedCount = 0;
-            int bitIndex = 0;
+		return new Iterator<Integer>() {
+			int returnedCount = 0;
+			int bitIndex = 0;
 
-            @Override
-            public boolean hasNext() {
-                return returnedCount < currentSize;
-            }
+			@Override
+			public boolean hasNext() {
+				return returnedCount < currentSize;
+			}
 
-            @Override
-            public Integer next() {
-                int bit = elementBits.nextSetBit(bitIndex);
-                bitIndex = bit + 1;
-                returnedCount++;
-                return bit;
-            }
+			@Override
+			public Integer next() {
+				int bit = elementBits.nextSetBit(bitIndex);
+				bitIndex = bit + 1;
+				returnedCount++;
+				return bit;
+			}
 
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        };
-    }
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
+	}
 
-    // visible for test
-    public synchronized int cachedSize() {
-        return cache.size();
-    }
+	// visible for test
+	public synchronized int cachedSize() {
+		return cache.size();
+	}
 
-    public synchronized boolean isEmpty() {
-        return elementCount == 0;
-    }
+	public synchronized boolean isEmpty() {
+		return elementCount == 0;
+	}
 
 }

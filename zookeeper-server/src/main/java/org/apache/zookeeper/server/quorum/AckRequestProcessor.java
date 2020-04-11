@@ -30,28 +30,28 @@ import org.slf4j.LoggerFactory;
  */
 class AckRequestProcessor implements RequestProcessor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AckRequestProcessor.class);
-    Leader leader;
+	private static final Logger LOG = LoggerFactory.getLogger(AckRequestProcessor.class);
+	Leader leader;
 
-    AckRequestProcessor(Leader leader) {
-        this.leader = leader;
-    }
+	AckRequestProcessor(Leader leader) {
+		this.leader = leader;
+	}
 
-    /**
-     * Forward the request as an ACK to the leader
-     */
-    public void processRequest(Request request) {
-        QuorumPeer self = leader.self;
-        if (self != null) {
-            request.logLatency(ServerMetrics.getMetrics().PROPOSAL_ACK_CREATION_LATENCY);
-            leader.processAck(self.getId(), request.zxid, null);
-        } else {
-            LOG.error("Null QuorumPeer");
-        }
-    }
+	/**
+	 * Forward the request as an ACK to the leader
+	 */
+	public void processRequest(Request request) {
+		QuorumPeer self = leader.self;
+		if (self != null) {
+			request.logLatency(ServerMetrics.getMetrics().PROPOSAL_ACK_CREATION_LATENCY);
+			leader.processAck(self.getId(), request.zxid, null);
+		} else {
+			LOG.error("Null QuorumPeer");
+		}
+	}
 
-    public void shutdown() {
-        // TODO No need to do anything
-    }
+	public void shutdown() {
+		// TODO No need to do anything
+	}
 
 }

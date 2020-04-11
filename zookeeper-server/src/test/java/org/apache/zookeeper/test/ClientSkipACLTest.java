@@ -23,14 +23,14 @@ import org.junit.BeforeClass;
 
 public class ClientSkipACLTest extends ClientTest {
 
-    @BeforeClass
-    public static void setup() {
-        System.setProperty("zookeeper.skipACL", "yes");
-    }
+	@BeforeClass
+	public static void setup() {
+		System.setProperty("zookeeper.skipACL", "yes");
+	}
 
-    @AfterClass
-    public static void teardown() {
-        System.clearProperty("zookeeper.skipACL");
-    }
+	@AfterClass
+	public static void teardown() {
+		System.clearProperty("zookeeper.skipACL");
+	}
 
 }

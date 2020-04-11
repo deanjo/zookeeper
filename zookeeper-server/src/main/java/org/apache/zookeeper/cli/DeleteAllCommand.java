@@ -32,59 +32,59 @@ import org.apache.zookeeper.ZKUtil;
  */
 public class DeleteAllCommand extends CliCommand {
 
-    private static Options options = new Options();
-    private String[] args;
-    private CommandLine cl;
+	private static Options options = new Options();
+	private String[] args;
+	private CommandLine cl;
 
-    static {
-        options.addOption(new Option("b", true, "batch size"));
-    }
+	static {
+		options.addOption(new Option("b", true, "batch size"));
+	}
 
-    public DeleteAllCommand() {
-        this("deleteall");
-    }
+	public DeleteAllCommand() {
+		this("deleteall");
+	}
 
-    public DeleteAllCommand(String cmdStr) {
-        super(cmdStr, "path [-b batch size]");
-    }
+	public DeleteAllCommand(String cmdStr) {
+		super(cmdStr, "path [-b batch size]");
+	}
 
-    @Override
-    public CliCommand parse(String[] cmdArgs) throws CliParseException {
-        Parser parser = new PosixParser();
-        try {
-            cl = parser.parse(options, cmdArgs);
-        } catch (ParseException ex) {
-            throw new CliParseException(ex);
-        }
-        args = cl.getArgs();
-        if (args.length < 2) {
-            throw new CliParseException(getUsageStr());
-        }
+	@Override
+	public CliCommand parse(String[] cmdArgs) throws CliParseException {
+		Parser parser = new PosixParser();
+		try {
+			cl = parser.parse(options, cmdArgs);
+		} catch (ParseException ex) {
+			throw new CliParseException(ex);
+		}
+		args = cl.getArgs();
+		if (args.length < 2) {
+			throw new CliParseException(getUsageStr());
+		}
 
-        return this;
-    }
+		return this;
+	}
 
-    @Override
-    public boolean exec() throws CliException {
-        int batchSize;
-        try {
-            batchSize = cl.hasOption("b") ? Integer.parseInt(cl.getOptionValue("b")) : 1000;
-        } catch (NumberFormatException e) {
-            throw new MalformedCommandException("-b argument must be an int value");
-        }
+	@Override
+	public boolean exec() throws CliException {
+		int batchSize;
+		try {
+			batchSize = cl.hasOption("b") ? Integer.parseInt(cl.getOptionValue("b")) : 1000;
+		} catch (NumberFormatException e) {
+			throw new MalformedCommandException("-b argument must be an int value");
+		}
 
-        String path = args[1];
-        try {
-            boolean success = ZKUtil.deleteRecursive(zk, path, batchSize);
-            if (!success) {
-                err.println("Failed to delete some node(s) in the subtree!");
-            }
-        } catch (IllegalArgumentException ex) {
-            throw new MalformedPathException(ex.getMessage());
-        } catch (KeeperException | InterruptedException ex) {
-            throw new CliWrapperException(ex);
-        }
-        return false;
-    }
+		String path = args[1];
+		try {
+			boolean success = ZKUtil.deleteRecursive(zk, path, batchSize);
+			if (!success) {
+				err.println("Failed to delete some node(s) in the subtree!");
+			}
+		} catch (IllegalArgumentException ex) {
+			throw new MalformedPathException(ex.getMessage());
+		} catch (KeeperException | InterruptedException ex) {
+			throw new CliWrapperException(ex);
+		}
+		return false;
+	}
 
 }

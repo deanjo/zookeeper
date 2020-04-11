@@ -19,6 +19,7 @@
 package org.apache.zookeeper;
 
 import java.nio.ByteBuffer;
+
 import org.apache.jute.Record;
 import org.apache.zookeeper.ZooKeeper.WatchRegistration;
 import org.apache.zookeeper.proto.ReplyHeader;
@@ -26,28 +27,28 @@ import org.apache.zookeeper.proto.RequestHeader;
 
 public class MockPacket extends ClientCnxn.Packet {
 
-    public MockPacket(
-        RequestHeader requestHeader,
-        ReplyHeader replyHeader,
-        Record request,
-        Record response,
-        WatchRegistration watchRegistration) {
-        super(requestHeader, replyHeader, request, response, watchRegistration);
-    }
+	public MockPacket(
+		RequestHeader requestHeader,
+		ReplyHeader replyHeader,
+		Record request,
+		Record response,
+		WatchRegistration watchRegistration) {
+		super(requestHeader, replyHeader, request, response, watchRegistration);
+	}
 
-    public MockPacket(
-        RequestHeader requestHeader,
-        ReplyHeader replyHeader,
-        Record request,
-        Record response,
-        WatchRegistration watchRegistration,
-        boolean readOnly) {
-        super(requestHeader, replyHeader, request, response, watchRegistration, readOnly);
-    }
+	public MockPacket(
+		RequestHeader requestHeader,
+		ReplyHeader replyHeader,
+		Record request,
+		Record response,
+		WatchRegistration watchRegistration,
+		boolean readOnly) {
+		super(requestHeader, replyHeader, request, response, watchRegistration, readOnly);
+	}
 
-    public ByteBuffer createAndReturnBB() {
-        createBB();
-        return this.bb;
-    }
+	public ByteBuffer createAndReturnBB() {
+		createBB();
+		return this.bb;
+	}
 
 }

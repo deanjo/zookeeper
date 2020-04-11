@@ -20,32 +20,34 @@ package org.apache.zookeeper.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
 import java.util.EnumSet;
+
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.ZKTestCase;
 import org.junit.Test;
 
 public class EventTypeTest extends ZKTestCase {
 
-    @Test
-    public void testIntConversion() {
-        // Ensure that we can convert all valid integers to EventTypes
-        EnumSet<EventType> allTypes = EnumSet.allOf(EventType.class);
+	@Test
+	public void testIntConversion() {
+		// Ensure that we can convert all valid integers to EventTypes
+		EnumSet<EventType> allTypes = EnumSet.allOf(EventType.class);
 
-        for (EventType et : allTypes) {
-            assertEquals(et, EventType.fromInt(et.getIntValue()));
-        }
-    }
+		for (EventType et : allTypes) {
+			assertEquals(et, EventType.fromInt(et.getIntValue()));
+		}
+	}
 
-    @Test
-    public void testInvalidIntConversion() {
-        try {
-            EventType.fromInt(324242);
-            fail("Was able to create an invalid EventType via an integer");
-        } catch (RuntimeException re) {
-            // we're good.
-        }
+	@Test
+	public void testInvalidIntConversion() {
+		try {
+			EventType.fromInt(324242);
+			fail("Was able to create an invalid EventType via an integer");
+		} catch (RuntimeException re) {
+			// we're good.
+		}
 
-    }
+	}
 
 }

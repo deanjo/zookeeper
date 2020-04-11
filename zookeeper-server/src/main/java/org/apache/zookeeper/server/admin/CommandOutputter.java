@@ -28,9 +28,11 @@ import java.io.PrintWriter;
  */
 public interface CommandOutputter {
 
-    /** The MIME type of this output (e.g., "application/json") */
-    String getContentType();
+	/**
+	 * The MIME type of this output (e.g., "application/json")
+	 */
+	String getContentType();
 
-    void output(CommandResponse response, PrintWriter pw);
+	void output(CommandResponse response, PrintWriter pw);
 
 }

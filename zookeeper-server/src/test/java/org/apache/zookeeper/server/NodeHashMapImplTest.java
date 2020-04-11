@@ -20,8 +20,10 @@ package org.apache.zookeeper.server;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.zookeeper.ZKTestCase;
 import org.apache.zookeeper.data.StatPersisted;
 import org.junit.After;
@@ -30,68 +32,68 @@ import org.junit.Test;
 
 public class NodeHashMapImplTest extends ZKTestCase {
 
-    @Before
-    public void setUp() {
-        ZooKeeperServer.setDigestEnabled(true);
-    }
+	@Before
+	public void setUp() {
+		ZooKeeperServer.setDigestEnabled(true);
+	}
 
-    @After
-    public void tearDown() {
-        ZooKeeperServer.setDigestEnabled(false);
-    }
+	@After
+	public void tearDown() {
+		ZooKeeperServer.setDigestEnabled(false);
+	}
 
-    /**
-     * Test all the operations supported in NodeHashMapImpl.
-     */
-    @Test
-    public void testOperations() {
-        NodeHashMapImpl nodes = new NodeHashMapImpl(new DigestCalculator());
+	/**
+	 * Test all the operations supported in NodeHashMapImpl.
+	 */
+	@Test
+	public void testOperations() {
+		NodeHashMapImpl nodes = new NodeHashMapImpl(new DigestCalculator());
 
-        assertEquals(0, nodes.size());
-        assertEquals(0L, nodes.getDigest());
+		assertEquals(0, nodes.size());
+		assertEquals(0L, nodes.getDigest());
 
-        // add a new node
-        String p1 = "p1";
-        DataNode n1 = new DataNode(p1.getBytes(), 0L, new StatPersisted());
-        nodes.put(p1, n1);
+		// add a new node
+		String p1 = "p1";
+		DataNode n1 = new DataNode(p1.getBytes(), 0L, new StatPersisted());
+		nodes.put(p1, n1);
 
-        assertEquals(n1, nodes.get(p1));
-        assertNotEquals(0L, nodes.getDigest());
-        assertEquals(1, nodes.size());
+		assertEquals(n1, nodes.get(p1));
+		assertNotEquals(0L, nodes.getDigest());
+		assertEquals(1, nodes.size());
 
-        // put another node
-        String p2 = "p2";
-        nodes.put(p2, new DataNode(p2.getBytes(), 0L, new StatPersisted()));
+		// put another node
+		String p2 = "p2";
+		nodes.put(p2, new DataNode(p2.getBytes(), 0L, new StatPersisted()));
 
-        Set<Map.Entry<String, DataNode>> entries = nodes.entrySet();
-        assertEquals(2, entries.size());
+		Set<Map.Entry<String, DataNode>> entries = nodes.entrySet();
+		assertEquals(2, entries.size());
 
-        // remove a node
-        nodes.remove(p1);
-        assertEquals(1, nodes.size());
+		// remove a node
+		nodes.remove(p1);
+		assertEquals(1, nodes.size());
 
-        nodes.remove(p2);
-        assertEquals(0, nodes.size());
-        assertEquals(0L, nodes.getDigest());
+		nodes.remove(p2);
+		assertEquals(0, nodes.size());
+		assertEquals(0L, nodes.getDigest());
 
-        // test preChange and postChange
-        String p3 = "p3";
-        DataNode n3 = new DataNode(p3.getBytes(), 0L, new StatPersisted());
-        nodes.put(p3, n3);
-        long preChangeDigest = nodes.getDigest();
-        assertNotEquals(0L, preChangeDigest);
+		// test preChange and postChange
+		String p3 = "p3";
+		DataNode n3 = new DataNode(p3.getBytes(), 0L, new StatPersisted());
+		nodes.put(p3, n3);
+		long preChangeDigest = nodes.getDigest();
+		assertNotEquals(0L, preChangeDigest);
 
-        nodes.preChange(p3, n3);
-        assertEquals(0L, nodes.getDigest());
+		nodes.preChange(p3, n3);
+		assertEquals(0L, nodes.getDigest());
 
-        n3.stat.setMzxid(1);
-        n3.stat.setMtime(1);
-        n3.stat.setVersion(1);
-        nodes.postChange(p3, n3);
+		n3.stat.setMzxid(1);
+		n3.stat.setMtime(1);
+		n3.stat.setVersion(1);
+		nodes.postChange(p3, n3);
 
-        long postChangeDigest = nodes.getDigest();
-        assertNotEquals(0, postChangeDigest);
-        assertNotEquals(preChangeDigest, postChangeDigest);
-    }
+		long postChangeDigest = nodes.getDigest();
+		assertNotEquals(0, postChangeDigest);
+		assertNotEquals(preChangeDigest, postChangeDigest);
+	}
 
 }

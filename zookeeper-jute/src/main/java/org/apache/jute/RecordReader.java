@@ -30,54 +30,54 @@ import java.util.HashMap;
  */
 public class RecordReader {
 
-    private static  HashMap<String, Method> archiveFactory;
+	private static HashMap<String, Method> archiveFactory;
 
-    private InputArchive archive;
+	private InputArchive archive;
 
-    static {
-        archiveFactory = new HashMap<>();
+	static {
+		archiveFactory = new HashMap<>();
 
-        try {
-            archiveFactory.put(
-                    "binary",
-                    BinaryInputArchive.class.getDeclaredMethod("getArchive", InputStream.class));
-        } catch (SecurityException | NoSuchMethodException ex) {
-            ex.printStackTrace();
-        }
-    }
+		try {
+			archiveFactory.put(
+				"binary",
+				BinaryInputArchive.class.getDeclaredMethod("getArchive", InputStream.class));
+		} catch (SecurityException | NoSuchMethodException ex) {
+			ex.printStackTrace();
+		}
+	}
 
-    private static InputArchive createArchive(InputStream in, String format) {
-        Method factory = archiveFactory.get(format);
+	private static InputArchive createArchive(InputStream in, String format) {
+		Method factory = archiveFactory.get(format);
 
-        if (factory != null) {
-            Object[] params = {in};
-            try {
-                return (InputArchive) factory.invoke(null, params);
-            } catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException ex) {
-                ex.printStackTrace();
-            }
-        }
+		if (factory != null) {
+			Object[] params = {in};
+			try {
+				return (InputArchive) factory.invoke(null, params);
+			} catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException ex) {
+				ex.printStackTrace();
+			}
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    /**
-     * Creates a new instance of RecordReader.
-     *
-     * @param in     Stream from which to deserialize a record
-     * @param format Deserialization format ("binary", "xml", or "csv")
-     */
-    public RecordReader(InputStream in, String format) {
-        archive = createArchive(in, format);
-    }
+	/**
+	 * Creates a new instance of RecordReader.
+	 *
+	 * @param in     Stream from which to deserialize a record
+	 * @param format Deserialization format ("binary", "xml", or "csv")
+	 */
+	public RecordReader(InputStream in, String format) {
+		archive = createArchive(in, format);
+	}
 
-    /**
-     * Deserialize a record.
-     *
-     * @param r Record to be deserialized
-     */
-    public void read(Record r) throws IOException {
-        r.deserialize(archive, "");
-    }
+	/**
+	 * Deserialize a record.
+	 *
+	 * @param r Record to be deserialized
+	 */
+	public void read(Record r) throws IOException {
+		r.deserialize(archive, "");
+	}
 
 }

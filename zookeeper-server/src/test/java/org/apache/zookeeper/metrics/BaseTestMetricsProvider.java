@@ -22,6 +22,7 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+
 import org.apache.zookeeper.metrics.impl.NullMetricsProvider;
 
 /**
@@ -29,117 +30,117 @@ import org.apache.zookeeper.metrics.impl.NullMetricsProvider;
  */
 public abstract class BaseTestMetricsProvider implements MetricsProvider {
 
-    @Override
-    public void configure(Properties prprts) throws MetricsProviderLifeCycleException {
-    }
+	@Override
+	public void configure(Properties prprts) throws MetricsProviderLifeCycleException {
+	}
 
-    @Override
-    public void start() throws MetricsProviderLifeCycleException {
-    }
+	@Override
+	public void start() throws MetricsProviderLifeCycleException {
+	}
 
-    @Override
-    public MetricsContext getRootContext() {
-        return NullMetricsProvider.NullMetricsContext.INSTANCE;
-    }
+	@Override
+	public MetricsContext getRootContext() {
+		return NullMetricsProvider.NullMetricsContext.INSTANCE;
+	}
 
-    @Override
-    public void stop() {
-    }
+	@Override
+	public void stop() {
+	}
 
-    @Override
-    public void dump(BiConsumer<String, Object> sink) {
-    }
+	@Override
+	public void dump(BiConsumer<String, Object> sink) {
+	}
 
-    @Override
-    public void resetAllValues() {
-    }
+	@Override
+	public void resetAllValues() {
+	}
 
-    public static final class MetricsProviderCapturingLifecycle extends BaseTestMetricsProvider {
+	public static final class MetricsProviderCapturingLifecycle extends BaseTestMetricsProvider {
 
-        public static final AtomicBoolean configureCalled = new AtomicBoolean();
-        public static final AtomicBoolean startCalled = new AtomicBoolean();
-        public static final AtomicBoolean stopCalled = new AtomicBoolean();
-        public static final AtomicBoolean getRootContextCalled = new AtomicBoolean();
+		public static final AtomicBoolean configureCalled = new AtomicBoolean();
+		public static final AtomicBoolean startCalled = new AtomicBoolean();
+		public static final AtomicBoolean stopCalled = new AtomicBoolean();
+		public static final AtomicBoolean getRootContextCalled = new AtomicBoolean();
 
-        public static void reset() {
-            configureCalled.set(false);
-            startCalled.set(false);
-            stopCalled.set(false);
-            getRootContextCalled.set(false);
-        }
+		public static void reset() {
+			configureCalled.set(false);
+			startCalled.set(false);
+			stopCalled.set(false);
+			getRootContextCalled.set(false);
+		}
 
-        @Override
-        public void configure(Properties prprts) throws MetricsProviderLifeCycleException {
-            if (!configureCalled.compareAndSet(false, true)) {
-                // called twice
-                throw new IllegalStateException();
-            }
-        }
+		@Override
+		public void configure(Properties prprts) throws MetricsProviderLifeCycleException {
+			if (!configureCalled.compareAndSet(false, true)) {
+				// called twice
+				throw new IllegalStateException();
+			}
+		}
 
-        @Override
-        public void start() throws MetricsProviderLifeCycleException {
-            if (!startCalled.compareAndSet(false, true)) {
-                // called twice
-                throw new IllegalStateException();
-            }
-        }
+		@Override
+		public void start() throws MetricsProviderLifeCycleException {
+			if (!startCalled.compareAndSet(false, true)) {
+				// called twice
+				throw new IllegalStateException();
+			}
+		}
 
-        @Override
-        public MetricsContext getRootContext() {
-            getRootContextCalled.set(true);
+		@Override
+		public MetricsContext getRootContext() {
+			getRootContextCalled.set(true);
 
-            return NullMetricsProvider.NullMetricsContext.INSTANCE;
-        }
+			return NullMetricsProvider.NullMetricsContext.INSTANCE;
+		}
 
-        @Override
-        public void stop() {
-            if (!stopCalled.compareAndSet(false, true)) {
-                // called twice
-                throw new IllegalStateException();
-            }
-        }
+		@Override
+		public void stop() {
+			if (!stopCalled.compareAndSet(false, true)) {
+				// called twice
+				throw new IllegalStateException();
+			}
+		}
 
-    }
+	}
 
-    public static final class MetricsProviderWithErrorInStart extends BaseTestMetricsProvider {
+	public static final class MetricsProviderWithErrorInStart extends BaseTestMetricsProvider {
 
-        @Override
-        public void start() throws MetricsProviderLifeCycleException {
-            throw new MetricsProviderLifeCycleException();
-        }
+		@Override
+		public void start() throws MetricsProviderLifeCycleException {
+			throw new MetricsProviderLifeCycleException();
+		}
 
-    }
+	}
 
-    public static final class MetricsProviderWithErrorInConfigure extends BaseTestMetricsProvider {
+	public static final class MetricsProviderWithErrorInConfigure extends BaseTestMetricsProvider {
 
-        @Override
-        public void configure(Properties prprts) throws MetricsProviderLifeCycleException {
-            throw new MetricsProviderLifeCycleException();
-        }
+		@Override
+		public void configure(Properties prprts) throws MetricsProviderLifeCycleException {
+			throw new MetricsProviderLifeCycleException();
+		}
 
-    }
+	}
 
-    public static final class MetricsProviderWithConfiguration extends BaseTestMetricsProvider {
+	public static final class MetricsProviderWithConfiguration extends BaseTestMetricsProvider {
 
-        public static final AtomicInteger httpPort = new AtomicInteger();
+		public static final AtomicInteger httpPort = new AtomicInteger();
 
-        @Override
-        public void configure(Properties prprts) throws MetricsProviderLifeCycleException {
-            httpPort.set(Integer.parseInt(prprts.getProperty("httpPort")));
-        }
+		@Override
+		public void configure(Properties prprts) throws MetricsProviderLifeCycleException {
+			httpPort.set(Integer.parseInt(prprts.getProperty("httpPort")));
+		}
 
-    }
+	}
 
-    public static final class MetricsProviderWithErrorInStop extends BaseTestMetricsProvider {
+	public static final class MetricsProviderWithErrorInStop extends BaseTestMetricsProvider {
 
-        public static final AtomicBoolean stopCalled = new AtomicBoolean();
+		public static final AtomicBoolean stopCalled = new AtomicBoolean();
 
-        @Override
-        public void stop() {
-            stopCalled.set(true);
-            throw new RuntimeException();
-        }
+		@Override
+		public void stop() {
+			stopCalled.set(true);
+			throw new RuntimeException();
+		}
 
-    }
+	}
 
 }

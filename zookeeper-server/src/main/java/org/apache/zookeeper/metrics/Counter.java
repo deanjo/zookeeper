@@ -24,28 +24,28 @@ package org.apache.zookeeper.metrics;
  */
 public interface Counter {
 
-    /**
-     * Increment the value by one.
-     * <p>This method is thread safe, The MetricsProvider will take care of synchronization.</p>
-     */
-    default void inc() {
-        add(1);
-    }
+	/**
+	 * Increment the value by one.
+	 * <p>This method is thread safe, The MetricsProvider will take care of synchronization.</p>
+	 */
+	default void inc() {
+		add(1);
+	}
 
-    /**
-     * Increment the value by a given amount.
-     * <p>This method is thread safe, The MetricsProvider will take care of synchronization.</p>
-     *
-     * @param delta amount to increment, this cannot be a negative number.
-     */
-    void add(long delta);
+	/**
+	 * Increment the value by a given amount.
+	 * <p>This method is thread safe, The MetricsProvider will take care of synchronization.</p>
+	 *
+	 * @param delta amount to increment, this cannot be a negative number.
+	 */
+	void add(long delta);
 
-    /**
-     * Get the current value held by the counter.
-     * <p>This method is thread safe, The MetricsProvider will take care of synchronization.</p>
-     *
-     * @return the current value
-     */
-    long get();
+	/**
+	 * Get the current value held by the counter.
+	 * <p>This method is thread safe, The MetricsProvider will take care of synchronization.</p>
+	 *
+	 * @return the current value
+	 */
+	long get();
 
 }

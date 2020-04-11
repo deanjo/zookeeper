@@ -18,6 +18,7 @@
 package org.apache.zookeeper.cli;
 
 import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -30,46 +31,46 @@ import org.apache.zookeeper.KeeperException;
  */
 public class GetEphemeralsCommand extends CliCommand {
 
-    private static Options options = new Options();
-    private String[] args;
+	private static Options options = new Options();
+	private String[] args;
 
-    public GetEphemeralsCommand() {
-        super("getEphemerals", "path");
-    }
+	public GetEphemeralsCommand() {
+		super("getEphemerals", "path");
+	}
 
-    @Override
-    public CliCommand parse(String[] cmdArgs) throws CliParseException {
-        Parser parser = new PosixParser();
-        CommandLine cl;
-        try {
-            cl = parser.parse(options, cmdArgs);
-        } catch (ParseException ex) {
-            throw new CliParseException(ex);
-        }
-        args = cl.getArgs();
+	@Override
+	public CliCommand parse(String[] cmdArgs) throws CliParseException {
+		Parser parser = new PosixParser();
+		CommandLine cl;
+		try {
+			cl = parser.parse(options, cmdArgs);
+		} catch (ParseException ex) {
+			throw new CliParseException(ex);
+		}
+		args = cl.getArgs();
 
-        return this;
-    }
+		return this;
+	}
 
-    @Override
-    public boolean exec() throws CliException {
-        String path;
-        List<String> ephemerals;
-        try {
-            if (args.length < 2) {
-                // gets all the ephemeral nodes for the session
-                ephemerals = zk.getEphemerals();
-            } else {
-                path = args[1];
-                ephemerals = zk.getEphemerals(path);
-            }
-        } catch (IllegalArgumentException ex) {
-            throw new MalformedPathException(ex.getMessage());
-        } catch (KeeperException | InterruptedException ex) {
-            throw new CliWrapperException(ex);
-        }
-        out.println(ephemerals);
-        return false;
-    }
+	@Override
+	public boolean exec() throws CliException {
+		String path;
+		List<String> ephemerals;
+		try {
+			if (args.length < 2) {
+				// gets all the ephemeral nodes for the session
+				ephemerals = zk.getEphemerals();
+			} else {
+				path = args[1];
+				ephemerals = zk.getEphemerals(path);
+			}
+		} catch (IllegalArgumentException ex) {
+			throw new MalformedPathException(ex.getMessage());
+		} catch (KeeperException | InterruptedException ex) {
+			throw new CliWrapperException(ex);
+		}
+		out.println(ephemerals);
+		return false;
+	}
 
 }

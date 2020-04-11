@@ -19,7 +19,9 @@
 package org.apache.zookeeper.test;
 
 import static org.junit.Assert.fail;
+
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.zookeeper.KeeperException.SessionExpiredException;
 import org.apache.zookeeper.ZKTestCase;
 import org.apache.zookeeper.server.SessionTracker.Session;
@@ -39,183 +41,183 @@ import org.slf4j.LoggerFactory;
  */
 public class SessionTrackerCheckTest extends ZKTestCase {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(SessionTrackerCheckTest.class);
-    public static final int TICK_TIME = 1000;
-    public static final int CONNECTION_TIMEOUT = TICK_TIME * 10;
+	protected static final Logger LOG = LoggerFactory.getLogger(SessionTrackerCheckTest.class);
+	public static final int TICK_TIME = 1000;
+	public static final int CONNECTION_TIMEOUT = TICK_TIME * 10;
 
-    private ConcurrentHashMap<Long, Integer> sessionsWithTimeouts = new ConcurrentHashMap<Long, Integer>();
+	private ConcurrentHashMap<Long, Integer> sessionsWithTimeouts = new ConcurrentHashMap<Long, Integer>();
 
-    private class Expirer implements SessionExpirer {
+	private class Expirer implements SessionExpirer {
 
-        long sid;
+		long sid;
 
-        public Expirer(long sid) {
-            this.sid = sid;
-        }
+		public Expirer(long sid) {
+			this.sid = sid;
+		}
 
-        public void expire(Session session) {
-        }
+		public void expire(Session session) {
+		}
 
-        public long getServerId() {
-            return sid;
-        }
+		public long getServerId() {
+			return sid;
+		}
 
-    }
+	}
 
-    @Before
-    public void setUp() throws Exception {
-        sessionsWithTimeouts.clear();
-    }
+	@Before
+	public void setUp() throws Exception {
+		sessionsWithTimeouts.clear();
+	}
 
-    @After
-    public void tearDown() throws Exception {
-    }
+	@After
+	public void tearDown() throws Exception {
+	}
 
-    @Test
-    public void testLearnerSessionTracker() throws Exception {
-        Expirer expirer = new Expirer(1);
-        // With local session on
-        LearnerSessionTracker tracker = new LearnerSessionTracker(expirer, sessionsWithTimeouts, TICK_TIME, expirer.sid, true, testZKSListener());
+	@Test
+	public void testLearnerSessionTracker() throws Exception {
+		Expirer expirer = new Expirer(1);
+		// With local session on
+		LearnerSessionTracker tracker = new LearnerSessionTracker(expirer, sessionsWithTimeouts, TICK_TIME, expirer.sid, true, testZKSListener());
 
-        // Unknown session
-        long sessionId = 0xb100ded;
-        try {
-            tracker.checkSession(sessionId, null);
-            fail("Unknown session should have failed");
-        } catch (SessionExpiredException e) {
-            // Get expected exception
-        }
+		// Unknown session
+		long sessionId = 0xb100ded;
+		try {
+			tracker.checkSession(sessionId, null);
+			fail("Unknown session should have failed");
+		} catch (SessionExpiredException e) {
+			// Get expected exception
+		}
 
-        // Global session
-        sessionsWithTimeouts.put(sessionId, CONNECTION_TIMEOUT);
-        try {
-            tracker.checkSession(sessionId, null);
-        } catch (Exception e) {
-            fail("Global session should not fail");
-        }
+		// Global session
+		sessionsWithTimeouts.put(sessionId, CONNECTION_TIMEOUT);
+		try {
+			tracker.checkSession(sessionId, null);
+		} catch (Exception e) {
+			fail("Global session should not fail");
+		}
 
-        // Local session
-        sessionId = tracker.createSession(CONNECTION_TIMEOUT);
-        try {
-            tracker.checkSession(sessionId, null);
-        } catch (Exception e) {
-            fail("Local session should not fail");
-        }
+		// Local session
+		sessionId = tracker.createSession(CONNECTION_TIMEOUT);
+		try {
+			tracker.checkSession(sessionId, null);
+		} catch (Exception e) {
+			fail("Local session should not fail");
+		}
 
-        // During session upgrade
-        sessionsWithTimeouts.put(sessionId, CONNECTION_TIMEOUT);
-        try {
-            tracker.checkSession(sessionId, null);
-        } catch (Exception e) {
-            fail("Session during upgrade should not fail");
-        }
+		// During session upgrade
+		sessionsWithTimeouts.put(sessionId, CONNECTION_TIMEOUT);
+		try {
+			tracker.checkSession(sessionId, null);
+		} catch (Exception e) {
+			fail("Session during upgrade should not fail");
+		}
 
-        // With local session off
-        tracker = new LearnerSessionTracker(expirer, sessionsWithTimeouts, TICK_TIME, expirer.sid, false, testZKSListener());
+		// With local session off
+		tracker = new LearnerSessionTracker(expirer, sessionsWithTimeouts, TICK_TIME, expirer.sid, false, testZKSListener());
 
-        // Should be noop
-        sessionId = 0xdeadbeef;
-        try {
-            tracker.checkSession(sessionId, null);
-        } catch (Exception e) {
-            fail("Should not get any exception");
-        }
+		// Should be noop
+		sessionId = 0xdeadbeef;
+		try {
+			tracker.checkSession(sessionId, null);
+		} catch (Exception e) {
+			fail("Should not get any exception");
+		}
 
-    }
+	}
 
-    @Test
-    public void testLeaderSessionTracker() throws Exception {
-        Expirer expirer = new Expirer(2);
-        // With local session on
-        LeaderSessionTracker tracker = new LeaderSessionTracker(expirer, sessionsWithTimeouts, TICK_TIME, expirer.sid, true, testZKSListener());
+	@Test
+	public void testLeaderSessionTracker() throws Exception {
+		Expirer expirer = new Expirer(2);
+		// With local session on
+		LeaderSessionTracker tracker = new LeaderSessionTracker(expirer, sessionsWithTimeouts, TICK_TIME, expirer.sid, true, testZKSListener());
 
-        // Local session from other server
-        long sessionId = ((expirer.sid + 1) << 56) + 1;
-        try {
-            tracker.checkSession(sessionId, null);
-        } catch (Exception e) {
-            fail("local session from other server should not fail");
-        }
+		// Local session from other server
+		long sessionId = ((expirer.sid + 1) << 56) + 1;
+		try {
+			tracker.checkSession(sessionId, null);
+		} catch (Exception e) {
+			fail("local session from other server should not fail");
+		}
 
-        // Track global session
-        tracker.trackSession(sessionId, CONNECTION_TIMEOUT);
-        try {
-            tracker.checkSession(sessionId, null);
-        } catch (Exception e) {
-            fail("Global session should not fail");
-        }
-        try {
-            tracker.checkGlobalSession(sessionId, null);
-        } catch (Exception e) {
-            fail("Global session should not fail " + e);
-        }
+		// Track global session
+		tracker.trackSession(sessionId, CONNECTION_TIMEOUT);
+		try {
+			tracker.checkSession(sessionId, null);
+		} catch (Exception e) {
+			fail("Global session should not fail");
+		}
+		try {
+			tracker.checkGlobalSession(sessionId, null);
+		} catch (Exception e) {
+			fail("Global session should not fail " + e);
+		}
 
-        // Local session from the leader
-        sessionId = tracker.createSession(CONNECTION_TIMEOUT);
-        try {
-            tracker.checkSession(sessionId, null);
-        } catch (Exception e) {
-            fail("Local session on the leader should not fail");
-        }
+		// Local session from the leader
+		sessionId = tracker.createSession(CONNECTION_TIMEOUT);
+		try {
+			tracker.checkSession(sessionId, null);
+		} catch (Exception e) {
+			fail("Local session on the leader should not fail");
+		}
 
-        // During session upgrade
-        tracker.trackSession(sessionId, CONNECTION_TIMEOUT);
-        try {
-            tracker.checkSession(sessionId, null);
-        } catch (Exception e) {
-            fail("Session during upgrade should not fail");
-        }
-        try {
-            tracker.checkGlobalSession(sessionId, null);
-        } catch (Exception e) {
-            fail("Global session should not fail " + e);
-        }
+		// During session upgrade
+		tracker.trackSession(sessionId, CONNECTION_TIMEOUT);
+		try {
+			tracker.checkSession(sessionId, null);
+		} catch (Exception e) {
+			fail("Session during upgrade should not fail");
+		}
+		try {
+			tracker.checkGlobalSession(sessionId, null);
+		} catch (Exception e) {
+			fail("Global session should not fail " + e);
+		}
 
-        // With local session off
-        tracker = new LeaderSessionTracker(expirer, sessionsWithTimeouts, TICK_TIME, expirer.sid, false, testZKSListener());
+		// With local session off
+		tracker = new LeaderSessionTracker(expirer, sessionsWithTimeouts, TICK_TIME, expirer.sid, false, testZKSListener());
 
-        // Global session
-        sessionId = 0xdeadbeef;
-        tracker.trackSession(sessionId, CONNECTION_TIMEOUT);
-        try {
-            tracker.checkSession(sessionId, null);
-        } catch (Exception e) {
-            fail("Global session should not fail");
-        }
-        try {
-            tracker.checkGlobalSession(sessionId, null);
-        } catch (Exception e) {
-            fail("Global session should not fail");
-        }
+		// Global session
+		sessionId = 0xdeadbeef;
+		tracker.trackSession(sessionId, CONNECTION_TIMEOUT);
+		try {
+			tracker.checkSession(sessionId, null);
+		} catch (Exception e) {
+			fail("Global session should not fail");
+		}
+		try {
+			tracker.checkGlobalSession(sessionId, null);
+		} catch (Exception e) {
+			fail("Global session should not fail");
+		}
 
-        // Local session from other server
-        sessionId = ((expirer.sid + 1) << 56) + 2;
-        try {
-            tracker.checkSession(sessionId, null);
-            fail("local session from other server should fail");
-        } catch (SessionExpiredException e) {
-            // Got expected exception
-        }
+		// Local session from other server
+		sessionId = ((expirer.sid + 1) << 56) + 2;
+		try {
+			tracker.checkSession(sessionId, null);
+			fail("local session from other server should fail");
+		} catch (SessionExpiredException e) {
+			// Got expected exception
+		}
 
-        // Local session from the leader
-        sessionId = ((expirer.sid) << 56) + 2;
-        try {
-            tracker.checkSession(sessionId, null);
-            fail("local session from the leader should fail");
-        } catch (SessionExpiredException e) {
-            // Got expected exception
-        }
+		// Local session from the leader
+		sessionId = ((expirer.sid) << 56) + 2;
+		try {
+			tracker.checkSession(sessionId, null);
+			fail("local session from the leader should fail");
+		} catch (SessionExpiredException e) {
+			// Got expected exception
+		}
 
-    }
+	}
 
-    ZooKeeperServerListener testZKSListener() {
-        return new ZooKeeperServerListener() {
+	ZooKeeperServerListener testZKSListener() {
+		return new ZooKeeperServerListener() {
 
-            @Override
-            public void notifyStopping(String errMsg, int exitCode) {
+			@Override
+			public void notifyStopping(String errMsg, int exitCode) {
 
-            }
-        };
-    }
+			}
+		};
+	}
 
 }

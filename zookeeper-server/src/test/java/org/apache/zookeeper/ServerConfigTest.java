@@ -23,7 +23,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 import java.io.File;
+
 import org.apache.zookeeper.server.ServerConfig;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
 import org.junit.Before;
@@ -31,66 +33,66 @@ import org.junit.Test;
 
 public class ServerConfigTest {
 
-    private ServerConfig serverConfig;
+	private ServerConfig serverConfig;
 
-    @Before
-    public void setUp() {
-        serverConfig = new ServerConfig();
-    }
+	@Before
+	public void setUp() {
+		serverConfig = new ServerConfig();
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testFewArguments() {
-        String[] args = {"2181"};
-        serverConfig.parse(args);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testFewArguments() {
+		String[] args = {"2181"};
+		serverConfig.parse(args);
+	}
 
-    @Test
-    public void testValidArguments() {
-        String[] args = {"2181", "/data/dir", "60000", "10000"};
-        serverConfig.parse(args);
+	@Test
+	public void testValidArguments() {
+		String[] args = {"2181", "/data/dir", "60000", "10000"};
+		serverConfig.parse(args);
 
-        assertEquals(2181, serverConfig.getClientPortAddress().getPort());
-        assertTrue(checkEquality("/data/dir", serverConfig.getDataDir()));
-        assertEquals(60000, serverConfig.getTickTime());
-        assertEquals(10000, serverConfig.getMaxClientCnxns());
-    }
+		assertEquals(2181, serverConfig.getClientPortAddress().getPort());
+		assertTrue(checkEquality("/data/dir", serverConfig.getDataDir()));
+		assertEquals(60000, serverConfig.getTickTime());
+		assertEquals(10000, serverConfig.getMaxClientCnxns());
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testTooManyArguments() {
-        String[] args = {"2181", "/data/dir", "60000", "10000", "9999"};
-        serverConfig.parse(args);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testTooManyArguments() {
+		String[] args = {"2181", "/data/dir", "60000", "10000", "9999"};
+		serverConfig.parse(args);
+	}
 
-    @Test
-    public void testJvmPauseMonitorConfigured() {
-        final Long sleepTime = 444L;
-        final Long warnTH = 5555L;
-        final Long infoTH = 555L;
+	@Test
+	public void testJvmPauseMonitorConfigured() {
+		final Long sleepTime = 444L;
+		final Long warnTH = 5555L;
+		final Long infoTH = 555L;
 
-        QuorumPeerConfig qpConfig = mock(QuorumPeerConfig.class);
-        when(qpConfig.isJvmPauseMonitorToRun()).thenReturn(true);
-        when(qpConfig.getJvmPauseSleepTimeMs()).thenReturn(sleepTime);
-        when(qpConfig.getJvmPauseWarnThresholdMs()).thenReturn(warnTH);
-        when(qpConfig.getJvmPauseInfoThresholdMs()).thenReturn(infoTH);
+		QuorumPeerConfig qpConfig = mock(QuorumPeerConfig.class);
+		when(qpConfig.isJvmPauseMonitorToRun()).thenReturn(true);
+		when(qpConfig.getJvmPauseSleepTimeMs()).thenReturn(sleepTime);
+		when(qpConfig.getJvmPauseWarnThresholdMs()).thenReturn(warnTH);
+		when(qpConfig.getJvmPauseInfoThresholdMs()).thenReturn(infoTH);
 
-        serverConfig.readFrom(qpConfig);
+		serverConfig.readFrom(qpConfig);
 
-        assertEquals(sleepTime, Long.valueOf(serverConfig.getJvmPauseSleepTimeMs()));
-        assertEquals(warnTH, Long.valueOf(serverConfig.getJvmPauseWarnThresholdMs()));
-        assertEquals(infoTH, Long.valueOf(serverConfig.getJvmPauseInfoThresholdMs()));
-        assertTrue(serverConfig.isJvmPauseMonitorToRun());
-    }
+		assertEquals(sleepTime, Long.valueOf(serverConfig.getJvmPauseSleepTimeMs()));
+		assertEquals(warnTH, Long.valueOf(serverConfig.getJvmPauseWarnThresholdMs()));
+		assertEquals(infoTH, Long.valueOf(serverConfig.getJvmPauseInfoThresholdMs()));
+		assertTrue(serverConfig.isJvmPauseMonitorToRun());
+	}
 
-    boolean checkEquality(String a, String b) {
-        assertNotNull(a);
-        assertNotNull(b);
-        return a.equals(b);
-    }
+	boolean checkEquality(String a, String b) {
+		assertNotNull(a);
+		assertNotNull(b);
+		return a.equals(b);
+	}
 
-    boolean checkEquality(String a, File b) {
-        assertNotNull(a);
-        assertNotNull(b);
-        return new File(a).equals(b);
-    }
+	boolean checkEquality(String a, File b) {
+		assertNotNull(a);
+		assertNotNull(b);
+		return new File(a).equals(b);
+	}
 
 }

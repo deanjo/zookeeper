@@ -19,44 +19,45 @@
 package org.apache.zookeeper.server.watch;
 
 import java.util.Set;
+
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.server.util.BitHashSet;
 
 public class WatcherOrBitSet {
 
-    private Set<Watcher> watchers;
-    private BitHashSet watcherBits;
+	private Set<Watcher> watchers;
+	private BitHashSet watcherBits;
 
-    public WatcherOrBitSet(final Set<Watcher> watchers) {
-        this.watchers = watchers;
-    }
+	public WatcherOrBitSet(final Set<Watcher> watchers) {
+		this.watchers = watchers;
+	}
 
-    public WatcherOrBitSet(final BitHashSet watcherBits) {
-        this.watcherBits = watcherBits;
-    }
+	public WatcherOrBitSet(final BitHashSet watcherBits) {
+		this.watcherBits = watcherBits;
+	}
 
-    public boolean contains(Watcher watcher) {
-        if (watchers == null) {
-            return false;
-        }
-        return watchers.contains(watcher);
-    }
+	public boolean contains(Watcher watcher) {
+		if (watchers == null) {
+			return false;
+		}
+		return watchers.contains(watcher);
+	}
 
-    public boolean contains(int watcherBit) {
-        if (watcherBits == null) {
-            return false;
-        }
-        return watcherBits.contains(watcherBit);
-    }
+	public boolean contains(int watcherBit) {
+		if (watcherBits == null) {
+			return false;
+		}
+		return watcherBits.contains(watcherBit);
+	}
 
-    public int size() {
-        if (watchers != null) {
-            return watchers.size();
-        }
-        if (watcherBits != null) {
-            return watcherBits.size();
-        }
-        return 0;
-    }
+	public int size() {
+		if (watchers != null) {
+			return watchers.size();
+		}
+		if (watcherBits != null) {
+			return watcherBits.size();
+		}
+		return 0;
+	}
 
 }

@@ -22,30 +22,29 @@ import org.apache.zookeeper.server.ZooKeeperServerMXBean;
 
 /**
  * Observer MX Bean interface, implemented by ObserverBean
- *
  */
 public interface ObserverMXBean extends ZooKeeperServerMXBean {
 
-    /**
-     * @return count of pending revalidations
-     */
-    int getPendingRevalidationCount();
+	/**
+	 * @return count of pending revalidations
+	 */
+	int getPendingRevalidationCount();
 
-    /**
-     * @return socket address
-     */
-    String getQuorumAddress();
+	/**
+	 * @return socket address
+	 */
+	String getQuorumAddress();
 
-    /**
-     * @return address of the current learner master
-     */
-    String getLearnerMaster();
+	/**
+	 * @return address of the current learner master
+	 */
+	String getLearnerMaster();
 
-    /**
-     * requests the Observer switch to a new learner master
-     *
-     * @param learnerMaster address of the desired learner master
-     */
-    void setLearnerMaster(String learnerMaster);
+	/**
+	 * requests the Observer switch to a new learner master
+	 *
+	 * @param learnerMaster address of the desired learner master
+	 */
+	void setLearnerMaster(String learnerMaster);
 
 }

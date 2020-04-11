@@ -20,9 +20,11 @@ package org.apache.zookeeper.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.JaasConfiguration;
 import org.apache.zookeeper.KeeperException;
@@ -35,67 +37,67 @@ import org.junit.Test;
 
 public class SaslAuthDesignatedServerTest extends ClientBase {
 
-    public static int AUTHENTICATION_TIMEOUT = 30000;
+	public static int AUTHENTICATION_TIMEOUT = 30000;
 
-    static {
-        System.setProperty("zookeeper.authProvider.1", "org.apache.zookeeper.server.auth.SASLAuthenticationProvider");
-        System.setProperty(ZooKeeperSaslServer.LOGIN_CONTEXT_NAME_KEY, "MyZookeeperServer");
+	static {
+		System.setProperty("zookeeper.authProvider.1", "org.apache.zookeeper.server.auth.SASLAuthenticationProvider");
+		System.setProperty(ZooKeeperSaslServer.LOGIN_CONTEXT_NAME_KEY, "MyZookeeperServer");
 
-        JaasConfiguration conf = new JaasConfiguration();
+		JaasConfiguration conf = new JaasConfiguration();
 
-        /* this 'Server' section has an incorrect password, but we're not configured
-         * to  use it (we're configured by the above System.setProperty(...LOGIN_CONTEXT_NAME_KEY...)
-         * to use the 'MyZookeeperServer' section below, which has the correct password).
-         */
-        conf.addSection("Server", "org.apache.zookeeper.server.auth.DigestLoginModule", "user_myuser", "wrongpassword");
+		/* this 'Server' section has an incorrect password, but we're not configured
+		 * to  use it (we're configured by the above System.setProperty(...LOGIN_CONTEXT_NAME_KEY...)
+		 * to use the 'MyZookeeperServer' section below, which has the correct password).
+		 */
+		conf.addSection("Server", "org.apache.zookeeper.server.auth.DigestLoginModule", "user_myuser", "wrongpassword");
 
-        conf.addSection("MyZookeeperServer", "org.apache.zookeeper.server.auth.DigestLoginModule", "user_myuser", "mypassword");
+		conf.addSection("MyZookeeperServer", "org.apache.zookeeper.server.auth.DigestLoginModule", "user_myuser", "mypassword");
 
-        conf.addSection("Client", "org.apache.zookeeper.server.auth.DigestLoginModule", "username", "myuser", "password", "mypassword");
+		conf.addSection("Client", "org.apache.zookeeper.server.auth.DigestLoginModule", "username", "myuser", "password", "mypassword");
 
-        javax.security.auth.login.Configuration.setConfiguration(conf);
-    }
+		javax.security.auth.login.Configuration.setConfiguration(conf);
+	}
 
-    private AtomicInteger authFailed = new AtomicInteger(0);
+	private AtomicInteger authFailed = new AtomicInteger(0);
 
-    private class MyWatcher extends CountdownWatcher {
+	private class MyWatcher extends CountdownWatcher {
 
-        volatile CountDownLatch authCompleted;
+		volatile CountDownLatch authCompleted;
 
-        @Override
-        public synchronized void reset() {
-            authCompleted = new CountDownLatch(1);
-            super.reset();
-        }
+		@Override
+		public synchronized void reset() {
+			authCompleted = new CountDownLatch(1);
+			super.reset();
+		}
 
-        @Override
-        public synchronized void process(WatchedEvent event) {
-            if (event.getState() == KeeperState.AuthFailed) {
-                authFailed.incrementAndGet();
-                authCompleted.countDown();
-            } else if (event.getState() == KeeperState.SaslAuthenticated) {
-                authCompleted.countDown();
-            } else {
-                super.process(event);
-            }
-        }
+		@Override
+		public synchronized void process(WatchedEvent event) {
+			if (event.getState() == KeeperState.AuthFailed) {
+				authFailed.incrementAndGet();
+				authCompleted.countDown();
+			} else if (event.getState() == KeeperState.SaslAuthenticated) {
+				authCompleted.countDown();
+			} else {
+				super.process(event);
+			}
+		}
 
-    }
+	}
 
-    @Test
-    public void testAuth() throws Exception {
-        MyWatcher watcher = new MyWatcher();
-        ZooKeeper zk = createClient(watcher);
-        watcher.authCompleted.await(AUTHENTICATION_TIMEOUT, TimeUnit.MILLISECONDS);
-        assertEquals(authFailed.get(), 0);
+	@Test
+	public void testAuth() throws Exception {
+		MyWatcher watcher = new MyWatcher();
+		ZooKeeper zk = createClient(watcher);
+		watcher.authCompleted.await(AUTHENTICATION_TIMEOUT, TimeUnit.MILLISECONDS);
+		assertEquals(authFailed.get(), 0);
 
-        try {
-            zk.create("/path1", null, Ids.CREATOR_ALL_ACL, CreateMode.PERSISTENT);
-        } catch (KeeperException e) {
-            fail("test failed :" + e);
-        } finally {
-            zk.close();
-        }
-    }
+		try {
+			zk.create("/path1", null, Ids.CREATOR_ALL_ACL, CreateMode.PERSISTENT);
+		} catch (KeeperException e) {
+			fail("test failed :" + e);
+		} finally {
+			zk.close();
+		}
+	}
 
 }

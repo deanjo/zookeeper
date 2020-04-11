@@ -21,6 +21,7 @@ package org.apache.zookeeper.server;
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.SessionExpiredException;
 
@@ -32,110 +33,117 @@ import org.apache.zookeeper.KeeperException.SessionExpiredException;
  */
 public interface SessionTracker {
 
-    interface Session {
+	interface Session {
 
-        long getSessionId();
-        int getTimeout();
-        boolean isClosing();
+		long getSessionId();
 
-    }
+		int getTimeout();
 
-    interface SessionExpirer {
+		boolean isClosing();
 
-        void expire(Session session);
+	}
 
-        long getServerId();
+	interface SessionExpirer {
 
-    }
+		void expire(Session session);
 
-    long createSession(int sessionTimeout);
+		long getServerId();
 
-    /**
-     * Track the session expire, not add to ZkDb.
-     * @param id sessionId
-     * @param to sessionTimeout
-     * @return whether the session was newly tracked (if false, already tracked)
-     */
-    boolean trackSession(long id, int to);
+	}
 
-    /**
-     * Add the session to the local session map or global one in zkDB.
-     * @param id sessionId
-     * @param to sessionTimeout
-     * @return whether the session was newly added (if false, already existed)
-     */
-    boolean commitSession(long id, int to);
+	long createSession(int sessionTimeout);
 
-    /**
-     * @param sessionId
-     * @param sessionTimeout
-     * @return false if session is no longer active
-     */
-    boolean touchSession(long sessionId, int sessionTimeout);
+	/**
+	 * Track the session expire, not add to ZkDb.
+	 *
+	 * @param id sessionId
+	 * @param to sessionTimeout
+	 * @return whether the session was newly tracked (if false, already tracked)
+	 */
+	boolean trackSession(long id, int to);
 
-    /**
-     * Mark that the session is in the process of closing.
-     * @param sessionId
-     */
-    void setSessionClosing(long sessionId);
+	/**
+	 * Add the session to the local session map or global one in zkDB.
+	 *
+	 * @param id sessionId
+	 * @param to sessionTimeout
+	 * @return whether the session was newly added (if false, already existed)
+	 */
+	boolean commitSession(long id, int to);
 
-    /**
-     *
-     */
-    void shutdown();
+	/**
+	 * @param sessionId
+	 * @param sessionTimeout
+	 * @return false if session is no longer active
+	 */
+	boolean touchSession(long sessionId, int sessionTimeout);
 
-    /**
-     * @param sessionId
-     */
-    void removeSession(long sessionId);
+	/**
+	 * Mark that the session is in the process of closing.
+	 *
+	 * @param sessionId
+	 */
+	void setSessionClosing(long sessionId);
 
-    /**
-     * @param sessionId
-     * @return whether or not the SessionTracker is aware of this session
-     */
-    boolean isTrackingSession(long sessionId);
+	/**
+	 *
+	 */
+	void shutdown();
 
-    /**
-     * Checks whether the SessionTracker is aware of this session, the session
-     * is still active, and the owner matches. If the owner wasn't previously
-     * set, this sets the owner of the session.
-     *
-     * UnknownSessionException should never been thrown to the client. It is
-     * only used internally to deal with possible local session from other
-     * machine
-     *
-     * @param sessionId
-     * @param owner
-     */
-    void checkSession(long sessionId, Object owner) throws KeeperException.SessionExpiredException, KeeperException.SessionMovedException, KeeperException.UnknownSessionException;
+	/**
+	 * @param sessionId
+	 */
+	void removeSession(long sessionId);
 
-    /**
-     * Strictly check that a given session is a global session or not
-     * @param sessionId
-     * @param owner
-     * @throws KeeperException.SessionExpiredException
-     * @throws KeeperException.SessionMovedException
-     */
-    void checkGlobalSession(long sessionId, Object owner) throws KeeperException.SessionExpiredException, KeeperException.SessionMovedException;
+	/**
+	 * @param sessionId
+	 * @return whether or not the SessionTracker is aware of this session
+	 */
+	boolean isTrackingSession(long sessionId);
 
-    void setOwner(long id, Object owner) throws SessionExpiredException;
+	/**
+	 * Checks whether the SessionTracker is aware of this session, the session
+	 * is still active, and the owner matches. If the owner wasn't previously
+	 * set, this sets the owner of the session.
+	 * <p>
+	 * UnknownSessionException should never been thrown to the client. It is
+	 * only used internally to deal with possible local session from other
+	 * machine
+	 *
+	 * @param sessionId
+	 * @param owner
+	 */
+	void checkSession(long sessionId, Object owner) throws KeeperException.SessionExpiredException, KeeperException.SessionMovedException, KeeperException.UnknownSessionException;
 
-    /**
-     * Text dump of session information, suitable for debugging.
-     * @param pwriter the output writer
-     */
-    void dumpSessions(PrintWriter pwriter);
+	/**
+	 * Strictly check that a given session is a global session or not
+	 *
+	 * @param sessionId
+	 * @param owner
+	 * @throws KeeperException.SessionExpiredException
+	 * @throws KeeperException.SessionMovedException
+	 */
+	void checkGlobalSession(long sessionId, Object owner) throws KeeperException.SessionExpiredException, KeeperException.SessionMovedException;
 
-    /**
-     * Returns a mapping of time to session IDs that expire at that time.
-     */
-    Map<Long, Set<Long>> getSessionExpiryMap();
+	void setOwner(long id, Object owner) throws SessionExpiredException;
 
-    /**
-     * If this session tracker supports local sessions, return how many.
-     * otherwise returns 0;
-     */
-    long getLocalSessionCount();
+	/**
+	 * Text dump of session information, suitable for debugging.
+	 *
+	 * @param pwriter the output writer
+	 */
+	void dumpSessions(PrintWriter pwriter);
 
-    boolean isLocalSessionsEnabled();
+	/**
+	 * Returns a mapping of time to session IDs that expire at that time.
+	 */
+	Map<Long, Set<Long>> getSessionExpiryMap();
+
+	/**
+	 * If this session tracker supports local sessions, return how many.
+	 * otherwise returns 0;
+	 */
+	long getLocalSessionCount();
+
+	boolean isLocalSessionsEnabled();
 }

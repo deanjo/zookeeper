@@ -19,7 +19,9 @@
 package org.apache.zookeeper.server.quorum;
 
 import static org.apache.zookeeper.common.NetUtils.formatInetAddr;
+
 import java.util.stream.Collectors;
+
 import org.apache.zookeeper.common.NetUtils;
 import org.apache.zookeeper.server.ServerCnxnHelper;
 
@@ -28,107 +30,107 @@ import org.apache.zookeeper.server.ServerCnxnHelper;
  */
 public class LocalPeerBean extends ServerBean implements LocalPeerMXBean {
 
-    private final QuorumPeer peer;
+	private final QuorumPeer peer;
 
-    public LocalPeerBean(QuorumPeer peer) {
-        this.peer = peer;
-    }
+	public LocalPeerBean(QuorumPeer peer) {
+		this.peer = peer;
+	}
 
-    public String getName() {
-        return "replica." + peer.getId();
-    }
+	public String getName() {
+		return "replica." + peer.getId();
+	}
 
-    public boolean isHidden() {
-        return false;
-    }
+	public boolean isHidden() {
+		return false;
+	}
 
-    public int getTickTime() {
-        return peer.getTickTime();
-    }
+	public int getTickTime() {
+		return peer.getTickTime();
+	}
 
-    public int getMaxClientCnxnsPerHost() {
-        return peer.getMaxClientCnxnsPerHost();
-    }
+	public int getMaxClientCnxnsPerHost() {
+		return peer.getMaxClientCnxnsPerHost();
+	}
 
-    public int getMinSessionTimeout() {
-        return peer.getMinSessionTimeout();
-    }
+	public int getMinSessionTimeout() {
+		return peer.getMinSessionTimeout();
+	}
 
-    public int getMaxSessionTimeout() {
-        return peer.getMaxSessionTimeout();
-    }
+	public int getMaxSessionTimeout() {
+		return peer.getMaxSessionTimeout();
+	}
 
-    public int getInitLimit() {
-        return peer.getInitLimit();
-    }
+	public int getInitLimit() {
+		return peer.getInitLimit();
+	}
 
-    public int getSyncLimit() {
-        return peer.getSyncLimit();
-    }
+	public int getSyncLimit() {
+		return peer.getSyncLimit();
+	}
 
-    public void setInitLimit(int initLimit) {
-        peer.setInitLimit(initLimit);
-    }
+	public void setInitLimit(int initLimit) {
+		peer.setInitLimit(initLimit);
+	}
 
-    public void setSyncLimit(int syncLimit) {
-        peer.setSyncLimit(syncLimit);
-    }
+	public void setSyncLimit(int syncLimit) {
+		peer.setSyncLimit(syncLimit);
+	}
 
-    public int getTick() {
-        return peer.getTick();
-    }
+	public int getTick() {
+		return peer.getTick();
+	}
 
-    public String getState() {
-        return peer.getServerState();
-    }
+	public String getState() {
+		return peer.getServerState();
+	}
 
-    public String getQuorumAddress() {
-        return peer.getQuorumAddress().getAllAddresses().stream().map(NetUtils::formatInetAddr)
-                .collect(Collectors.joining("|"));
-    }
+	public String getQuorumAddress() {
+		return peer.getQuorumAddress().getAllAddresses().stream().map(NetUtils::formatInetAddr)
+			.collect(Collectors.joining("|"));
+	}
 
-    public int getElectionType() {
-        return peer.getElectionType();
-    }
+	public int getElectionType() {
+		return peer.getElectionType();
+	}
 
-    public String getElectionAddress() {
-        return peer.getElectionAddress().getAllAddresses().stream().map(NetUtils::formatInetAddr)
-                .collect(Collectors.joining("|"));
-    }
+	public String getElectionAddress() {
+		return peer.getElectionAddress().getAllAddresses().stream().map(NetUtils::formatInetAddr)
+			.collect(Collectors.joining("|"));
+	}
 
-    public String getClientAddress() {
-        if (null != peer.cnxnFactory) {
-            return formatInetAddr(peer.cnxnFactory.getLocalAddress());
-        } else {
-            return "";
-        }
-    }
+	public String getClientAddress() {
+		if (null != peer.cnxnFactory) {
+			return formatInetAddr(peer.cnxnFactory.getLocalAddress());
+		} else {
+			return "";
+		}
+	}
 
-    public String getLearnerType() {
-        return peer.getLearnerType().toString();
-    }
+	public String getLearnerType() {
+		return peer.getLearnerType().toString();
+	}
 
-    public long getConfigVersion() {
-        return peer.getQuorumVerifier().getVersion();
-    }
+	public long getConfigVersion() {
+		return peer.getQuorumVerifier().getVersion();
+	}
 
-    @Override
-    public String getQuorumSystemInfo() {
-        return peer.getQuorumVerifier().toString();
-    }
+	@Override
+	public String getQuorumSystemInfo() {
+		return peer.getQuorumVerifier().toString();
+	}
 
-    @Override
-    public boolean isPartOfEnsemble() {
-        return peer.getView().containsKey(peer.getId());
-    }
+	@Override
+	public boolean isPartOfEnsemble() {
+		return peer.getView().containsKey(peer.getId());
+	}
 
-    @Override
-    public boolean isLeader() {
-        return peer.isLeader(peer.getId());
-    }
+	@Override
+	public boolean isLeader() {
+		return peer.isLeader(peer.getId());
+	}
 
-    @Override
-    public int getMaxCnxns() {
-        return ServerCnxnHelper.getMaxCnxns(peer.secureCnxnFactory, peer.cnxnFactory);
-    }
+	@Override
+	public int getMaxCnxns() {
+		return ServerCnxnHelper.getMaxCnxns(peer.secureCnxnFactory, peer.cnxnFactory);
+	}
 }

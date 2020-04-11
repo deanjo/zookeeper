@@ -23,10 +23,9 @@ package org.apache.zookeeper.server.quorum;
  */
 public interface LeaderElectionMXBean {
 
-    /**
-     *
-     * @return the time when the leader election started
-     */
-    String getStartTime();
+	/**
+	 * @return the time when the leader election started
+	 */
+	String getStartTime();
 
 }

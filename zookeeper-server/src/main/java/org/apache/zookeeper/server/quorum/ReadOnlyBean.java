@@ -23,16 +23,15 @@ import org.apache.zookeeper.server.ZooKeeperServerBean;
 
 /**
  * ReadOnly MX Bean interface, implemented by ReadOnlyBean
- *
  */
 public class ReadOnlyBean extends ZooKeeperServerBean {
 
-    public ReadOnlyBean(ZooKeeperServer zks) {
-        super(zks);
-    }
+	public ReadOnlyBean(ZooKeeperServer zks) {
+		super(zks);
+	}
 
-    public String getName() {
-        return "ReadOnlyServer";
-    }
+	public String getName() {
+		return "ReadOnlyServer";
+	}
 
 }

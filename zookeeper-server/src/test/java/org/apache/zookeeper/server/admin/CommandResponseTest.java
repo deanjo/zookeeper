@@ -18,42 +18,44 @@
 package org.apache.zookeeper.server.admin;
 
 import static org.junit.Assert.assertEquals;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.zookeeper.ZKTestCase;
 import org.junit.Before;
 import org.junit.Test;
 
 public class CommandResponseTest extends ZKTestCase {
 
-    private CommandResponse r;
+	private CommandResponse r;
 
-    @Before
-    public void setUp() throws Exception {
-        r = new CommandResponse("makemeasandwich", "makeityourself");
-    }
+	@Before
+	public void setUp() throws Exception {
+		r = new CommandResponse("makemeasandwich", "makeityourself");
+	}
 
-    @Test
-    public void testGetters() {
-        assertEquals("makemeasandwich", r.getCommand());
-        assertEquals("makeityourself", r.getError());
-    }
+	@Test
+	public void testGetters() {
+		assertEquals("makemeasandwich", r.getCommand());
+		assertEquals("makeityourself", r.getError());
+	}
 
-    @Test
-    public void testMap() {
-        r.put("missing", "sudo");
-        Map<String, Object> m = new HashMap<String, Object>();
-        m.put("origin", "xkcd");
-        m.put("url", "http://xkcd.com/149/");
-        r.putAll(m);
+	@Test
+	public void testMap() {
+		r.put("missing", "sudo");
+		Map<String, Object> m = new HashMap<String, Object>();
+		m.put("origin", "xkcd");
+		m.put("url", "http://xkcd.com/149/");
+		r.putAll(m);
 
-        Map<String, Object> rmap = r.toMap();
-        assertEquals(5, rmap.size());
-        assertEquals("makemeasandwich", rmap.get(CommandResponse.KEY_COMMAND));
-        assertEquals("makeityourself", rmap.get(CommandResponse.KEY_ERROR));
-        assertEquals("sudo", rmap.get("missing"));
-        assertEquals("xkcd", rmap.get("origin"));
-        assertEquals("http://xkcd.com/149/", rmap.get("url"));
-    }
+		Map<String, Object> rmap = r.toMap();
+		assertEquals(5, rmap.size());
+		assertEquals("makemeasandwich", rmap.get(CommandResponse.KEY_COMMAND));
+		assertEquals("makeityourself", rmap.get(CommandResponse.KEY_ERROR));
+		assertEquals("sudo", rmap.get("missing"));
+		assertEquals("xkcd", rmap.get("origin"));
+		assertEquals("http://xkcd.com/149/", rmap.get("url"));
+	}
 
 }

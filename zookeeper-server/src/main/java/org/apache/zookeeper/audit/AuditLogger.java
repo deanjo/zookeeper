@@ -19,16 +19,16 @@ package org.apache.zookeeper.audit;
 
 public interface AuditLogger {
 
-    /**
-     * Called during initialization of the logger.
-     */
-    default void initialize() {
-    }
+	/**
+	 * Called during initialization of the logger.
+	 */
+	default void initialize() {
+	}
 
-    /**
-     * Called to log an audit event.
-     *
-     * @param auditEvent contains all the fields to be logged
-     */
-    void logAuditEvent(AuditEvent auditEvent);
+	/**
+	 * Called to log an audit event.
+	 *
+	 * @param auditEvent contains all the fields to be logged
+	 */
+	void logAuditEvent(AuditEvent auditEvent);
 }

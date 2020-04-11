@@ -21,47 +21,49 @@ package org.apache.zookeeper.server;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+
 import java.util.Set;
+
 import org.junit.Test;
 
 public class DataNodeTest {
 
-    @Test
-    public void testGetChildrenShouldReturnEmptySetWhenThereAreNoChidren() {
-        // create DataNode and call getChildren
-        DataNode dataNode = new DataNode();
-        Set<String> children = dataNode.getChildren();
-        assertNotNull(children);
-        assertEquals(0, children.size());
+	@Test
+	public void testGetChildrenShouldReturnEmptySetWhenThereAreNoChidren() {
+		// create DataNode and call getChildren
+		DataNode dataNode = new DataNode();
+		Set<String> children = dataNode.getChildren();
+		assertNotNull(children);
+		assertEquals(0, children.size());
 
-        // add child,remove child and then call getChildren
-        String child = "child";
-        dataNode.addChild(child);
-        dataNode.removeChild(child);
-        children = dataNode.getChildren();
-        assertNotNull(children);
-        assertEquals(0, children.size());
+		// add child,remove child and then call getChildren
+		String child = "child";
+		dataNode.addChild(child);
+		dataNode.removeChild(child);
+		children = dataNode.getChildren();
+		assertNotNull(children);
+		assertEquals(0, children.size());
 
-        // Returned empty set must not be modifiable
-        children = dataNode.getChildren();
-        try {
-            children.add("new child");
-            fail("UnsupportedOperationException is expected");
-        } catch (UnsupportedOperationException e) {
-            // do nothing
-        }
-    }
+		// Returned empty set must not be modifiable
+		children = dataNode.getChildren();
+		try {
+			children.add("new child");
+			fail("UnsupportedOperationException is expected");
+		} catch (UnsupportedOperationException e) {
+			// do nothing
+		}
+	}
 
-    @Test
-    public void testGetChildrenReturnsImmutableEmptySet() {
-        DataNode dataNode = new DataNode();
-        Set<String> children = dataNode.getChildren();
-        try {
-            children.add("new child");
-            fail("UnsupportedOperationException is expected");
-        } catch (UnsupportedOperationException e) {
-            // do nothing
-        }
-    }
+	@Test
+	public void testGetChildrenReturnsImmutableEmptySet() {
+		DataNode dataNode = new DataNode();
+		Set<String> children = dataNode.getChildren();
+		try {
+			children.add("new child");
+			fail("UnsupportedOperationException is expected");
+		} catch (UnsupportedOperationException e) {
+			// do nothing
+		}
+	}
 
 }

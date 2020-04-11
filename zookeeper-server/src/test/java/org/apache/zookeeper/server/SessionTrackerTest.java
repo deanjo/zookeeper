@@ -24,10 +24,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZKTestCase;
 import org.apache.zookeeper.ZooDefs.OpCode;
@@ -40,114 +42,114 @@ import org.junit.Test;
  */
 public class SessionTrackerTest extends ZKTestCase {
 
-    private final long sessionId = 339900;
-    private final int sessionTimeout = 3000;
-    private FirstProcessor firstProcessor;
-    private CountDownLatch latch;
+	private final long sessionId = 339900;
+	private final int sessionTimeout = 3000;
+	private FirstProcessor firstProcessor;
+	private CountDownLatch latch;
 
-    /**
-     * Verify the create session call in the Leader.FinalRequestProcessor after
-     * the session expiration.
-     */
-    @Test(timeout = 20000)
-    public void testAddSessionAfterSessionExpiry() throws Exception {
-        RequestThrottler.setMaxRequests(0);
-        ZooKeeperServer zks = setupSessionTracker();
+	/**
+	 * Verify the create session call in the Leader.FinalRequestProcessor after
+	 * the session expiration.
+	 */
+	@Test(timeout = 20000)
+	public void testAddSessionAfterSessionExpiry() throws Exception {
+		RequestThrottler.setMaxRequests(0);
+		ZooKeeperServer zks = setupSessionTracker();
 
-        latch = new CountDownLatch(1);
-        zks.sessionTracker.trackSession(sessionId, sessionTimeout);
-        SessionTrackerImpl sessionTrackerImpl = (SessionTrackerImpl) zks.sessionTracker;
-        SessionImpl sessionImpl = sessionTrackerImpl.sessionsById.get(sessionId);
-        assertNotNull("Sessionid:" + sessionId + " doesn't exists in sessiontracker", sessionImpl);
+		latch = new CountDownLatch(1);
+		zks.sessionTracker.trackSession(sessionId, sessionTimeout);
+		SessionTrackerImpl sessionTrackerImpl = (SessionTrackerImpl) zks.sessionTracker;
+		SessionImpl sessionImpl = sessionTrackerImpl.sessionsById.get(sessionId);
+		assertNotNull("Sessionid:" + sessionId + " doesn't exists in sessiontracker", sessionImpl);
 
-        // verify the session existence
-        Object sessionOwner = new Object();
-        sessionTrackerImpl.checkSession(sessionId, sessionOwner);
+		// verify the session existence
+		Object sessionOwner = new Object();
+		sessionTrackerImpl.checkSession(sessionId, sessionOwner);
 
-        // waiting for the session expiry
-        latch.await(sessionTimeout * 2, TimeUnit.MILLISECONDS);
+		// waiting for the session expiry
+		latch.await(sessionTimeout * 2, TimeUnit.MILLISECONDS);
 
-        // Simulating FinalRequestProcessor logic: create session request has
-        // delayed and now reaches FinalRequestProcessor. Here the leader zk
-        // will do sessionTracker.addSession(id, timeout)
-        sessionTrackerImpl.trackSession(sessionId, sessionTimeout);
-        try {
-            sessionTrackerImpl.checkSession(sessionId, sessionOwner);
-            fail("Should throw session expiry exception " + "as the session has expired and closed");
-        } catch (KeeperException.SessionExpiredException e) {
-            // expected behaviour
-        }
-        assertTrue("Session didn't expired", sessionImpl.isClosing());
-        assertFalse("Session didn't expired", sessionTrackerImpl.touchSession(sessionId, sessionTimeout));
-        assertEquals("Duplicate session expiry request has been generated", 1, firstProcessor.getCountOfCloseSessionReq());
-    }
+		// Simulating FinalRequestProcessor logic: create session request has
+		// delayed and now reaches FinalRequestProcessor. Here the leader zk
+		// will do sessionTracker.addSession(id, timeout)
+		sessionTrackerImpl.trackSession(sessionId, sessionTimeout);
+		try {
+			sessionTrackerImpl.checkSession(sessionId, sessionOwner);
+			fail("Should throw session expiry exception " + "as the session has expired and closed");
+		} catch (KeeperException.SessionExpiredException e) {
+			// expected behaviour
+		}
+		assertTrue("Session didn't expired", sessionImpl.isClosing());
+		assertFalse("Session didn't expired", sessionTrackerImpl.touchSession(sessionId, sessionTimeout));
+		assertEquals("Duplicate session expiry request has been generated", 1, firstProcessor.getCountOfCloseSessionReq());
+	}
 
-    /**
-     * Verify the session closure request has reached PrepRequestProcessor soon
-     * after session expiration by the session tracker
-     */
-    @Test(timeout = 20000)
-    public void testCloseSessionRequestAfterSessionExpiry() throws Exception {
-        ZooKeeperServer zks = setupSessionTracker();
+	/**
+	 * Verify the session closure request has reached PrepRequestProcessor soon
+	 * after session expiration by the session tracker
+	 */
+	@Test(timeout = 20000)
+	public void testCloseSessionRequestAfterSessionExpiry() throws Exception {
+		ZooKeeperServer zks = setupSessionTracker();
 
-        latch = new CountDownLatch(1);
-        zks.sessionTracker.trackSession(sessionId, sessionTimeout);
-        SessionTrackerImpl sessionTrackerImpl = (SessionTrackerImpl) zks.sessionTracker;
-        SessionImpl sessionImpl = sessionTrackerImpl.sessionsById.get(sessionId);
-        assertNotNull("Sessionid:" + sessionId + " doesn't exists in sessiontracker", sessionImpl);
+		latch = new CountDownLatch(1);
+		zks.sessionTracker.trackSession(sessionId, sessionTimeout);
+		SessionTrackerImpl sessionTrackerImpl = (SessionTrackerImpl) zks.sessionTracker;
+		SessionImpl sessionImpl = sessionTrackerImpl.sessionsById.get(sessionId);
+		assertNotNull("Sessionid:" + sessionId + " doesn't exists in sessiontracker", sessionImpl);
 
-        // verify the session existence
-        Object sessionOwner = new Object();
-        sessionTrackerImpl.checkSession(sessionId, sessionOwner);
+		// verify the session existence
+		Object sessionOwner = new Object();
+		sessionTrackerImpl.checkSession(sessionId, sessionOwner);
 
-        // waiting for the session expiry
-        latch.await(sessionTimeout * 2, TimeUnit.MILLISECONDS);
+		// waiting for the session expiry
+		latch.await(sessionTimeout * 2, TimeUnit.MILLISECONDS);
 
-        // Simulating close session request: removeSession() will be executed
-        // while OpCode.closeSession
-        sessionTrackerImpl.removeSession(sessionId);
-        SessionImpl actualSession = sessionTrackerImpl.sessionsById.get(sessionId);
-        assertNull("Session:" + sessionId + " still exists after removal", actualSession);
-    }
+		// Simulating close session request: removeSession() will be executed
+		// while OpCode.closeSession
+		sessionTrackerImpl.removeSession(sessionId);
+		SessionImpl actualSession = sessionTrackerImpl.sessionsById.get(sessionId);
+		assertNull("Session:" + sessionId + " still exists after removal", actualSession);
+	}
 
-    private ZooKeeperServer setupSessionTracker() throws IOException {
-        File tmpDir = ClientBase.createTmpDir();
-        ClientBase.setupTestEnv();
-        ZooKeeperServer zks = new ZooKeeperServer(tmpDir, tmpDir, 3000);
-        zks.setupRequestProcessors();
-        firstProcessor = new FirstProcessor(zks, null);
-        zks.firstProcessor = firstProcessor;
+	private ZooKeeperServer setupSessionTracker() throws IOException {
+		File tmpDir = ClientBase.createTmpDir();
+		ClientBase.setupTestEnv();
+		ZooKeeperServer zks = new ZooKeeperServer(tmpDir, tmpDir, 3000);
+		zks.setupRequestProcessors();
+		firstProcessor = new FirstProcessor(zks, null);
+		zks.firstProcessor = firstProcessor;
 
-        // setup session tracker
-        zks.createSessionTracker();
-        zks.startSessionTracker();
-        zks.startRequestThrottler();
-        return zks;
-    }
+		// setup session tracker
+		zks.createSessionTracker();
+		zks.startSessionTracker();
+		zks.startRequestThrottler();
+		return zks;
+	}
 
-    // Mock processor used in zookeeper server
-    private class FirstProcessor extends PrepRequestProcessor {
+	// Mock processor used in zookeeper server
+	private class FirstProcessor extends PrepRequestProcessor {
 
-        private volatile int countOfCloseSessionReq = 0;
+		private volatile int countOfCloseSessionReq = 0;
 
-        public FirstProcessor(ZooKeeperServer zks, RequestProcessor nextProcessor) {
-            super(zks, nextProcessor);
-        }
+		public FirstProcessor(ZooKeeperServer zks, RequestProcessor nextProcessor) {
+			super(zks, nextProcessor);
+		}
 
-        @Override
-        public void processRequest(Request request) {
-            // check session close request
-            if (request.type == OpCode.closeSession) {
-                countOfCloseSessionReq++;
-                latch.countDown();
-            }
-        }
+		@Override
+		public void processRequest(Request request) {
+			// check session close request
+			if (request.type == OpCode.closeSession) {
+				countOfCloseSessionReq++;
+				latch.countDown();
+			}
+		}
 
-        // return number of session expiry calls
-        int getCountOfCloseSessionReq() {
-            return countOfCloseSessionReq;
-        }
+		// return number of session expiry calls
+		int getCountOfCloseSessionReq() {
+			return countOfCloseSessionReq;
+		}
 
-    }
+	}
 
 }

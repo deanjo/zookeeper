@@ -19,6 +19,7 @@
 package org.apache.zookeeper.cli;
 
 import java.util.Arrays;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -33,55 +34,55 @@ import org.apache.zookeeper.KeeperException;
  */
 public class AddWatchCommand extends CliCommand {
 
-    private static final Options options = new Options();
-    private static final AddWatchMode defaultMode = AddWatchMode.PERSISTENT_RECURSIVE;
+	private static final Options options = new Options();
+	private static final AddWatchMode defaultMode = AddWatchMode.PERSISTENT_RECURSIVE;
 
-    private CommandLine cl;
-    private AddWatchMode mode = defaultMode;
+	private CommandLine cl;
+	private AddWatchMode mode = defaultMode;
 
-    static {
-        options.addOption("m", true, "");
-    }
+	static {
+		options.addOption("m", true, "");
+	}
 
-    public AddWatchCommand() {
-        super("addWatch", "[-m mode] path # optional mode is one of "
-                + Arrays.toString(AddWatchMode.values()) + " - default is " + defaultMode.name());
-    }
+	public AddWatchCommand() {
+		super("addWatch", "[-m mode] path # optional mode is one of "
+			+ Arrays.toString(AddWatchMode.values()) + " - default is " + defaultMode.name());
+	}
 
-    @Override
-    public CliCommand parse(String[] cmdArgs) throws CliParseException {
-        Parser parser = new PosixParser();
-        try {
-            cl = parser.parse(options, cmdArgs);
-        } catch (ParseException ex) {
-            throw new CliParseException(ex);
-        }
-        if (cl.getArgs().length != 2) {
-            throw new CliParseException(getUsageStr());
-        }
+	@Override
+	public CliCommand parse(String[] cmdArgs) throws CliParseException {
+		Parser parser = new PosixParser();
+		try {
+			cl = parser.parse(options, cmdArgs);
+		} catch (ParseException ex) {
+			throw new CliParseException(ex);
+		}
+		if (cl.getArgs().length != 2) {
+			throw new CliParseException(getUsageStr());
+		}
 
-        if (cl.hasOption("m")) {
-            try {
-                mode = AddWatchMode.valueOf(cl.getOptionValue("m").toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new CliParseException(getUsageStr());
-            }
-        }
+		if (cl.hasOption("m")) {
+			try {
+				mode = AddWatchMode.valueOf(cl.getOptionValue("m").toUpperCase());
+			} catch (IllegalArgumentException e) {
+				throw new CliParseException(getUsageStr());
+			}
+		}
 
-        return this;
-    }
+		return this;
+	}
 
-    @Override
-    public boolean exec() throws CliException {
-        String path = cl.getArgs()[1];
-        try {
-            zk.addWatch(path, mode);
-        } catch (KeeperException | InterruptedException ex) {
-            throw new CliWrapperException(ex);
-        }
+	@Override
+	public boolean exec() throws CliException {
+		String path = cl.getArgs()[1];
+		try {
+			zk.addWatch(path, mode);
+		} catch (KeeperException | InterruptedException ex) {
+			throw new CliWrapperException(ex);
+		}
 
-        return false;
+		return false;
 
-    }
+	}
 
 }

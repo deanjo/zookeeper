@@ -21,9 +21,11 @@ package org.apache.zookeeper.server;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+
 import org.apache.jute.Record;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
@@ -36,107 +38,107 @@ import org.junit.Test;
 
 public class ZooKeeperServerBeanTest {
 
-    @Before
-    public void setup() {
-        System.setProperty(ServerCnxnFactory.ZOOKEEPER_SERVER_CNXN_FACTORY, "org.apache.zookeeper.server.NettyServerCnxnFactory");
-    }
+	@Before
+	public void setup() {
+		System.setProperty(ServerCnxnFactory.ZOOKEEPER_SERVER_CNXN_FACTORY, "org.apache.zookeeper.server.NettyServerCnxnFactory");
+	}
 
-    @After
-    public void teardown() throws Exception {
-        System.clearProperty(ServerCnxnFactory.ZOOKEEPER_SERVER_CNXN_FACTORY);
-    }
+	@After
+	public void teardown() throws Exception {
+		System.clearProperty(ServerCnxnFactory.ZOOKEEPER_SERVER_CNXN_FACTORY);
+	}
 
-    @Test
-    public void testTxnLogElapsedSyncTime() throws IOException {
+	@Test
+	public void testTxnLogElapsedSyncTime() throws IOException {
 
-        File tmpDir = ClientBase.createEmptyTestDir();
-        FileTxnSnapLog fileTxnSnapLog = new FileTxnSnapLog(new File(tmpDir, "data"), new File(tmpDir, "data_txnlog"));
+		File tmpDir = ClientBase.createEmptyTestDir();
+		FileTxnSnapLog fileTxnSnapLog = new FileTxnSnapLog(new File(tmpDir, "data"), new File(tmpDir, "data_txnlog"));
 
-        ZooKeeperServer zks = new ZooKeeperServer();
-        zks.setTxnLogFactory(fileTxnSnapLog);
+		ZooKeeperServer zks = new ZooKeeperServer();
+		zks.setTxnLogFactory(fileTxnSnapLog);
 
-        ZooKeeperServerBean serverBean = new ZooKeeperServerBean(zks);
-        long elapsedTime = serverBean.getTxnLogElapsedSyncTime();
-        assertEquals(-1, elapsedTime);
+		ZooKeeperServerBean serverBean = new ZooKeeperServerBean(zks);
+		long elapsedTime = serverBean.getTxnLogElapsedSyncTime();
+		assertEquals(-1, elapsedTime);
 
-        TxnHeader hdr = new TxnHeader(1, 1, 1, 1, ZooDefs.OpCode.setData);
-        Record txn = new SetDataTxn("/foo", new byte[0], 1);
-        Request req = new Request(0, 0, 0, hdr, txn, 0);
+		TxnHeader hdr = new TxnHeader(1, 1, 1, 1, ZooDefs.OpCode.setData);
+		Record txn = new SetDataTxn("/foo", new byte[0], 1);
+		Request req = new Request(0, 0, 0, hdr, txn, 0);
 
-        try {
+		try {
 
-            zks.getTxnLogFactory().append(req);
-            zks.getTxnLogFactory().commit();
-            elapsedTime = serverBean.getTxnLogElapsedSyncTime();
+			zks.getTxnLogFactory().append(req);
+			zks.getTxnLogFactory().commit();
+			elapsedTime = serverBean.getTxnLogElapsedSyncTime();
 
-            assertNotEquals(-1, elapsedTime);
+			assertNotEquals(-1, elapsedTime);
 
-            assertEquals(elapsedTime, serverBean.getTxnLogElapsedSyncTime());
+			assertEquals(elapsedTime, serverBean.getTxnLogElapsedSyncTime());
 
-        } finally {
-            fileTxnSnapLog.close();
-        }
-    }
+		} finally {
+			fileTxnSnapLog.close();
+		}
+	}
 
-    @Test
-    public void testGetSecureClientPort() throws IOException {
-        ZooKeeperServer zks = new ZooKeeperServer();
-        /**
-         * case 1: When secure client is not configured GetSecureClientPort
-         * should return empty string
-         */
-        ZooKeeperServerBean serverBean = new ZooKeeperServerBean(zks);
-        String result = serverBean.getSecureClientPort();
-        assertEquals("", result);
+	@Test
+	public void testGetSecureClientPort() throws IOException {
+		ZooKeeperServer zks = new ZooKeeperServer();
+		/**
+		 * case 1: When secure client is not configured GetSecureClientPort
+		 * should return empty string
+		 */
+		ZooKeeperServerBean serverBean = new ZooKeeperServerBean(zks);
+		String result = serverBean.getSecureClientPort();
+		assertEquals("", result);
 
-        /**
-         * case 2: When secure client is configured GetSecureClientPort should
-         * return configured port
-         */
+		/**
+		 * case 2: When secure client is configured GetSecureClientPort should
+		 * return configured port
+		 */
 
-        ServerCnxnFactory cnxnFactory = ServerCnxnFactory.createFactory();
-        int secureClientPort = 8443;
-        InetSocketAddress address = new InetSocketAddress(secureClientPort);
-        cnxnFactory.configure(address, 5, -1, true);
-        zks.setSecureServerCnxnFactory(cnxnFactory);
+		ServerCnxnFactory cnxnFactory = ServerCnxnFactory.createFactory();
+		int secureClientPort = 8443;
+		InetSocketAddress address = new InetSocketAddress(secureClientPort);
+		cnxnFactory.configure(address, 5, -1, true);
+		zks.setSecureServerCnxnFactory(cnxnFactory);
 
-        result = serverBean.getSecureClientPort();
-        assertEquals(Integer.toString(secureClientPort), result);
+		result = serverBean.getSecureClientPort();
+		assertEquals(Integer.toString(secureClientPort), result);
 
-        // cleanup
-        cnxnFactory.shutdown();
+		// cleanup
+		cnxnFactory.shutdown();
 
-    }
+	}
 
-    @Test
-    public void testGetSecureClientAddress() throws IOException {
-        ZooKeeperServer zks = new ZooKeeperServer();
-        /**
-         * case 1: When secure client is not configured getSecureClientAddress
-         * should return empty string
-         */
-        ZooKeeperServerBean serverBean = new ZooKeeperServerBean(zks);
-        String result = serverBean.getSecureClientPort();
-        assertEquals("", result);
+	@Test
+	public void testGetSecureClientAddress() throws IOException {
+		ZooKeeperServer zks = new ZooKeeperServer();
+		/**
+		 * case 1: When secure client is not configured getSecureClientAddress
+		 * should return empty string
+		 */
+		ZooKeeperServerBean serverBean = new ZooKeeperServerBean(zks);
+		String result = serverBean.getSecureClientPort();
+		assertEquals("", result);
 
-        /**
-         * case 2: When secure client is configured getSecureClientAddress
-         * should return configured SecureClientAddress
-         */
+		/**
+		 * case 2: When secure client is configured getSecureClientAddress
+		 * should return configured SecureClientAddress
+		 */
 
-        ServerCnxnFactory cnxnFactory = ServerCnxnFactory.createFactory();
-        int secureClientPort = 8443;
-        InetSocketAddress address = new InetSocketAddress(secureClientPort);
-        cnxnFactory.configure(address, 5, -1, true);
-        zks.setSecureServerCnxnFactory(cnxnFactory);
+		ServerCnxnFactory cnxnFactory = ServerCnxnFactory.createFactory();
+		int secureClientPort = 8443;
+		InetSocketAddress address = new InetSocketAddress(secureClientPort);
+		cnxnFactory.configure(address, 5, -1, true);
+		zks.setSecureServerCnxnFactory(cnxnFactory);
 
-        result = serverBean.getSecureClientAddress();
-        String ipv4 = "0.0.0.0:" + secureClientPort;
-        String ipv6 = "0:0:0:0:0:0:0:0:" + secureClientPort;
-        assertTrue(result.equals(ipv4) || result.equals(ipv6));
+		result = serverBean.getSecureClientAddress();
+		String ipv4 = "0.0.0.0:" + secureClientPort;
+		String ipv6 = "0:0:0:0:0:0:0:0:" + secureClientPort;
+		assertTrue(result.equals(ipv4) || result.equals(ipv6));
 
-        // cleanup
-        cnxnFactory.shutdown();
-    }
+		// cleanup
+		cnxnFactory.shutdown();
+	}
 
 }

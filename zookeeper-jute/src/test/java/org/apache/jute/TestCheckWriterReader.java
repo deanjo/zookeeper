@@ -19,6 +19,7 @@
 package org.apache.jute;
 
 import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,32 +30,32 @@ import java.io.OutputStream;
  * TestOutputArchive creates an output archive from a given outputstream.
  */
 interface TestOutputArchive {
-    OutputArchive getArchive(OutputStream os) throws IOException;
+	OutputArchive getArchive(OutputStream os) throws IOException;
 }
 
 interface TestInputArchive {
-    InputArchive getArchive(InputStream is) throws IOException;
+	InputArchive getArchive(InputStream is) throws IOException;
 }
 
 class TestCheckWriterReader {
 
-    static void checkWriterAndReader(
-            TestOutputArchive output, TestInputArchive input,
-            TestWriter writer, TestReader reader) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            OutputArchive oa = output.getArchive(baos);
-            writer.write(oa);
-        } catch (IOException e) {
-            fail("Should not throw IOException while writing");
-        }
-        InputStream is = new ByteArrayInputStream(baos.toByteArray());
-        try {
-            InputArchive ia = input.getArchive(is);
-            reader.read(ia);
-        } catch (IOException e) {
-            fail("Should not throw IOException while reading back");
-        }
-    }
+	static void checkWriterAndReader(
+		TestOutputArchive output, TestInputArchive input,
+		TestWriter writer, TestReader reader) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			OutputArchive oa = output.getArchive(baos);
+			writer.write(oa);
+		} catch (IOException e) {
+			fail("Should not throw IOException while writing");
+		}
+		InputStream is = new ByteArrayInputStream(baos.toByteArray());
+		try {
+			InputArchive ia = input.getArchive(is);
+			reader.read(ia);
+		} catch (IOException e) {
+			fail("Should not throw IOException while reading back");
+		}
+	}
 
 }

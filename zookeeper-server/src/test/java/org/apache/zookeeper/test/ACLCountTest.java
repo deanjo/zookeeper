@@ -21,9 +21,11 @@ package org.apache.zookeeper.test;
 import static org.apache.zookeeper.test.ClientBase.CONNECTION_TIMEOUT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.PortAssignment;
 import org.apache.zookeeper.ZKTestCase;
@@ -41,69 +43,68 @@ import org.slf4j.LoggerFactory;
 
 public class ACLCountTest extends ZKTestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ACLCountTest.class);
-    private static final String HOSTPORT = "127.0.0.1:" + PortAssignment.unique();
+	private static final Logger LOG = LoggerFactory.getLogger(ACLCountTest.class);
+	private static final String HOSTPORT = "127.0.0.1:" + PortAssignment.unique();
 
-    /**
-     *
-     * Create a node and add 4 ACL values to it, but there are only 2 unique ACL values,
-     * and each is repeated once:
-     *
-     *   ACL(ZooDefs.Perms.READ,ZooDefs.Ids.ANYONE_ID_UNSAFE);
-     *   ACL(ZooDefs.Perms.ALL,ZooDefs.Ids.AUTH_IDS);
-     *   ACL(ZooDefs.Perms.READ,ZooDefs.Ids.ANYONE_ID_UNSAFE);
-     *   ACL(ZooDefs.Perms.ALL,ZooDefs.Ids.AUTH_IDS);
-     *
-     * Even though we've added 4 ACL values, there should only be 2 ACLs for that node,
-     * since there are only 2 *unique* ACL values.
-     */
-    @Test
-    public void testAclCount() throws Exception {
-        File tmpDir = ClientBase.createTmpDir();
-        ClientBase.setupTestEnv();
-        ZooKeeperServer zks = new ZooKeeperServer(tmpDir, tmpDir, 3000);
-        SyncRequestProcessor.setSnapCount(1000);
-        final int PORT = Integer.parseInt(HOSTPORT.split(":")[1]);
-        ServerCnxnFactory f = ServerCnxnFactory.createFactory(PORT, -1);
-        f.startup(zks);
-        ZooKeeper zk;
+	/**
+	 * Create a node and add 4 ACL values to it, but there are only 2 unique ACL values,
+	 * and each is repeated once:
+	 * <p>
+	 * ACL(ZooDefs.Perms.READ,ZooDefs.Ids.ANYONE_ID_UNSAFE);
+	 * ACL(ZooDefs.Perms.ALL,ZooDefs.Ids.AUTH_IDS);
+	 * ACL(ZooDefs.Perms.READ,ZooDefs.Ids.ANYONE_ID_UNSAFE);
+	 * ACL(ZooDefs.Perms.ALL,ZooDefs.Ids.AUTH_IDS);
+	 * <p>
+	 * Even though we've added 4 ACL values, there should only be 2 ACLs for that node,
+	 * since there are only 2 *unique* ACL values.
+	 */
+	@Test
+	public void testAclCount() throws Exception {
+		File tmpDir = ClientBase.createTmpDir();
+		ClientBase.setupTestEnv();
+		ZooKeeperServer zks = new ZooKeeperServer(tmpDir, tmpDir, 3000);
+		SyncRequestProcessor.setSnapCount(1000);
+		final int PORT = Integer.parseInt(HOSTPORT.split(":")[1]);
+		ServerCnxnFactory f = ServerCnxnFactory.createFactory(PORT, -1);
+		f.startup(zks);
+		ZooKeeper zk;
 
-        final ArrayList<ACL> CREATOR_ALL_AND_WORLD_READABLE = new ArrayList<ACL>() {
-            {
-                add(new ACL(ZooDefs.Perms.READ, ZooDefs.Ids.ANYONE_ID_UNSAFE));
-                add(new ACL(ZooDefs.Perms.ALL, ZooDefs.Ids.AUTH_IDS));
-                add(new ACL(ZooDefs.Perms.READ, ZooDefs.Ids.ANYONE_ID_UNSAFE));
-                add(new ACL(ZooDefs.Perms.ALL, ZooDefs.Ids.AUTH_IDS));
-            }
-        };
+		final ArrayList<ACL> CREATOR_ALL_AND_WORLD_READABLE = new ArrayList<ACL>() {
+			{
+				add(new ACL(ZooDefs.Perms.READ, ZooDefs.Ids.ANYONE_ID_UNSAFE));
+				add(new ACL(ZooDefs.Perms.ALL, ZooDefs.Ids.AUTH_IDS));
+				add(new ACL(ZooDefs.Perms.READ, ZooDefs.Ids.ANYONE_ID_UNSAFE));
+				add(new ACL(ZooDefs.Perms.ALL, ZooDefs.Ids.AUTH_IDS));
+			}
+		};
 
-        try {
-            LOG.info("starting up the zookeeper server .. waiting");
-            assertTrue("waiting for server being up", ClientBase.waitForServerUp(HOSTPORT, CONNECTION_TIMEOUT));
-            zk = ClientBase.createZKClient(HOSTPORT);
+		try {
+			LOG.info("starting up the zookeeper server .. waiting");
+			assertTrue("waiting for server being up", ClientBase.waitForServerUp(HOSTPORT, CONNECTION_TIMEOUT));
+			zk = ClientBase.createZKClient(HOSTPORT);
 
-            zk.addAuthInfo("digest", "pat:test".getBytes());
-            zk.setACL("/", Ids.CREATOR_ALL_ACL, -1);
+			zk.addAuthInfo("digest", "pat:test".getBytes());
+			zk.setACL("/", Ids.CREATOR_ALL_ACL, -1);
 
-            String path = "/path";
+			String path = "/path";
 
-            try {
-                assertEquals(4, CREATOR_ALL_AND_WORLD_READABLE.size());
-            } catch (Exception e) {
-                LOG.error("Something is fundamentally wrong with ArrayList's add() method. add()ing four times to an empty ArrayList should result in an ArrayList with 4 members.");
-                throw e;
-            }
+			try {
+				assertEquals(4, CREATOR_ALL_AND_WORLD_READABLE.size());
+			} catch (Exception e) {
+				LOG.error("Something is fundamentally wrong with ArrayList's add() method. add()ing four times to an empty ArrayList should result in an ArrayList with 4 members.");
+				throw e;
+			}
 
-            zk.create(path, path.getBytes(), CREATOR_ALL_AND_WORLD_READABLE, CreateMode.PERSISTENT);
-            List<ACL> acls = zk.getACL("/path", new Stat());
-            assertEquals(2, acls.size());
-        } catch (Exception e) {
-            // test failed somehow.
-            assertTrue(false);
-        }
+			zk.create(path, path.getBytes(), CREATOR_ALL_AND_WORLD_READABLE, CreateMode.PERSISTENT);
+			List<ACL> acls = zk.getACL("/path", new Stat());
+			assertEquals(2, acls.size());
+		} catch (Exception e) {
+			// test failed somehow.
+			assertTrue(false);
+		}
 
-        f.shutdown();
-        zks.shutdown();
-    }
+		f.shutdown();
+		zks.shutdown();
+	}
 
 }

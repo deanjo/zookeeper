@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 
 /**
  * A MetricsProvider is a system which collects Metrics and publishes current values to external facilities.
- *
+ * <p>
  * The system will create an instance of the configured class using the default constructor, which must be public.<br>
  * After the instantiation of the provider, the system will call {@link #configure(java.util.Properties) } in order to provide configuration,
  * and then when the system is ready to work it will call {@link #start() }.
@@ -32,49 +32,49 @@ import java.util.function.BiConsumer;
  */
 public interface MetricsProvider {
 
-    /**
-     * Configure the provider.
-     *
-     * @param configuration the configuration.
-     *
-     * @throws MetricsProviderLifeCycleException in case of invalid configuration.
-     */
-    void configure(Properties configuration) throws MetricsProviderLifeCycleException;
+	/**
+	 * Configure the provider.
+	 *
+	 * @param configuration the configuration.
+	 * @throws MetricsProviderLifeCycleException in case of invalid configuration.
+	 */
+	void configure(Properties configuration) throws MetricsProviderLifeCycleException;
 
-    /**
-     * Start the provider.
-     * For instance such method will start a network endpoint.
-     *
-     * @throws MetricsProviderLifeCycleException in case of failure
-     */
-    void start() throws MetricsProviderLifeCycleException;
+	/**
+	 * Start the provider.
+	 * For instance such method will start a network endpoint.
+	 *
+	 * @throws MetricsProviderLifeCycleException in case of failure
+	 */
+	void start() throws MetricsProviderLifeCycleException;
 
-    /**
-     * Provides access to the root context.
-     *
-     * @return the root context
-     */
-    MetricsContext getRootContext();
+	/**
+	 * Provides access to the root context.
+	 *
+	 * @return the root context
+	 */
+	MetricsContext getRootContext();
 
-    /**
-     * Releases resources held by the provider.<br>
-     * This method must not throw exceptions.<br>
-     * This method can be called more than once.
-     */
-    void stop();
+	/**
+	 * Releases resources held by the provider.<br>
+	 * This method must not throw exceptions.<br>
+	 * This method can be called more than once.
+	 */
+	void stop();
 
-    /**
-     * Dumps all metrics as a key-value pair.
-     * This method will be used in legacy monitor command.
-     * @param sink the receiver of all of the current values.
-     */
-    void dump(BiConsumer<String, Object> sink);
+	/**
+	 * Dumps all metrics as a key-value pair.
+	 * This method will be used in legacy monitor command.
+	 *
+	 * @param sink the receiver of all of the current values.
+	 */
+	void dump(BiConsumer<String, Object> sink);
 
-    /**
-     * Reset all values.
-     * This method is optional and can be noop, depending
-     * on the underlying implementation.
-     */
-    void resetAllValues();
+	/**
+	 * Reset all values.
+	 * This method is optional and can be noop, depending
+	 * on the underlying implementation.
+	 */
+	void resetAllValues();
 
 }

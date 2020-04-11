@@ -19,6 +19,7 @@
 package org.apache.zookeeper.server.quorum;
 
 import java.util.stream.Collectors;
+
 import org.apache.zookeeper.jmx.ZKMBeanInfo;
 
 /**
@@ -27,51 +28,52 @@ import org.apache.zookeeper.jmx.ZKMBeanInfo;
  */
 public class RemotePeerBean implements RemotePeerMXBean, ZKMBeanInfo {
 
-    private QuorumPeer.QuorumServer peer;
-    private final QuorumPeer localPeer;
+	private QuorumPeer.QuorumServer peer;
+	private final QuorumPeer localPeer;
 
-    public RemotePeerBean(QuorumPeer localPeer, QuorumPeer.QuorumServer peer) {
-        this.peer = peer;
-        this.localPeer = localPeer;
-    }
+	public RemotePeerBean(QuorumPeer localPeer, QuorumPeer.QuorumServer peer) {
+		this.peer = peer;
+		this.localPeer = localPeer;
+	}
 
-    public void setQuorumServer(QuorumPeer.QuorumServer peer) {
-        this.peer = peer;
-    }
+	public void setQuorumServer(QuorumPeer.QuorumServer peer) {
+		this.peer = peer;
+	}
 
-    public String getName() {
-        return "replica." + peer.id;
-    }
-    public boolean isHidden() {
-        return false;
-    }
+	public String getName() {
+		return "replica." + peer.id;
+	}
 
-    public String getQuorumAddress() {
-        return peer.addr.getAllAddresses().stream()
-                .map(address -> String.format("%s:%d", address.getHostString(), address.getPort()))
-                .collect(Collectors.joining("|"));
-    }
+	public boolean isHidden() {
+		return false;
+	}
 
-    public String getElectionAddress() {
-        return peer.electionAddr.getAllAddresses().stream()
-                .map(address -> String.format("%s:%d", address.getHostString(), address.getPort()))
-                .collect(Collectors.joining("|"));
-    }
+	public String getQuorumAddress() {
+		return peer.addr.getAllAddresses().stream()
+			.map(address -> String.format("%s:%d", address.getHostString(), address.getPort()))
+			.collect(Collectors.joining("|"));
+	}
 
-    public String getClientAddress() {
-        if (null == peer.clientAddr) {
-            return "";
-        }
-        return peer.clientAddr.getHostString() + ":" + peer.clientAddr.getPort();
-    }
+	public String getElectionAddress() {
+		return peer.electionAddr.getAllAddresses().stream()
+			.map(address -> String.format("%s:%d", address.getHostString(), address.getPort()))
+			.collect(Collectors.joining("|"));
+	}
 
-    public String getLearnerType() {
-        return peer.type.toString();
-    }
+	public String getClientAddress() {
+		if (null == peer.clientAddr) {
+			return "";
+		}
+		return peer.clientAddr.getHostString() + ":" + peer.clientAddr.getPort();
+	}
 
-    @Override
-    public boolean isLeader() {
-        return localPeer.isLeader(peer.getId());
-    }
+	public String getLearnerType() {
+		return peer.type.toString();
+	}
+
+	@Override
+	public boolean isLeader() {
+		return localPeer.isLeader(peer.getId());
+	}
 
 }

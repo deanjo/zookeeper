@@ -22,60 +22,60 @@ package org.apache.zookeeper.server.util;
  * This incremental hash is used to keep track of the hash of
  * the data tree to that we can quickly validate that things
  * are in sync.
- *
+ * <p>
  * See the excellent paper: A New Paradigm for collision-free hashing:
- *   Incrementality at reduced cost,  M. Bellare and D. Micciancio
+ * Incrementality at reduced cost,  M. Bellare and D. Micciancio
  */
 public class AdHash {
 
-    /* we use 64 bits so that we can be fast an efficient */
-    private volatile long hash;
+	/* we use 64 bits so that we can be fast an efficient */
+	private volatile long hash;
 
-    /**
-     * Add new digest to the hash value maintained in this class.
-     *
-     * @param digest the value to add on
-     * @return the AdHash itself for chained operations
-     */
-    public AdHash addDigest(long digest) {
-        hash += digest;
-        return this;
-    }
+	/**
+	 * Add new digest to the hash value maintained in this class.
+	 *
+	 * @param digest the value to add on
+	 * @return the AdHash itself for chained operations
+	 */
+	public AdHash addDigest(long digest) {
+		hash += digest;
+		return this;
+	}
 
-    /**
-     * Remove the digest from the hash value.
-     *
-     * @param digest the value to remove
-     * @return the AdHash itself for chained operations
-     */
-    public AdHash removeDigest(long digest) {
-        hash -= digest;
-        return this;
-    }
+	/**
+	 * Remove the digest from the hash value.
+	 *
+	 * @param digest the value to remove
+	 * @return the AdHash itself for chained operations
+	 */
+	public AdHash removeDigest(long digest) {
+		hash -= digest;
+		return this;
+	}
 
-    /**
-     * Return the long value of the hash.
-     */
-    public long getHash() {
-        return hash;
-    }
+	/**
+	 * Return the long value of the hash.
+	 */
+	public long getHash() {
+		return hash;
+	}
 
-    @Override
-    public boolean equals(Object other) {
-        return other instanceof AdHash && ((AdHash) other).hash == this.hash;
-    }
+	@Override
+	public boolean equals(Object other) {
+		return other instanceof AdHash && ((AdHash) other).hash == this.hash;
+	}
 
-    @Override
-    public int hashCode() {
-        return Long.hashCode(hash);
-    }
+	@Override
+	public int hashCode() {
+		return Long.hashCode(hash);
+	}
 
-    @Override
-    public String toString() {
-        return Long.toHexString(hash);
-    }
+	@Override
+	public String toString() {
+		return Long.toHexString(hash);
+	}
 
-    public void clear() {
-        hash = 0;
-    }
+	public void clear() {
+		hash = 0;
+	}
 }

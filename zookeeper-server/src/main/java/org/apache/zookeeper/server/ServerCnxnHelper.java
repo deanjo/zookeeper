@@ -20,16 +20,18 @@ package org.apache.zookeeper.server;
 
 public class ServerCnxnHelper {
 
-    /** gets maximum number of connections in ZooKeeper */
-    public static int getMaxCnxns(ServerCnxnFactory secureServerCnxnFactory, ServerCnxnFactory serverCnxnFactory) {
-        if (serverCnxnFactory != null) {
-            return serverCnxnFactory.getMaxCnxns();
-        }
-        if (secureServerCnxnFactory != null) {
-            return secureServerCnxnFactory.getMaxCnxns();
-        }
-        // default
-        return ServerCnxnFactory.ZOOKEEPER_MAX_CONNECTION_DEFAULT;
-    }
+	/**
+	 * gets maximum number of connections in ZooKeeper
+	 */
+	public static int getMaxCnxns(ServerCnxnFactory secureServerCnxnFactory, ServerCnxnFactory serverCnxnFactory) {
+		if (serverCnxnFactory != null) {
+			return serverCnxnFactory.getMaxCnxns();
+		}
+		if (secureServerCnxnFactory != null) {
+			return secureServerCnxnFactory.getMaxCnxns();
+		}
+		// default
+		return ServerCnxnFactory.ZOOKEEPER_MAX_CONNECTION_DEFAULT;
+	}
 
 }

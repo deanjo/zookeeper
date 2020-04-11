@@ -25,64 +25,64 @@ import org.apache.zookeeper.server.ZooKeeperServerMXBean;
  */
 public interface LeaderMXBean extends ZooKeeperServerMXBean {
 
-    /**
-     * Current zxid of cluster.
-     */
-    String getCurrentZxid();
+	/**
+	 * Current zxid of cluster.
+	 */
+	String getCurrentZxid();
 
-    /**
-     * @return information on current followers
-     */
-    String followerInfo();
+	/**
+	 * @return information on current followers
+	 */
+	String followerInfo();
 
-    /**
-     * @return information about current non-voting followers
-     */
-    String nonVotingFollowerInfo();
+	/**
+	 * @return information about current non-voting followers
+	 */
+	String nonVotingFollowerInfo();
 
-    /**
-     * @return time taken for leader election in milliseconds.
-     */
-    long getElectionTimeTaken();
+	/**
+	 * @return time taken for leader election in milliseconds.
+	 */
+	long getElectionTimeTaken();
 
-    /**
-     * @return size of latest generated proposal
-     */
-    int getLastProposalSize();
+	/**
+	 * @return size of latest generated proposal
+	 */
+	int getLastProposalSize();
 
-    /**
-     * @return size of smallest generated proposal
-     */
-    int getMinProposalSize();
+	/**
+	 * @return size of smallest generated proposal
+	 */
+	int getMinProposalSize();
 
-    /**
-     * @return size of largest generated proposal
-     */
-    int getMaxProposalSize();
+	/**
+	 * @return size of largest generated proposal
+	 */
+	int getMaxProposalSize();
 
-    /**
-     * Resets statistics of proposal size (min/max/last)
-     */
-    void resetProposalStatistics();
+	/**
+	 * Resets statistics of proposal size (min/max/last)
+	 */
+	void resetProposalStatistics();
 
-    /**
-     * @return Number of concurrent snapshots permitted to send to observers
-     */
-    int getMaxConcurrentSnapSyncs();
+	/**
+	 * @return Number of concurrent snapshots permitted to send to observers
+	 */
+	int getMaxConcurrentSnapSyncs();
 
-    /**
-     * @param maxConcurrentSnapSyncs Number of concurrent snapshots permitted to send to observers
-     */
-    void setMaxConcurrentSnapSyncs(int maxConcurrentSnapSyncs);
+	/**
+	 * @param maxConcurrentSnapSyncs Number of concurrent snapshots permitted to send to observers
+	 */
+	void setMaxConcurrentSnapSyncs(int maxConcurrentSnapSyncs);
 
-    /**
-     * @return Number of concurrent diff syncs permitted to send to observers
-     */
-    int getMaxConcurrentDiffSyncs();
+	/**
+	 * @return Number of concurrent diff syncs permitted to send to observers
+	 */
+	int getMaxConcurrentDiffSyncs();
 
-    /**
-     * @param maxConcurrentDiffSyncs Number of concurrent diff syncs permitted to send to observers
-     */
-    void setMaxConcurrentDiffSyncs(int maxConcurrentDiffSyncs);
+	/**
+	 * @param maxConcurrentDiffSyncs Number of concurrent diff syncs permitted to send to observers
+	 */
+	void setMaxConcurrentDiffSyncs(int maxConcurrentDiffSyncs);
 
 }

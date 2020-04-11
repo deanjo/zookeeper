@@ -19,9 +19,11 @@
 package org.apache.zookeeper.server;
 
 import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+
 import org.apache.zookeeper.ZKTestCase;
 import org.apache.zookeeper.server.metric.AvgMinMaxCounter;
 import org.apache.zookeeper.server.metric.SimpleCounter;
@@ -29,82 +31,82 @@ import org.junit.Test;
 
 public class ServerMetricsTest extends ZKTestCase {
 
-    private static final int RANDOM_TRIALS = 100;
-    private static final int RANDOM_SIZE = 100;
+	private static final int RANDOM_TRIALS = 100;
+	private static final int RANDOM_SIZE = 100;
 
-    private long[] generateRandomValues(int size) {
-        // Clamp range to prevent overflow in metric aggregation
-        final long[] values = new long[size];
-        if (size == 0) {
-            return values;
-        }
-        final long rangeMin = Long.MIN_VALUE / size;
-        final long rangeMax = Long.MAX_VALUE / size;
-        for (int i = 0; i < size; ++i) {
-            values[i] = ThreadLocalRandom.current().nextLong(rangeMin, rangeMax);
-        }
-        return values;
-    }
+	private long[] generateRandomValues(int size) {
+		// Clamp range to prevent overflow in metric aggregation
+		final long[] values = new long[size];
+		if (size == 0) {
+			return values;
+		}
+		final long rangeMin = Long.MIN_VALUE / size;
+		final long rangeMax = Long.MAX_VALUE / size;
+		for (int i = 0; i < size; ++i) {
+			values[i] = ThreadLocalRandom.current().nextLong(rangeMin, rangeMax);
+		}
+		return values;
+	}
 
-    @Test
-    public void testAvgMinMaxCounter() {
-        final AvgMinMaxCounter metric = new AvgMinMaxCounter("test");
-        testAvgMinMaxCounter(metric, 0);
-        testAvgMinMaxCounter(metric, 1);
-        for (int i = 0; i < RANDOM_TRIALS; ++i) {
-            testAvgMinMaxCounter(metric, RANDOM_SIZE);
-        }
-    }
+	@Test
+	public void testAvgMinMaxCounter() {
+		final AvgMinMaxCounter metric = new AvgMinMaxCounter("test");
+		testAvgMinMaxCounter(metric, 0);
+		testAvgMinMaxCounter(metric, 1);
+		for (int i = 0; i < RANDOM_TRIALS; ++i) {
+			testAvgMinMaxCounter(metric, RANDOM_SIZE);
+		}
+	}
 
-    private void testAvgMinMaxCounter(AvgMinMaxCounter metric, int size) {
-        final long[] values = generateRandomValues(size);
-        for (long value : values) {
-            metric.add(value);
-        }
-        long expectedMin = Arrays.stream(values).min().orElse(0);
-        long expectedMax = Arrays.stream(values).max().orElse(0);
-        long expectedSum = Arrays.stream(values).sum();
-        long expectedCnt = values.length;
-        double expectedAvg = expectedSum / Math.max(1, expectedCnt);
+	private void testAvgMinMaxCounter(AvgMinMaxCounter metric, int size) {
+		final long[] values = generateRandomValues(size);
+		for (long value : values) {
+			metric.add(value);
+		}
+		long expectedMin = Arrays.stream(values).min().orElse(0);
+		long expectedMax = Arrays.stream(values).max().orElse(0);
+		long expectedSum = Arrays.stream(values).sum();
+		long expectedCnt = values.length;
+		double expectedAvg = expectedSum / Math.max(1, expectedCnt);
 
-        assertEquals(expectedAvg, metric.getAvg(), 200);
-        assertEquals(expectedMin, metric.getMin());
-        assertEquals(expectedMax, metric.getMax());
-        assertEquals(expectedCnt, metric.getCount());
-        assertEquals(expectedSum, metric.getTotal());
+		assertEquals(expectedAvg, metric.getAvg(), 200);
+		assertEquals(expectedMin, metric.getMin());
+		assertEquals(expectedMax, metric.getMax());
+		assertEquals(expectedCnt, metric.getCount());
+		assertEquals(expectedSum, metric.getTotal());
 
-        final Map<String, Object> results = metric.values();
-        assertEquals(expectedMax, (long) results.get("max_test"));
-        assertEquals(expectedMin, (long) results.get("min_test"));
-        assertEquals(expectedCnt, (long) results.get("cnt_test"));
-        assertEquals(expectedAvg, (double) results.get("avg_test"), 200);
+		final Map<String, Object> results = metric.values();
+		assertEquals(expectedMax, (long) results.get("max_test"));
+		assertEquals(expectedMin, (long) results.get("min_test"));
+		assertEquals(expectedCnt, (long) results.get("cnt_test"));
+		assertEquals(expectedAvg, (double) results.get("avg_test"), 200);
 
-        metric.reset();
-    }
+		metric.reset();
+	}
 
-    @Test
-    public void testSimpleCounter() {
-        SimpleCounter metric = new SimpleCounter("test");
-        testSimpleCounter(metric, 0);
-        testSimpleCounter(metric, 1);
-        for (int i = 0; i < RANDOM_TRIALS; ++i) {
-            testSimpleCounter(metric, RANDOM_SIZE);
-        }
-    }
+	@Test
+	public void testSimpleCounter() {
+		SimpleCounter metric = new SimpleCounter("test");
+		testSimpleCounter(metric, 0);
+		testSimpleCounter(metric, 1);
+		for (int i = 0; i < RANDOM_TRIALS; ++i) {
+			testSimpleCounter(metric, RANDOM_SIZE);
+		}
+	}
 
-    private void testSimpleCounter(SimpleCounter metric, int size) {
-        final long[] values = generateRandomValues(size);
-        for (long value : values) {
-            metric.add(value);
-        }
+	private void testSimpleCounter(SimpleCounter metric, int size) {
+		final long[] values = generateRandomValues(size);
+		for (long value : values) {
+			metric.add(value);
+		}
 
-        long expectedCount = Arrays.stream(values).sum();
-        assertEquals(expectedCount, metric.get());
+		long expectedCount = Arrays.stream(values).sum();
+		assertEquals(expectedCount, metric.get());
 
-        final Map<String, Object> results = metric.values();
-        assertEquals(expectedCount, (long) results.get("test"));
+		final Map<String, Object> results = metric.values();
+		assertEquals(expectedCount, (long) results.get("test"));
 
-        metric.reset();
-    }
+		metric.reset();
+	}
 
 }

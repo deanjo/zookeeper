@@ -20,7 +20,9 @@ package org.apache.zookeeper.test;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
+
 import org.apache.zookeeper.ZKTestCase;
 import org.apache.zookeeper.server.quorum.QuorumPeer;
 import org.apache.zookeeper.server.quorum.QuorumStats;
@@ -30,46 +32,46 @@ import org.junit.Test;
 
 public class ObserverLETest extends ZKTestCase {
 
-    final QuorumBase qb = new QuorumBase();
-    final ClientTest ct = new ClientTest();
+	final QuorumBase qb = new QuorumBase();
+	final ClientTest ct = new ClientTest();
 
-    @Before
-    public void establishThreeParticipantOneObserverEnsemble() throws Exception {
-        qb.setUp(true);
-        ct.hostPort = qb.hostPort;
-        ct.setUpAll();
-        qb.s5.shutdown();
-    }
+	@Before
+	public void establishThreeParticipantOneObserverEnsemble() throws Exception {
+		qb.setUp(true);
+		ct.hostPort = qb.hostPort;
+		ct.setUpAll();
+		qb.s5.shutdown();
+	}
 
-    @After
-    public void shutdownQuorum() throws Exception {
-        ct.tearDownAll();
-        qb.tearDown();
-    }
+	@After
+	public void shutdownQuorum() throws Exception {
+		ct.tearDownAll();
+		qb.tearDown();
+	}
 
-    /**
-     * See ZOOKEEPER-1294. Confirms that an observer will not support the quorum
-     * of a leader by forming a 5-node, 2-observer ensemble (so quorum size is 2).
-     * When all but the leader and one observer are shut down, the leader should
-     * enter the 'looking' state, not stay in the 'leading' state.
-     */
-    @Test
-    public void testLEWithObserver() throws Exception {
-        QuorumPeer leader = null;
-        for (QuorumPeer server : Arrays.asList(qb.s1, qb.s2, qb.s3)) {
-            if (server.getServerState().equals(QuorumStats.Provider.FOLLOWING_STATE)) {
-                server.shutdown();
-                assertTrue(
-                        "Waiting for server down",
-                        ClientBase.waitForServerDown("127.0.0.1:" + server.getClientPort(), ClientBase.CONNECTION_TIMEOUT));
-            } else {
-                assertNull("More than one leader found", leader);
-                leader = server;
-            }
-        }
-        assertTrue(
-                "Leader is not in Looking state",
-                ClientBase.waitForServerState(leader, ClientBase.CONNECTION_TIMEOUT, QuorumStats.Provider.LOOKING_STATE));
-    }
+	/**
+	 * See ZOOKEEPER-1294. Confirms that an observer will not support the quorum
+	 * of a leader by forming a 5-node, 2-observer ensemble (so quorum size is 2).
+	 * When all but the leader and one observer are shut down, the leader should
+	 * enter the 'looking' state, not stay in the 'leading' state.
+	 */
+	@Test
+	public void testLEWithObserver() throws Exception {
+		QuorumPeer leader = null;
+		for (QuorumPeer server : Arrays.asList(qb.s1, qb.s2, qb.s3)) {
+			if (server.getServerState().equals(QuorumStats.Provider.FOLLOWING_STATE)) {
+				server.shutdown();
+				assertTrue(
+					"Waiting for server down",
+					ClientBase.waitForServerDown("127.0.0.1:" + server.getClientPort(), ClientBase.CONNECTION_TIMEOUT));
+			} else {
+				assertNull("More than one leader found", leader);
+				leader = server;
+			}
+		}
+		assertTrue(
+			"Leader is not in Looking state",
+			ClientBase.waitForServerState(leader, ClientBase.CONNECTION_TIMEOUT, QuorumStats.Provider.LOOKING_STATE));
+	}
 
 }

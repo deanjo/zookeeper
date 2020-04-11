@@ -23,15 +23,15 @@ package org.apache.zookeeper;
  */
 public class DummyWatcher implements Watcher {
 
-    public static final DummyWatcher INSTANCE = new DummyWatcher();
+	public static final DummyWatcher INSTANCE = new DummyWatcher();
 
-    @Override
-    public void process(WatchedEvent event) {
-        // no op
-    }
+	@Override
+	public void process(WatchedEvent event) {
+		// no op
+	}
 
-    private DummyWatcher() {
-        // singleton
-    }
+	private DummyWatcher() {
+		// singleton
+	}
 
 }

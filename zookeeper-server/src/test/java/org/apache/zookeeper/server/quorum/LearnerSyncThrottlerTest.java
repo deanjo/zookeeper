@@ -21,6 +21,7 @@ package org.apache.zookeeper.server.quorum;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,6 +31,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
 import org.apache.zookeeper.ZKTestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,129 +42,131 @@ import org.slf4j.LoggerFactory;
 @RunWith(Parameterized.class)
 public class LearnerSyncThrottlerTest extends ZKTestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LearnerSyncThrottlerTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LearnerSyncThrottlerTest.class);
 
-    private LearnerSyncThrottler.SyncType syncType;
-    public LearnerSyncThrottlerTest(LearnerSyncThrottler.SyncType syncType) {
-        this.syncType = syncType;
-    }
+	private LearnerSyncThrottler.SyncType syncType;
 
-    @Parameterized.Parameters
-    public static Collection syncTypes() {
-        return Arrays.asList(new Object[][]{{LearnerSyncThrottler.SyncType.DIFF}, {LearnerSyncThrottler.SyncType.SNAP}});
-    }
-    @Test(expected = SyncThrottleException.class)
-    public void testTooManySyncsNonessential() throws Exception {
-        LearnerSyncThrottler throttler = new LearnerSyncThrottler(5, syncType);
-        for (int i = 0; i < 6; i++) {
-            throttler.beginSync(false);
-        }
-    }
+	public LearnerSyncThrottlerTest(LearnerSyncThrottler.SyncType syncType) {
+		this.syncType = syncType;
+	}
 
-    @Test(expected = SyncThrottleException.class)
-    public void testTooManySyncsEssential() throws Exception {
-        LearnerSyncThrottler throttler = new LearnerSyncThrottler(5, syncType);
-        try {
-            for (int i = 0; i < 6; i++) {
-                throttler.beginSync(true);
-            }
-        } catch (SyncThrottleException ex) {
-            fail("essential syncs should not be throttled");
-        }
-        throttler.endSync();
-        throttler.beginSync(false);
-    }
+	@Parameterized.Parameters
+	public static Collection syncTypes() {
+		return Arrays.asList(new Object[][]{{LearnerSyncThrottler.SyncType.DIFF}, {LearnerSyncThrottler.SyncType.SNAP}});
+	}
 
-    @Test
-    public void testNoThrottle() throws Exception {
-        LearnerSyncThrottler throttler = new LearnerSyncThrottler(5, syncType);
-        try {
-            for (int i = 0; i < 6; i++) {
-                throttler.beginSync(true);
-            }
-        } catch (SyncThrottleException ex) {
-            fail("essential syncs should not be throttled");
-        }
-        throttler.endSync();
-        for (int i = 0; i < 5; i++) {
-            throttler.endSync();
-            throttler.beginSync(false);
-        }
-        assertTrue("should get here without exception", true);
-    }
+	@Test(expected = SyncThrottleException.class)
+	public void testTooManySyncsNonessential() throws Exception {
+		LearnerSyncThrottler throttler = new LearnerSyncThrottler(5, syncType);
+		for (int i = 0; i < 6; i++) {
+			throttler.beginSync(false);
+		}
+	}
 
-    @Test
-    public void testTryWithResourceNoThrottle() throws Exception {
-        LearnerSyncThrottler throttler = new LearnerSyncThrottler(1, syncType);
-        for (int i = 0; i < 3; i++) {
-            throttler.beginSync(false);
-            try {
-                assertEquals(1, throttler.getSyncInProgress());
-            } finally {
-                throttler.endSync();
-            }
-        }
-    }
+	@Test(expected = SyncThrottleException.class)
+	public void testTooManySyncsEssential() throws Exception {
+		LearnerSyncThrottler throttler = new LearnerSyncThrottler(5, syncType);
+		try {
+			for (int i = 0; i < 6; i++) {
+				throttler.beginSync(true);
+			}
+		} catch (SyncThrottleException ex) {
+			fail("essential syncs should not be throttled");
+		}
+		throttler.endSync();
+		throttler.beginSync(false);
+	}
 
-    @Test
-    public void testTryWithResourceThrottle() throws Exception {
-        LearnerSyncThrottler throttler = new LearnerSyncThrottler(1, syncType);
-        try {
-            throttler.beginSync(true);
-            try {
-                throttler.beginSync(false);
-                fail("shouldn't be able to have both syncs open");
-            } catch (SyncThrottleException e) {
-            }
-            throttler.endSync();
-        } catch (SyncThrottleException e) {
-            fail("First sync shouldn't be throttled");
-        }
-    }
+	@Test
+	public void testNoThrottle() throws Exception {
+		LearnerSyncThrottler throttler = new LearnerSyncThrottler(5, syncType);
+		try {
+			for (int i = 0; i < 6; i++) {
+				throttler.beginSync(true);
+			}
+		} catch (SyncThrottleException ex) {
+			fail("essential syncs should not be throttled");
+		}
+		throttler.endSync();
+		for (int i = 0; i < 5; i++) {
+			throttler.endSync();
+			throttler.beginSync(false);
+		}
+		assertTrue("should get here without exception", true);
+	}
 
-    @Test
-    public void testParallelNoThrottle() {
-        final int numThreads = 50;
+	@Test
+	public void testTryWithResourceNoThrottle() throws Exception {
+		LearnerSyncThrottler throttler = new LearnerSyncThrottler(1, syncType);
+		for (int i = 0; i < 3; i++) {
+			throttler.beginSync(false);
+			try {
+				assertEquals(1, throttler.getSyncInProgress());
+			} finally {
+				throttler.endSync();
+			}
+		}
+	}
 
-        final LearnerSyncThrottler throttler = new LearnerSyncThrottler(numThreads, syncType);
-        ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
-        final CountDownLatch threadStartLatch = new CountDownLatch(numThreads);
-        final CountDownLatch syncProgressLatch = new CountDownLatch(numThreads);
+	@Test
+	public void testTryWithResourceThrottle() throws Exception {
+		LearnerSyncThrottler throttler = new LearnerSyncThrottler(1, syncType);
+		try {
+			throttler.beginSync(true);
+			try {
+				throttler.beginSync(false);
+				fail("shouldn't be able to have both syncs open");
+			} catch (SyncThrottleException e) {
+			}
+			throttler.endSync();
+		} catch (SyncThrottleException e) {
+			fail("First sync shouldn't be throttled");
+		}
+	}
 
-        List<Future<Boolean>> results = new ArrayList<Future<Boolean>>(numThreads);
-        for (int i = 0; i < numThreads; i++) {
-            results.add(threadPool.submit(new Callable<Boolean>() {
+	@Test
+	public void testParallelNoThrottle() {
+		final int numThreads = 50;
 
-                @Override
-                public Boolean call() {
-                    threadStartLatch.countDown();
-                    try {
-                        threadStartLatch.await();
+		final LearnerSyncThrottler throttler = new LearnerSyncThrottler(numThreads, syncType);
+		ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
+		final CountDownLatch threadStartLatch = new CountDownLatch(numThreads);
+		final CountDownLatch syncProgressLatch = new CountDownLatch(numThreads);
 
-                        throttler.beginSync(false);
+		List<Future<Boolean>> results = new ArrayList<Future<Boolean>>(numThreads);
+		for (int i = 0; i < numThreads; i++) {
+			results.add(threadPool.submit(new Callable<Boolean>() {
 
-                        syncProgressLatch.countDown();
-                        syncProgressLatch.await();
+				@Override
+				public Boolean call() {
+					threadStartLatch.countDown();
+					try {
+						threadStartLatch.await();
 
-                        throttler.endSync();
-                    } catch (Exception e) {
-                        return false;
-                    }
+						throttler.beginSync(false);
 
-                    return true;
-                }
-            }));
-        }
+						syncProgressLatch.countDown();
+						syncProgressLatch.await();
 
-        try {
-            for (Future<Boolean> result : results) {
-                assertTrue(result.get());
-            }
-        } catch (Exception e) {
+						throttler.endSync();
+					} catch (Exception e) {
+						return false;
+					}
 
-        } finally {
-            threadPool.shutdown();
-        }
-    }
+					return true;
+				}
+			}));
+		}
+
+		try {
+			for (Future<Boolean> result : results) {
+				assertTrue(result.get());
+			}
+		} catch (Exception e) {
+
+		} finally {
+			threadPool.shutdown();
+		}
+	}
 
 }
