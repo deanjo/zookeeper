@@ -234,6 +234,7 @@ public class FastLeaderElection implements Election {
 				while (!stop) {
 					// Sleeps on receive
 					try {
+						//从recvQueue队列的头部取出一个 投票信息
 						response = manager.pollRecvQueue(3000, TimeUnit.MILLISECONDS);
 						if (response == null) {
 							continue;
@@ -258,7 +259,6 @@ public class FastLeaderElection implements Election {
 						response.buffer.clear();
 
 						// Instantiate Notification and set its attributes
-						Notification n = new Notification();
 
 						int rstate = response.buffer.getInt();
 						long rleader = response.buffer.getLong();
@@ -336,6 +336,8 @@ public class FastLeaderElection implements Election {
 							continue;
 						}
 						/*
+						 * 如果投票来自 非投票服务器  比如观察者或者 无权投票的关注者
+						 * 则马上响应一个消息 消息由 自己的状态  zxid sid QuorumVerifier
 						 * If it is from a non-voting server (such as an observer or
 						 * a non-voting follower), respond right away.
 						 */
@@ -354,11 +356,13 @@ public class FastLeaderElection implements Election {
 
 							sendqueue.offer(notmsg);
 						} else {
+							// 真正的来自其他节点的投票信息
 							// Receive new message
 							LOG.debug("Receive new notification message. My id = {}", self.getId());
 
 							// State of peer that sent this message
 							QuorumPeer.ServerState ackstate = QuorumPeer.ServerState.LOOKING;
+							//rstate 发出投票消息对应节点的状态
 							switch (rstate) {
 								case 0:
 									ackstate = QuorumPeer.ServerState.LOOKING;
@@ -375,6 +379,9 @@ public class FastLeaderElection implements Election {
 								default:
 									continue;
 							}
+
+							//来自其他节点的投票消息 其实是一个应用层协议 消息字节解包成该对象
+							Notification n = new Notification();
 
 							n.leader = rleader;
 							n.zxid = rzxid;
@@ -400,10 +407,16 @@ public class FastLeaderElection implements Election {
 								Long.toHexString(n.version),
 								(n.qv != null ? (Long.toHexString(n.qv.getVersion())) : "0"));
 
-							/*
+							/**
+							 * LOOKING : 寻找Leader状态,处于该状态需要进入选举流程
+							 * LEADING : 领导者状态,表明当前角色为Leader
+							 * FOLLOWING: 跟随者,Leader已经选举出来,表明当前服务角色为Follower
+							 * OBSERVER: 观察者状态, 表明当前服务角色为Observer
+							 */
+							/**
+							 * 如果自己是LOOKING状态则 发送自己的投票消息
 							 * If this server is looking, then send proposed leader
 							 */
-
 							if (self.getPeerState() == QuorumPeer.ServerState.LOOKING) {
 								recvqueue.offer(n);
 
@@ -411,6 +424,13 @@ public class FastLeaderElection implements Election {
 								 * Send a notification back if the peer that sent this
 								 * message is also looking and its logical clock is
 								 * lagging behind.
+								 */
+								/**
+								 * 如果 发送投票消息的节点 状态是 LOOKING状态
+								 * 并且选举周期小于逻辑时钟 （TODO ？这里的逻辑时钟是什么？）
+								 * 然后创建新的投票 {@link Vote}
+								 * 并将 QuorumVerifier toString后发送出去
+								 * TODO QuorumVerifier 作用是什么？
 								 */
 								if ((ackstate == QuorumPeer.ServerState.LOOKING)
 									&& (n.electionEpoch < logicalclock.get())) {
@@ -428,12 +448,21 @@ public class FastLeaderElection implements Election {
 									sendqueue.offer(notmsg);
 								}
 							} else {
-								/*
+								/** 如果当前服务器不是 LOOKING状态 但是 发送投票消息的节点是 LOOKING
+								 *  就发送一个 自己认为谁是leader的投票消息
+								 *  当前节点不是  LOOKING 状态则表示 当前节点自己已有认同的leader节点了
+								 *
+								 *  注意
+								 *  这里的 Vote 是通过 self.getCurrentVote() 获取的
+								 *  上面的 Vote 是通过 getVote() 获取的
+								 *
 								 * If this server is not looking, but the one that sent the ack
 								 * is looking, then send back what it believes to be the leader.
 								 */
 								Vote current = self.getCurrentVote();
+								// ackstate 发送投票消息的节点的状态
 								if (ackstate == QuorumPeer.ServerState.LOOKING) {
+									//TODO ? 没懂这段代码森么意思
 									if (self.leader != null) {
 										if (leadingVoteSet != null) {
 											self.leader.setLeadingVoteSet(leadingVoteSet);
@@ -475,6 +504,7 @@ public class FastLeaderElection implements Election {
 		}
 
 		/**
+		 * 从sendqueue中取出ToSend消息 并发送
 		 * This worker simply dequeues a message to send and
 		 * and queues it on the manager's queue.
 		 */
@@ -493,6 +523,7 @@ public class FastLeaderElection implements Election {
 			public void run() {
 				while (!stop) {
 					try {
+						//
 						ToSend m = sendqueue.poll(3000, TimeUnit.MILLISECONDS);
 						if (m == null) {
 							continue;
